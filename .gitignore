@@ -1,0 +1,14 @@
+# grabaciones crudas, sesiones iniciadas y datos locales: nunca al repo
+recordings/
+**/state.json
+.env
+*.local.*
+
+# remotion
+remotion/node_modules/
+remotion/out/
+remotion/public/*.mp4
+
+# sistema
+.DS_Store
+__pycache__/
