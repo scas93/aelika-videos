@@ -135,6 +135,27 @@ const PrimaryBtn: React.FC<{label: React.ReactNode; top?: number; pressed?: bool
   );
 };
 
+/** Notificación de WhatsApp que baja desde arriba (solo el globito). */
+const WaBanner: React.FC<{p: number; from: string; children: React.ReactNode}> = ({p, from, children}) => {
+  if (p <= 0) return null;
+  return (
+    <div style={{position: 'absolute', top: 52 + (1 - p) * -130, left: 10, right: 10, zIndex: 60, borderRadius: 20, background: 'rgba(245,245,245,.97)', boxShadow: '0 8px 24px rgba(0,0,0,.18)', padding: '10px 12px', display: 'flex', gap: 10, alignItems: 'center'}}>
+      <div style={{width: 34, height: 34, borderRadius: 9, background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0}}>
+        <svg width="20" height="20" viewBox="0 0 24 24">
+          <path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z" fill="#fff" />
+        </svg>
+      </div>
+      <div style={{flex: 1, minWidth: 0}}>
+        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 13}}>
+          <b style={{fontWeight: 600}}>{from}</b>
+          <span style={{color: '#888', fontSize: 12}}>ahora</span>
+        </div>
+        <div style={{fontSize: 13, color: '#333', lineHeight: '17px'}}>{children}</div>
+      </div>
+    </div>
+  );
+};
+
 // ------------------------------------------------------------------ pantallas
 const Cover: React.FC<{f: number; d: ClassesData}> = ({f, d}) => {
   const {colors} = useBrand();
@@ -304,22 +325,9 @@ const Identify: React.FC<{f: number; d: ClassesData}> = ({f, d}) => {
           <div style={{position: 'absolute', top: 360, left: 0, right: 0, textAlign: 'center', fontSize: 13, color: colors.accentDark, opacity: prog(f, T.codeFill + 16, T.codeFill + 24)}}>✓ Código autocompletado</div>
         </div>
       )}
-      {banner > 0 && (
-        <div style={{position: 'absolute', top: 52 + (1 - banner) * -130, left: 10, right: 10, zIndex: 60, borderRadius: 20, background: 'rgba(245,245,245,.96)', boxShadow: '0 8px 24px rgba(0,0,0,.18)', padding: '10px 12px', display: 'flex', gap: 10, alignItems: 'center'}}>
-          <div style={{width: 34, height: 34, borderRadius: 9, background: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-            <svg width="20" height="20" viewBox="0 0 24 24">
-              <path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z" fill="#fff" />
-            </svg>
-          </div>
-          <div style={{flex: 1, minWidth: 0}}>
-            <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 13}}>
-              <b style={{fontWeight: 600}}>{d.codeFrom}</b>
-              <span style={{color: '#888', fontSize: 12}}>ahora</span>
-            </div>
-            <div style={{fontSize: 13, color: '#333'}}>Tu código de acceso es {d.customer.code}</div>
-          </div>
-        </div>
-      )}
+      <WaBanner p={banner} from={d.codeFrom}>
+        Tu código de acceso es {d.customer.code}
+      </WaBanner>
     </>
   );
 };
@@ -336,10 +344,10 @@ const Pay: React.FC<{f: number; d: ClassesData}> = ({f, d}) => {
   return (
     <>
       <Header title="" />
-      <div style={{position: 'absolute', top: 104, left: 20, right: 20, fontSize: 25, ...fontThin, lineHeight: 1.15}}>
-        ¿Cómo quieres pagar
+      <div style={{position: 'absolute', top: 104, left: 20, right: 20, fontSize: 23, ...fontThin, lineHeight: 1.2}}>
+        Hola, {d.customer.name.split(' ')[0]} 👋
         <br />
-        esta clase?
+        ¿cómo quieres pagar esta clase?
       </div>
       <div style={{position: 'absolute', top: 172, left: 20, right: 20, fontSize: 13, color: colors.muted}}>
         {c.name} · {d.days[d.pickDay][0][0] + d.days[d.pickDay][0].slice(1).toLowerCase()} {d.days[d.pickDay][1]} · {c.time} · {c.coach}
@@ -423,8 +431,12 @@ const Done: React.FC<{f: number; d: ClassesData}> = ({f, d}) => {
   const p = prog(f, s + 2, s + 16);
   const draw = prog(f, s + 10, s + 26);
   const dayShort = d.days[d.pickDay][0][0] + d.days[d.pickDay][0].slice(1).toLowerCase();
+  const banner = prog(f, s + 44, s + 56);
   return (
     <div style={{position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 170}}>
+      <WaBanner p={banner} from={d.codeFrom}>
+        ¡Lugar apartado, {d.customer.name.split(' ')[0]}! ✅ {c.name} con {c.coach} · {dayShort} {d.days[d.pickDay][1]} · {c.time}
+      </WaBanner>
       <div style={{width: 116, height: 116, borderRadius: '50%', background: colors.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${0.5 + 0.5 * p})`, opacity: p, boxShadow: `0 0 0 ${18 * p}px ${rgba(colors.accent, 0.18)}`}}>
         <svg width="60" height="60" viewBox="0 0 64 64">
           <path d="M16 33l11 11 22-24" fill="none" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="60" strokeDashoffset={60 * (1 - draw)} />
@@ -524,7 +536,7 @@ export const classesStorefront = (d: ClassesData): PhoneScene => {
       {at: T.sheetIn, text: sub.detail ?? 'Conoces la clase antes de reservar.'},
       {at: T.identify[0], text: sub.identify ?? 'Te identificas con tu WhatsApp.'},
       {at: T.pay[0], text: sub.pay ?? 'Compra tu paquete y reserva en el mismo paso.'},
-      {at: T.done[0], text: sub.done ?? 'Listo.'},
+      {at: T.done[0], text: sub.done ?? 'Listo. Y te confirma por WhatsApp.'},
     ],
   };
 };

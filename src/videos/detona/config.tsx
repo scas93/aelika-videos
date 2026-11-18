@@ -38,6 +38,7 @@ export const detona: VideoConfig = {
       link: 'reservas.detonabodywork.com',
       buttons: ['Seguir', 'Mensaje', 'WhatsApp'],
       tapButton: 2,
+      swipeHighlights: false,
       ring: true,
       highlights: [
         {image: A('hl0.png'), label: 'Horarios'},

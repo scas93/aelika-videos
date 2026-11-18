@@ -114,6 +114,8 @@ export type InstagramProfileData = {
   buttons?: string[];
   /** aro de historias alrededor del logo */
   ring?: boolean;
+  /** desliza las historias destacadas antes de tocar (por defecto sí) */
+  swipeHighlights?: boolean;
   /** si se indica, el cliente toca este botón (p. ej. "WhatsApp") en vez del link de la bio */
   tapButton?: number;
   time?: string;
@@ -135,7 +137,7 @@ const ProfileScreen: React.FC<{d: InstagramProfileData}> = ({d}) => {
   const f = useCurrentFrame();
   const {colors} = useBrand();
   const L = profileLayout(d.bio.length);
-  const scrollX = -prog(f, 35, 55) * 36;
+  const scrollX = d.swipeHighlights === false ? 0 : -prog(f, 35, 55) * 36;
   const linkTap = f >= LINK_TAP && d.tapButton === undefined;
   const btnTap = d.tapButton !== undefined && f >= LINK_TAP && f < LINK_TAP + 10 ? d.tapButton : -1;
   const btn = (label: React.ReactNode, w: number | string, blue?: boolean) => (
@@ -239,7 +241,7 @@ export const instagramProfile = (d: InstagramProfileData): PhoneScene => {
     enter: 'left',
     Component: () => <ProfileScreen d={d} />,
     taps: [
-      {f: 35, x: 300, y: L.highlights + 32, to: {x: 250, y: L.highlights + 32, d: 18}},
+      ...(d.swipeHighlights === false ? [] : [{f: 35, x: 300, y: L.highlights + 32, to: {x: 250, y: L.highlights + 32, d: 18}}]),
       d.tapButton === undefined ? {f: LINK_TAP, x: 140, y: L.linkTop + 10} : {f: LINK_TAP, ...buttonPos(d, L.buttons)},
     ],
     subtitles: [{at: 0, text: d.subtitle ?? 'Entras a su perfil.'}],
