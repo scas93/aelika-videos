@@ -19,6 +19,8 @@ export type PhoneScene = {
   /** cómo entra esta pantalla sobre la anterior */
   enter?: Enter;
   Component: React.FC;
+  /** capa opcional sobre el lienzo (fuera del teléfono), en frames locales */
+  Overlay?: React.FC;
   taps?: Tap[];
   zooms?: Zoom[];
   subtitles?: Sub[];

@@ -140,6 +140,13 @@ const Flow: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
           </Phone>
         </Camera>
       </Sequence>
+      {tl.scenes.map((s, i) =>
+        s.Overlay ? (
+          <Sequence key={'ov' + i} from={s.start} durationInFrames={s.duration + 20} layout="none">
+            <s.Overlay />
+          </Sequence>
+        ) : null,
+      )}
       {cfg.addons && (
         <Sequence from={tl.phoneEnd} durationInFrames={tl.addonsLen + 20} layout="none">
           <Addons {...cfg.addons} len={tl.addonsLen} />

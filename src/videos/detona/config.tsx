@@ -1,5 +1,5 @@
 import {VideoConfig} from '../../core/types';
-import {instagramProfile} from '../../scenes/instagram';
+import {entryPoints} from '../../scenes/entry-points';
 import {classesStorefront} from '../../scenes/storefront/classes';
 import {whatsappChat} from '../../scenes/whatsapp';
 
@@ -29,27 +29,15 @@ export const detona: VideoConfig = {
   },
 
   scenes: [
-    // ESCENA 1 — Gancho: perfil de Instagram y toque al botón de WhatsApp
-    instagramProfile({
-      username: 'detona_bodyworkout',
-      name: 'Detona',
-      stats: ['510', '16.4 mil', '154'],
-      bio: ['Movimiento que detona tu mejor versión', 'Estudio solo para mujeres 🧘‍♀️', '🤍 Gdl, Jalisco. Rubén Dario 425-108', 'Barre, Intensity Mat, Burn Up, Flow & Force'],
-      link: 'reservas.detonabodywork.com',
-      buttons: ['Seguir', 'Mensaje', 'WhatsApp'],
-      tapButton: 2,
-      swipeHighlights: false,
-      ring: true,
-      highlights: [
-        {image: A('hl0.png'), label: 'Horarios'},
-        {image: A('hl1.png'), label: 'Breakfast'},
-        {image: A('hl2.png'), label: 'Ustedes 💗'},
-        {image: A('hl3.png'), label: 'POCARI 💦'},
-        {image: A('hl4.png'), label: 'HM 🍯'},
-      ],
-      grid: [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => A(`feed${i}.jpg`)),
-      time: '10:14',
-      subtitle: 'Tus alumnas te encuentran en Instagram…',
+    // ESCENA 1 — Llegan de donde sea (Maps, Instagram, web, QR) y todo empieza en WhatsApp
+    entryPoints({
+      name: 'Detona Body Work',
+      handle: 'detona_bodyworkout',
+      category: 'Estudio de fitness',
+      rating: '4.9',
+      reviews: '128',
+      web: 'detonabodywork.com',
+      subtitles: ['Tus alumnas llegan de donde sea…', '…y todo empieza en tu WhatsApp.'],
     }),
 
     // ESCENA 2 — WhatsApp: menú y preguntas frecuentes

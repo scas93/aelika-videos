@@ -47,6 +47,7 @@ node scripts/stills.mjs CasaOccidente out/stills 140 520 1300
 
 | Escena | Función | Duración | Qué hace el dedo |
 |---|---|---|---|
+| Puntos de entrada | `entryPoints({...})` | 5 s | Tarjetas de Google Maps, Instagram, sitio web y QR tocan WhatsApp y convergen en el teléfono |
 | Post de Instagram | `instagramPost({...})` | 3 s | Doble toque (like) y toca la cuenta |
 | Perfil de Instagram | `instagramProfile({...})` | 4 s | Desliza las historias y toca el link de la bio |
 | Linktree | `linktree({...})` | 3 s | Toca uno de los botones |
