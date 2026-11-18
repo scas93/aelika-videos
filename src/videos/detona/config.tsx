@@ -49,7 +49,7 @@ export const detona: VideoConfig = {
       ],
       grid: [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => A(`feed${i}.jpg`)),
       time: '10:14',
-      subtitle: '¿Reservar tu clase sin llamadas ni apps?',
+      subtitle: 'Tus alumnas te encuentran en Instagram…',
     }),
 
     // ESCENA 2 — WhatsApp: menú y preguntas frecuentes
@@ -59,7 +59,7 @@ export const detona: VideoConfig = {
       time: '10:14',
       notice: true,
       script: [
-        {from: 'user', text: 'Hola', sub: 'Te escribe directo a su WhatsApp.'},
+        {from: 'user', text: 'Hola', sub: '…y te escriben directo a tu WhatsApp.'},
         {
           from: 'bot',
           text: '¡Hola! Bienvenida a *Detona Body Work* 🤍 Elige una opción para continuar:',
@@ -67,14 +67,14 @@ export const detona: VideoConfig = {
             items: ['Reservar clase', 'Horarios', 'Paquetes y precios', 'Ubicación'],
             note: 'Si prefieres atención personalizada, escribe la palabra "asesor" y con gusto te atendemos.',
           },
-          sub: 'Te responde al instante con un menú.',
+          sub: 'Tu asistente les responde al instante.',
           pause: 50,
           tapMenu: 1,
         },
         {
           from: 'bot',
           text: 'Tenemos clases de lunes a viernes de 06:00 a 21:00 y sábados de 08:00 a 13:00 🕘',
-          sub: 'Resuelve tus dudas al momento.',
+          sub: 'Resuelve sus dudas sin que tú contestes.',
           buttons: ['Reservar clase', 'Ver paquetes'],
           tapButton: 0,
           pause: 34,
@@ -86,7 +86,7 @@ export const detona: VideoConfig = {
           tap: true,
           zoom: true,
           typing: 18,
-          sub: 'Y te manda directo a reservar.',
+          sub: 'Y las manda directo a reservar.',
         },
       ],
     }),
@@ -130,6 +130,15 @@ export const detona: VideoConfig = {
       },
       customer: {name: 'Valeria Gómez', phone: '33 1987 6543', code: '4827'},
       codeFrom: 'Detona Body Work',
+      subtitles: {
+        cover: 'Tu propia página de reservas, con tu marca.',
+        schedule: 'Ven clases y lugares disponibles en tiempo real.',
+        filter: 'Filtran por clase o instructora.',
+        detail: 'Conocen la clase antes de reservar.',
+        identify: 'Se identifican con su WhatsApp. Sin contraseñas.',
+        pay: 'Compran su paquete y reservan en un solo paso.',
+        done: 'Y les llega la confirmación por WhatsApp.',
+      },
       pay: {
         options: [
           {title: 'Usar mi paquete', sub: 'No tienes un paquete activo', disabled: true},
@@ -145,6 +154,9 @@ export const detona: VideoConfig = {
   ],
 
   addons: {
+    kicker: 'Y PARA TU ESTUDIO',
+    title: 'Todo lo que',
+    titleAccent: 'puedes sumar',
     items: [
       {icon: '🔔', title: 'Recordatorios automáticos', desc: 'Confirmación y recordatorio de cada clase por WhatsApp, sin que muevas un dedo.'},
       {icon: '📣', title: 'Campañas y promociones', desc: 'Lanza descuentos, clases especiales y eventos a tus alumnas en\u00a0un\u00a0clic.'},
@@ -157,10 +169,10 @@ export const detona: VideoConfig = {
   music: {src: 'musica/sunset-groove.mp3', volume: 0.8, startAt: 0.25},
 
   // Primer frame del video = miniatura en WhatsApp
-  cover: {kicker: 'DETONA BODY WORK', title: ['Reserva tu clase', 'sin llamadas ni apps']},
+  cover: {kicker: 'DETONA × AELIKA', title: ['Así reservarían', 'tus alumnas']},
 
   outro: {
     tagline: ['Reservas, paquetes y recordatorios', 'para tu estudio.'],
-    cta: 'Agenda tu demo',
+    cta: 'Agendemos una llamada',
   },
 };
