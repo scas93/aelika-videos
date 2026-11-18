@@ -2,3 +2,6 @@ node_modules/
 out/
 .DS_Store
 *.log
+
+# Música con licencia de terceros: no se redistribuye en el repo
+public/musica/

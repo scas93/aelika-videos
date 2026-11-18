@@ -146,6 +146,9 @@ export const detona: VideoConfig = {
     ],
   },
 
+  // Chill House · Sunset Groove (TurtleBeats, Pixabay) · ~112 BPM
+  music: {src: 'musica/sunset-groove.mp3', volume: 0.8, startAt: 0.31},
+
   outro: {
     tagline: ['Reservas, paquetes y recordatorios', 'para tu estudio.'],
     cta: 'Agenda tu demo',
