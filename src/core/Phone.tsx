@@ -71,7 +71,7 @@ export const BrandAvatar: React.FC<{size: number; ring?: boolean; src?: string}>
   if (!ring) return inner;
   return (
     <div style={{padding: 3, borderRadius: '50%', background: 'linear-gradient(45deg,#f7b733,#e1306c,#8a3ab9)'}}>
-      <div style={{padding: 2.5, borderRadius: '50%', background: '#fff'}}>{inner}</div>
+      <div style={{padding: 2.5, borderRadius: '50%', background: '#0c1014'}}>{inner}</div>
     </div>
   );
 };

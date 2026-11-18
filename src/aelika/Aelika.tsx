@@ -128,7 +128,8 @@ const Contact: React.FC<{icon: 'mail' | 'phone'; text: string; p: number}> = ({i
 
 export const AELIKA_CONTACT = {email: 'ventas@aelika.com', phone: '33 3100 6915'};
 
-export const Outro: React.FC<{tagline?: [string, string]; email?: string; phone?: string}> = ({
+export const Outro: React.FC<{tagline?: [string, string]; email?: string; phone?: string; cta?: string}> = ({
+  cta,
   tagline = ['El mostrador digital', 'de tu negocio.'],
   email = AELIKA_CONTACT.email,
   phone = AELIKA_CONTACT.phone,
@@ -143,12 +144,17 @@ export const Outro: React.FC<{tagline?: [string, string]; email?: string; phone?
         <div style={{position: 'absolute', top: 640, left: 0, right: 0, display: 'flex', justifyContent: 'center'}}>
           <AelikaLogo t={f - 10} scale={0.95} />
         </div>
-        <div style={{position: 'absolute', top: 960, left: 60, right: 60, textAlign: 'center', fontFamily: FONT, fontWeight: 600, fontSize: 66, lineHeight: 1.18, letterSpacing: -1.5, color: NAVY, opacity: tag, transform: `translateY(${(1 - tag) * 26}px)`}}>
+        <div style={{position: 'absolute', top: 960, left: 60, right: 60, textAlign: 'center', fontFamily: FONT, fontWeight: 600, fontSize: Math.max(...tagline.map((t) => t.length)) > 26 ? 54 : 66, lineHeight: 1.18, letterSpacing: -1.5, color: NAVY, opacity: tag, transform: `translateY(${(1 - tag) * 26}px)`}}>
           {tagline[0]}
           <br />
           <span style={{background: 'linear-gradient(90deg,#0b8cf3,#13bcc9 50%,#7fcf33)', WebkitBackgroundClip: 'text', color: 'transparent'}}>{tagline[1]}</span>
         </div>
-        <div style={{position: 'absolute', top: 1270, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 34}}>
+        {cta && (
+          <div style={{position: 'absolute', top: 1150, left: 0, right: 0, display: 'flex', justifyContent: 'center', opacity: prog(f, 96, 112), transform: `scale(${0.9 + 0.1 * prog(f, 96, 112)})`}}>
+            <div style={{padding: '22px 56px', borderRadius: 999, background: 'linear-gradient(90deg,#0b8cf3,#13bcc9 55%,#7fcf33)', color: '#fff', fontFamily: FONT, fontWeight: 700, fontSize: 44, boxShadow: '0 16px 36px rgba(19,140,200,.3)'}}>{cta}</div>
+          </div>
+        )}
+        <div style={{position: 'absolute', top: cta ? 1330 : 1270, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 34}}>
           <div style={{width: 120, height: 3, borderRadius: 2, background: 'rgba(16,26,51,.15)', opacity: prog(f, 100, 112)}} />
           <div style={{display: 'flex', flexDirection: 'column', gap: 30}}>
             <Contact icon="mail" text={email} p={prog(f, 106, 124)} />
@@ -159,3 +165,6 @@ export const Outro: React.FC<{tagline?: [string, string]; email?: string; phone?
     </AbsoluteFill>
   );
 };
+
+/** Logo de Aelika estático (para interfaces dentro del teléfono). */
+export const AelikaMark: React.FC<{size: number}> = ({size}) => <AelikaLogo t={300} scale={size} />;

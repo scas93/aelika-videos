@@ -78,7 +78,7 @@ const Subtitles: React.FC<{subs: {a: number; b: number; text: string}[]}> = ({su
         style={{
           fontFamily: FONT,
           fontWeight: 600,
-          fontSize: 44,
+          fontSize: sc.text.length > 36 ? 38 : 44,
           color: colors.light,
           padding: '20px 40px',
           borderRadius: 999,
@@ -100,8 +100,15 @@ const Subtitles: React.FC<{subs: {a: number; b: number; text: string}[]}> = ({su
 
 const Background: React.FC = () => {
   const f = useCurrentFrame();
-  const {colors} = useBrand();
+  const {colors, canvas} = useBrand();
   const gx = 50 + Math.sin(f / 90) * 12;
+  if (canvas === 'light') {
+    return (
+      <AbsoluteFill style={{background: `linear-gradient(165deg, ${colors.paper} 0%, ${colors.light} 45%, ${colors.accentLight} 120%)`}}>
+        <AbsoluteFill style={{background: `radial-gradient(circle at ${gx}% 70%, ${rgba(colors.accent, 0.22)}, transparent 55%)`}} />
+      </AbsoluteFill>
+    );
+  }
   return (
     <AbsoluteFill style={{background: `linear-gradient(165deg, ${colors.dark} 0%, ${colors.dark2} 38%, ${colors.accentDark} 85%, ${colors.accent} 125%)`}}>
       <AbsoluteFill style={{background: `radial-gradient(circle at ${gx}% 72%, ${rgba(colors.accentLight, 0.28)}, transparent 55%)`}} />

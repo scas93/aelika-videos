@@ -1,7 +1,7 @@
 import React from 'react';
 import {nb} from '../core/theme';
 import {PhoneScene, Sub, Tap, Zoom} from '../core/types';
-import {ChatScreen, InputStep, Msg, SEND_BTN, SEND_Y_ABS, Typing, estH} from './whatsapp-screen';
+import {ChatScreen, InputStep, Jump, Msg, SEND_BTN, SEND_Y_ABS, Typing, estH} from './whatsapp-screen';
 
 export type ChatCard = {
   /** imagen de encabezado de la tarjeta, dentro de /public */
@@ -36,6 +36,18 @@ export type Turn =
       /** resalta el mensaje con un borde del color de la marca */
       highlight?: boolean;
       time?: string;
+      /** botones de respuesta rápida */
+      buttons?: string[];
+      /** el cliente toca este botón (índice) y se envía como su respuesta */
+      tapButton?: number;
+    }
+  | {
+      /** cortinilla de salto de tiempo, p. ej. "Miércoles · 20:00" */
+      from: 'jump';
+      label: string;
+      /** nueva hora de la barra de estado */
+      statusTime?: string;
+      sub?: string;
     };
 
 export type HistoryMsg = {from: 'user' | 'bot'; text: string; card?: ChatCard; time?: string};
@@ -86,10 +98,16 @@ const schedule = (d: WhatsAppData) => {
   const taps: Tap[] = [];
   const zooms: Zoom[] = [];
   const subtitles: Sub[] = [];
+  const jumps: Jump[] = [];
+  const clock: {at: number; time: string}[] = [];
   let t = 0;
   for (const turn of d.script) {
     if (turn.sub) subtitles.push({at: t, text: turn.sub});
-    if (turn.from === 'user') {
+    if (turn.from === 'jump') {
+      jumps.push({a: t, b: t + 34, label: turn.label});
+      if (turn.statusTime) clock.push({at: t + 16, time: turn.statusTime});
+      t += 34;
+    } else if (turn.from === 'user') {
       if (turn.prefilled) {
         inputs.push({text: turn.text, a: -1, b: -1, sent: t + 32});
         taps.push({f: t + 30, ...SEND});
@@ -121,10 +139,23 @@ const schedule = (d: WhatsAppData) => {
         taps.push({f: at + 30, ...CARD_BUTTON});
         pause = Math.max(pause, 42);
       }
+      if (turn.buttons) {
+        const n = turn.buttons.length;
+        msg.buttons = {labels: turn.buttons};
+        if (turn.tapButton !== undefined) {
+          const pressAt = at + Math.max(30, pause);
+          msg.buttons.pressAt = pressAt;
+          msg.buttons.pressIndex = turn.tapButton;
+          // botones apilados al fondo: el último está en y≈730
+          taps.push({f: pressAt, x: 156, y: 730 - (n - 1 - turn.tapButton) * 44});
+          messages.push(toMsg({from: 'user', text: turn.buttons[turn.tapButton]}, pressAt + 8, turn.time ?? time));
+          pause = pressAt + 8 - at + 30;
+        }
+      }
       t = at + pause;
     }
   }
-  return {messages, inputs, typing, taps, zooms, subtitles, duration: t + (d.hold ?? 0)};
+  return {messages, inputs, typing, taps, zooms, subtitles, jumps, clock, duration: t + (d.hold ?? 0)};
 };
 
 /**
@@ -138,7 +169,16 @@ export const whatsappChat = (d: WhatsAppData): PhoneScene => {
     id: 'whatsapp',
     duration: s.duration,
     enter: d.enter ?? 'up',
-    Component: () => <ChatScreen title={d.title} statusTime={() => status} messages={s.messages} typing={s.typing} inputs={s.inputs} />,
+    Component: () => (
+      <ChatScreen
+        title={d.title}
+        statusTime={(f) => [...s.clock].reverse().find((c) => f >= c.at)?.time ?? status}
+        messages={s.messages}
+        typing={s.typing}
+        inputs={s.inputs}
+        jumps={s.jumps}
+      />
+    ),
     taps: s.taps,
     zooms: s.zooms,
     subtitles: s.subtitles,

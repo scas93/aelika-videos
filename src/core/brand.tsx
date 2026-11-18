@@ -33,6 +33,8 @@ export type Brand = {
   };
   /** Tipografía de títulos (CSS font-family). Debe estar cargada vía @fontsource. */
   displayFont: string;
+  /** Fondo del lienzo detrás del teléfono: oscuro (por defecto) o claro */
+  canvas?: 'dark' | 'light';
 };
 
 export const DEFAULT_BRAND: Brand = {

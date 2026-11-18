@@ -32,9 +32,10 @@ node scripts/stills.mjs CasaOccidente out/stills 140 520 1300
 1. Copia la carpeta de fotos a `public/<negocio>/` (logo redondo, fotos del feed, etc.).
 2. Copia `src/videos/casa-occidente/config.tsx` a `src/videos/<negocio>/config.tsx` y cambia:
    - `id`: el nombre de la composición, sin espacios (p. ej. `TaqueriaElGuero`).
-   - `brand`: el nombre, el logo, los colores y la tipografía.
+   - `brand`: el nombre, el logo, los colores, la tipografía y el fondo (`canvas: 'light'` para marcas claras).
    - `scenes`: la lista de escenas en orden (ver abajo).
-   - `addons`: las tarjetas del final.
+   - `addons`: las tarjetas del final (opcional).
+   - `outro`: lema, contacto y botón (`cta`, p. ej. "Agenda tu demo"), todos opcionales.
 3. Regístralo en `src/videos/index.ts`.
 4. `npm run studio` para revisarlo y `npm run render -- <id>` para exportarlo.
 
@@ -49,6 +50,8 @@ node scripts/stills.mjs CasaOccidente out/stills 140 520 1300
 | Linktree | `linktree({...})` | 3 s | Toca uno de los botones |
 | Chat de WhatsApp | `whatsappChat({...})` | automática | Envía mensajes y toca la tarjeta con botón |
 | Storefront de citas | `appointmentsStorefront({...})` | 20 s | Servicio → extra → profesional → día y hora → datos → confirmar |
+| Storefront de clases | `classesStorefront({...})` | 35 s | Portada → día → filtro → detalle → WhatsApp + código → paquete/Apple Pay → lugar apartado |
+| Panel de Aelika | `aelikaPanel({...})` | 5 s | Ocupación de la clase + notificación al equipo |
 
 ### Chat de WhatsApp por guion
 
@@ -71,6 +74,8 @@ whatsappChat({
 - `pause` da más o menos tiempo de lectura.
 - `zoom` hace zoom al mensaje y `highlight` lo resalta.
 - `card` + `tap` crean la tarjeta con botón, y el cliente la toca.
+- `buttons` + `tapButton` crean respuestas rápidas ("Sí, ahí estaré"), y el cliente toca una.
+- `{from: 'jump', label: 'Miércoles · 20:00'}` inserta una cortinilla de salto de tiempo.
 
 ## Estructura
 
@@ -86,7 +91,7 @@ public/        fotos y logos, una carpeta por negocio
 
 ## Pendiente: otros giros
 
-Por ahora existe el storefront de **citas**. Los siguientes se construyen sobre `scenes/storefront/shell.tsx` conforme se necesiten:
+Por ahora existen los storefronts de **citas** y **clases**. Los siguientes se construyen sobre `scenes/storefront/shell.tsx` conforme se necesiten:
 
 - **Pedidos de comida**: menú → producto con extras → carrito → entrega o recoger → pago → seguimiento.
 - **Tienda**: catálogo → talla y color → carrito → envío → pago → guía.

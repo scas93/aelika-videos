@@ -12,7 +12,11 @@ export type Msg = {
   date?: string; // separador de fecha antes del mensaje
   highlight?: number; // frame en que se resalta
   card?: {image: string; footer: string; button: string; pressAt?: number}; // mensaje tipo tarjeta con botón
+  /** botones de respuesta rápida bajo la burbuja */
+  buttons?: {labels: string[]; pressAt?: number; pressIndex?: number};
 };
+/** salto de tiempo: cortinilla dentro del chat */
+export type Jump = {a: number; b: number; label: string};
 export type Typing = [number, number];
 export type InputStep = {text: string; a: number; b: number; sent: number};
 
@@ -20,7 +24,7 @@ export const INPUT_BAR = 84;
 
 export const estH = (m: Msg) => {
   const lines = m.raw.split('\n').reduce((s, l) => s + Math.max(1, Math.ceil(l.length / 31)), 0);
-  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0);
+  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0) + (m.buttons ? m.buttons.labels.length * 44 : 0);
 };
 
 const Ticks = () => (
@@ -44,7 +48,8 @@ export const ChatScreen: React.FC<{
   messages: Msg[];
   typing?: Typing[];
   inputs?: InputStep[];
-}> = ({title, avatar, statusTime, messages, typing = [], inputs = []}) => {
+  jumps?: Jump[];
+}> = ({title, avatar, statusTime, messages, typing = [], inputs = [], jumps = []}) => {
   const f = useCurrentFrame();
   const visible = messages.filter((m) => f >= m.at);
   const isTyping = typing.some(([a, b]) => f >= a && f < b);
@@ -108,6 +113,21 @@ export const ChatScreen: React.FC<{
                     </div>
                   )}
                 </div>
+                {m.buttons && (
+                  <div style={{alignSelf: 'flex-start', width: 292, display: 'flex', flexDirection: 'column', gap: 4, marginTop: -2, opacity: p}}>
+                    {m.buttons.labels.map((l, bi) => {
+                      const pressed = m.buttons!.pressAt !== undefined && bi === m.buttons!.pressIndex && f >= m.buttons!.pressAt && f < m.buttons!.pressAt + 10;
+                      return (
+                        <div key={l} style={{height: 40, borderRadius: 10, background: pressed ? '#eef3f6' : '#fff', boxShadow: '0 1px .5px rgba(0,0,0,.13)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#027eb5', fontSize: 15.5, fontWeight: 500}}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#027eb5" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+                          </svg>
+                          {l}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </React.Fragment>
             );
           })}
@@ -160,6 +180,16 @@ export const ChatScreen: React.FC<{
         </div>
       </div>
       <HomeIndicator />
+      {jumps.map((j) => {
+        if (f < j.a || f >= j.b) return null;
+        const p = Math.min(prog(f, j.a, j.a + 7), 1 - prog(f, j.b - 8, j.b));
+        return (
+          <div key={j.a} style={{position: 'absolute', inset: 0, zIndex: 85, background: `rgba(20,20,18,${0.82 * p})`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff', opacity: p}}>
+            <div style={{fontSize: 13, letterSpacing: 4, opacity: 0.75, fontWeight: 600}}>MÁS TARDE…</div>
+            <div style={{fontSize: 30, fontWeight: 300, marginTop: 8, letterSpacing: -0.5, transform: `translateY(${(1 - p) * 10}px)`}}>{j.label}</div>
+          </div>
+        );
+      })}
     </div>
   );
 };

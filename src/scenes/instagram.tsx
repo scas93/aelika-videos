@@ -110,6 +110,10 @@ export type InstagramProfileData = {
   highlights?: {image: string; label: string}[];
   /** 9 fotos del feed (3:4) */
   grid: string[];
+  /** botones bajo la bio (por defecto Seguir, Mensaje, Llamar) */
+  buttons?: string[];
+  /** aro de historias alrededor del logo */
+  ring?: boolean;
   time?: string;
   subtitle?: string;
 };
@@ -143,7 +147,7 @@ const ProfileScreen: React.FC<{d: InstagramProfileData}> = ({d}) => {
         <Icon d={I.dots} size={26} sw={3} />
       </div>
       <div style={{position: 'absolute', top: 120, left: 14}}>
-        <BrandAvatar size={86} />
+        <BrandAvatar size={d.ring ? 78 : 86} ring={d.ring} />
       </div>
       <div style={{position: 'absolute', top: 126, left: 122, right: 10}}>
         <div style={{fontWeight: 600, fontSize: 14.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{d.name}</div>
@@ -175,9 +179,9 @@ const ProfileScreen: React.FC<{d: InstagramProfileData}> = ({d}) => {
         </div>
       )}
       <div style={{position: 'absolute', top: L.buttons, left: 16, right: 16, display: 'flex', gap: 6}}>
-        {btn('Seguir', '1', true)}
-        {btn('Mensaje', '1')}
-        {btn('Llamar', '1')}
+        {(d.buttons ?? ['Seguir', 'Mensaje', 'Llamar']).map((b, i) => (
+          <React.Fragment key={b}>{btn(b, '1', i === 0)}</React.Fragment>
+        ))}
         {btn(<Icon d={I.addUser} size={18} sw={2} />, 34)}
       </div>
       <div style={{position: 'absolute', top: L.highlights, left: 0, right: 0, height: 92, overflow: 'hidden'}}>

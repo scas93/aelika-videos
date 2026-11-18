@@ -39,5 +39,5 @@ export type VideoConfig = {
     items: Addon[];
     more?: string;
   };
-  outro?: {tagline?: [string, string]; email?: string; phone?: string};
+  outro?: {tagline?: [string, string]; email?: string; phone?: string; cta?: string};
 };
