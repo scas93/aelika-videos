@@ -1,0 +1,26 @@
+{
+  "name": "aelika-videos",
+  "version": "1.0.0",
+  "description": "Plantilla de videos de flujo para storefronts de Aelika (Remotion)",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "node scripts/render.mjs",
+    "stills": "node scripts/stills.mjs",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@fontsource/playfair-display": "^5.3.0",
+    "@remotion/cli": "^4.0.545",
+    "@types/react": "^18.3.31",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.545",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@remotion/bundler": "^4.0.545",
+    "@remotion/renderer": "^4.0.545"
+  },
+  "private": true
+}
