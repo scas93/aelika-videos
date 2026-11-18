@@ -151,6 +151,9 @@ export const casaOccidente: VideoConfig = {
     }),
   ],
 
+  // Primer frame del video = miniatura en WhatsApp
+  cover: {kicker: 'CASA OCCIDENTE', title: ['De Instagram', 'a la silla']},
+
   addons: {
     items: [
       {icon: '🔔', title: 'Notificaciones de seguimiento', desc: 'Confirmación, recordatorio y «califica tu servicio» por WhatsApp, en automático.'},

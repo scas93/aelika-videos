@@ -1,6 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame} from 'remotion';
-import {Intro, Outro} from '../aelika/Aelika';
+import {AelikaMark, Intro, Outro} from '../aelika/Aelika';
+import {BrandAvatar} from './Phone';
 import {Addons, addonsDuration} from '../scenes/addons';
 import {BrandProvider, useBrand} from './brand';
 import {Finger, Phone} from './Phone';
@@ -11,7 +12,8 @@ import {Enter, Tap, VideoConfig, Zoom} from './types';
 export const INTRO_LEN = 124;
 export const FLOW_START = 110; // el flujo arranca mientras se desvanece el intro
 export const OUTRO_LEN = 190;
-const OVERLAP = 14; // cada pantalla nueva entra encima de la anterior
+const OVERLAP = 14;
+export const COVER_LEN = 18; // portada/miniatura al inicio // cada pantalla nueva entra encima de la anterior
 
 /** Calcula la línea de tiempo completa a partir de la configuración. */
 export const buildTimeline = (cfg: VideoConfig) => {
@@ -29,7 +31,7 @@ export const buildTimeline = (cfg: VideoConfig) => {
   const subs = scenes.flatMap((s) =>
     (s.subtitles ?? []).map((sub, i, arr) => ({a: s.start + sub.at, b: s.start + (arr[i + 1]?.at ?? s.duration), text: sub.text})),
   );
-  return {scenes, phoneEnd, addonsLen, outroStart, taps, zooms, subs, total: FLOW_START + outroStart + OUTRO_LEN};
+  return {scenes, phoneEnd, addonsLen, outroStart, taps, zooms, subs, total: (cfg.cover ? COVER_LEN : 0) + FLOW_START + outroStart + OUTRO_LEN};
 };
 
 export const videoDuration = (cfg: VideoConfig) => buildTimeline(cfg).total;
@@ -165,16 +167,56 @@ const Music: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
   );
 };
 
-export const VideoTemplate: React.FC<{cfg: VideoConfig}> = ({cfg}) => (
-  <BrandProvider brand={cfg.brand}>
-    <Music cfg={cfg} />
-    <AbsoluteFill style={{width: W, height: H, fontFamily: FONT, overflow: 'hidden', background: '#f3efe9'}}>
-      <Sequence from={FLOW_START} layout="none">
-        <Flow cfg={cfg} />
-      </Sequence>
-      <Sequence durationInFrames={INTRO_LEN} layout="none">
-        <Intro len={INTRO_LEN} />
-      </Sequence>
+/** Portada: primer frame del video (miniatura en WhatsApp). */
+const Cover: React.FC<{cover: NonNullable<VideoConfig['cover']>}> = ({cover}) => {
+  const f = useCurrentFrame();
+  const {colors, canvas, displayFont} = useBrand();
+  const light = canvas === 'light';
+  const out = prog(f, 10, COVER_LEN);
+  const fg = light ? colors.dark : colors.light;
+  return (
+    <AbsoluteFill style={{opacity: 1 - out, zIndex: 50}}>
+      <AbsoluteFill
+        style={{
+          background: light
+            ? `linear-gradient(165deg, ${colors.paper} 0%, ${colors.light} 45%, ${colors.accentLight} 120%)`
+            : `linear-gradient(165deg, ${colors.dark} 0%, ${colors.dark2} 40%, ${colors.accentDark} 90%, ${colors.accent} 130%)`,
+        }}
+      />
+      <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', textAlign: 'center', color: fg, padding: '0 80px', transform: `scale(${1 + out * 0.04})`}}>
+        <BrandAvatar size={300} />
+        {cover.kicker && <div style={{marginTop: 64, fontFamily: FONT, fontSize: 32, fontWeight: 600, letterSpacing: 10, color: light ? colors.accentDark : colors.accentLight}}>{cover.kicker}</div>}
+        <div style={{marginTop: 28, fontFamily: displayFont, fontSize: 92, fontWeight: light ? 300 : 700, lineHeight: 1.1, letterSpacing: -2}}>
+          {cover.title[0]}
+          <br />
+          {cover.title[1]}
+        </div>
+        <div style={{position: 'absolute', bottom: 150, display: 'flex', alignItems: 'center', gap: 20, fontFamily: FONT, fontSize: 30, color: light ? colors.muted : colors.accentLight}}>
+          con <AelikaMark size={0.42} color={light ? undefined : '#ffffff'} />
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
-  </BrandProvider>
-);
+  );
+};
+
+export const VideoTemplate: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
+  const lead = cfg.cover ? COVER_LEN : 0;
+  return (
+    <BrandProvider brand={cfg.brand}>
+      <Music cfg={cfg} />
+      <AbsoluteFill style={{width: W, height: H, fontFamily: FONT, overflow: 'hidden', background: '#f3efe9'}}>
+        <Sequence from={lead + FLOW_START} layout="none">
+          <Flow cfg={cfg} />
+        </Sequence>
+        <Sequence from={lead} durationInFrames={INTRO_LEN} layout="none">
+          <Intro len={INTRO_LEN} />
+        </Sequence>
+        {cfg.cover && (
+          <Sequence durationInFrames={COVER_LEN} layout="none">
+            <Cover cover={cfg.cover} />
+          </Sequence>
+        )}
+      </AbsoluteFill>
+    </BrandProvider>
+  );
+};

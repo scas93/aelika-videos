@@ -154,7 +154,10 @@ export const detona: VideoConfig = {
   },
 
   // Chill House · Sunset Groove (TurtleBeats, Pixabay) · ~112 BPM
-  music: {src: 'musica/sunset-groove.mp3', volume: 0.8, startAt: 0.31},
+  music: {src: 'musica/sunset-groove.mp3', volume: 0.8, startAt: 0.25},
+
+  // Primer frame del video = miniatura en WhatsApp
+  cover: {kicker: 'DETONA BODY WORK', title: ['Reserva tu clase', 'sin llamadas ni apps']},
 
   outro: {
     tagline: ['Reservas, paquetes y recordatorios', 'para tu estudio.'],

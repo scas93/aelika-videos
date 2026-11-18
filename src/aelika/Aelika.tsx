@@ -42,7 +42,7 @@ const Icon: React.FC<{size: number; sheen: number}> = ({size, sheen}) => {
 };
 
 /** Logo animado. t = frames desde el inicio de la animación. */
-export const AelikaLogo: React.FC<{t: number; scale?: number}> = ({t, scale = 1}) => {
+export const AelikaLogo: React.FC<{t: number; scale?: number; color?: string}> = ({t, scale = 1, color = NAVY}) => {
   const {fps} = useVideoConfig();
   const ICON = 160 * scale;
   const FS = 150 * scale;
@@ -75,7 +75,7 @@ export const AelikaLogo: React.FC<{t: number; scale?: number}> = ({t, scale = 1}
           <Icon size={ICON} sheen={sheen} />
         </div>
       </div>
-      <div style={{display: 'flex', fontFamily: FONT, fontWeight: 500, fontSize: FS, color: NAVY, letterSpacing: -2 * scale, lineHeight: 1, width: TEXT_W}}>
+      <div style={{display: 'flex', fontFamily: FONT, fontWeight: 500, fontSize: FS, color, letterSpacing: -2 * scale, lineHeight: 1, width: TEXT_W}}>
         {letters.map((ch, i) => {
           const s = spring({frame: t - 40 - i * 4, fps, config: {damping: 10, stiffness: 160}});
           return (
@@ -167,4 +167,4 @@ export const Outro: React.FC<{tagline?: [string, string]; email?: string; phone?
 };
 
 /** Logo de Aelika estático (para interfaces dentro del teléfono). */
-export const AelikaMark: React.FC<{size: number}> = ({size}) => <AelikaLogo t={300} scale={size} />;
+export const AelikaMark: React.FC<{size: number; color?: string}> = ({size, color}) => <AelikaLogo t={300} scale={size} color={color} />;
