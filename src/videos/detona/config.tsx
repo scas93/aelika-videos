@@ -169,7 +169,7 @@ export const detona: VideoConfig = {
   music: {src: 'musica/sunset-groove.mp3', volume: 0.8, startAt: 0.25},
 
   // Primer frame del video = miniatura en WhatsApp
-  cover: {kicker: 'DETONA × AELIKA', title: ['Así reservarían', 'tus alumnas']},
+  cover: {useOutro: true},
 
   outro: {
     tagline: ['Reservas, paquetes y recordatorios', 'para tu estudio.'],

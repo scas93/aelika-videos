@@ -44,7 +44,7 @@ export type VideoConfig = {
    * Portada: el primer frame del video, que WhatsApp y otras apps usan como miniatura.
    * Se ve ~0.6 s y se desvanece hacia el intro.
    */
-  cover?: {kicker?: string; title: [string, string]};
+  cover?: {kicker?: string; title?: [string, string]; /** usa la pantalla final del outro (logo, lema y contacto) */ useOutro?: boolean};
   /** música de fondo (archivo en /public, p. ej. "musica/pista.mp3") */
   music?: {
     src: string;

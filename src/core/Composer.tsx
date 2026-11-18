@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Audio, Freeze, Sequence, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {AelikaMark, Intro, Outro} from '../aelika/Aelika';
 import {BrandAvatar} from './Phone';
 import {Addons, addonsDuration} from '../scenes/addons';
@@ -168,8 +168,17 @@ const Music: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
 };
 
 /** Portada: primer frame del video (miniatura en WhatsApp). */
-const Cover: React.FC<{cover: NonNullable<VideoConfig['cover']>}> = ({cover}) => {
+const Cover: React.FC<{cover: NonNullable<VideoConfig['cover']>; outro?: VideoConfig['outro']}> = ({cover, outro}) => {
   const f = useCurrentFrame();
+  if (cover.useOutro) {
+    return (
+      <AbsoluteFill style={{opacity: 1 - prog(f, 10, COVER_LEN), zIndex: 50}}>
+        <Freeze frame={OUTRO_LEN - 1}>
+          <Outro {...outro} />
+        </Freeze>
+      </AbsoluteFill>
+    );
+  }
   const {colors, canvas, displayFont} = useBrand();
   const light = canvas === 'light';
   const out = prog(f, 10, COVER_LEN);
@@ -186,11 +195,13 @@ const Cover: React.FC<{cover: NonNullable<VideoConfig['cover']>}> = ({cover}) =>
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', flexDirection: 'column', textAlign: 'center', color: fg, padding: '0 80px', transform: `scale(${1 + out * 0.04})`}}>
         <BrandAvatar size={300} />
         {cover.kicker && <div style={{marginTop: 64, fontFamily: FONT, fontSize: 32, fontWeight: 600, letterSpacing: 10, color: light ? colors.accentDark : colors.accentLight}}>{cover.kicker}</div>}
-        <div style={{marginTop: 28, fontFamily: displayFont, fontSize: 92, fontWeight: light ? 300 : 700, lineHeight: 1.1, letterSpacing: -2}}>
-          {cover.title[0]}
-          <br />
-          {cover.title[1]}
-        </div>
+        {cover.title && (
+          <div style={{marginTop: 28, fontFamily: displayFont, fontSize: 92, fontWeight: light ? 300 : 700, lineHeight: 1.1, letterSpacing: -2}}>
+            {cover.title[0]}
+            <br />
+            {cover.title[1]}
+          </div>
+        )}
         <div style={{position: 'absolute', bottom: 150, display: 'flex', alignItems: 'center', gap: 20, fontFamily: FONT, fontSize: 30, color: light ? colors.muted : colors.accentLight}}>
           con <AelikaMark size={0.42} color={light ? undefined : '#ffffff'} />
         </div>
@@ -213,7 +224,7 @@ export const VideoTemplate: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
         </Sequence>
         {cfg.cover && (
           <Sequence durationInFrames={COVER_LEN} layout="none">
-            <Cover cover={cfg.cover} />
+            <Cover cover={cfg.cover} outro={cfg.outro} />
           </Sequence>
         )}
       </AbsoluteFill>
