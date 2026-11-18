@@ -16,7 +16,7 @@ export type Msg = {
   /** botones de respuesta rápida bajo la burbuja */
   buttons?: {labels: string[]; pressAt?: number; pressIndex?: number};
   /** menú numerado en una segunda burbuja (1 Reservar, 2 Horarios…) */
-  menu?: {items: string[]; note?: string};
+  menu?: {items: string[]; note?: string; pressAt?: number; pressIndex?: number};
   /** aviso del sistema (cifrado de extremo a extremo) */
   system?: boolean;
 };
@@ -26,10 +26,13 @@ export type Typing = [number, number];
 export type InputStep = {text: string; a: number; b: number; sent: number};
 
 export const INPUT_BAR = 84;
+export const MENU_ROW = 40;
+/** alto aprox. de la nota en cursiva del menú (13px, ~42 caracteres por línea) */
+export const menuNoteH = (note: string) => Math.ceil(note.length / 42) * 18 + 6;
 
 export const estH = (m: Msg) => {
   const lines = m.raw.split('\n').reduce((s, l) => s + Math.max(1, Math.ceil(l.length / 31)), 0);
-  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0) + (m.buttons ? m.buttons.labels.length * 44 : 0) + (m.menu ? m.menu.items.length * 34 + (m.menu.note ? 48 : 0) + 30 : 0);
+  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0) + (m.buttons ? m.buttons.labels.length * 44 : 0) + (m.menu ? m.menu.items.length * MENU_ROW + (m.menu.note ? menuNoteH(m.menu.note) : 0) + 26 : 0);
 };
 
 const Ticks = () => (
@@ -125,12 +128,18 @@ export const ChatScreen: React.FC<{
                 )}
                 {m.menu && (
                   <div style={{alignSelf: 'flex-start', width: 292, background: '#fff', borderRadius: 14, borderTopLeftRadius: 4, padding: '10px 14px 10px', boxShadow: '0 1px .5px rgba(0,0,0,.13)', opacity: prog(f, m.at + 4, m.at + 12), transform: `translateY(${(1 - prog(f, m.at + 4, m.at + 12)) * 8}px)`}}>
-                    {m.menu.items.map((it, k) => (
-                      <div key={it} style={{display: 'flex', alignItems: 'center', gap: 10, height: 34, fontSize: 16}}>
-                        <div style={{width: 22, height: 22, borderRadius: 5, background: brand.colors.accentDark, color: '#fff', fontSize: 12.5, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{k + 1}</div>
-                        {it}
-                      </div>
-                    ))}
+                    {m.menu.items.map((it, k) => {
+                      const pressed = m.menu!.pressAt !== undefined && k === m.menu!.pressIndex && f >= m.menu!.pressAt && f < m.menu!.pressAt + 12;
+                      return (
+                        <div key={it} style={{display: 'flex', alignItems: 'center', gap: 10, height: MENU_ROW, fontSize: 16, color: '#027eb5', fontWeight: 500, borderTop: k === 0 ? 'none' : '1px solid #eef0f1', margin: '0 -14px', padding: '0 14px', background: pressed ? '#eef3f6' : 'transparent'}}>
+                          <div style={{width: 22, height: 22, borderRadius: 5, background: brand.colors.accentDark, color: '#fff', fontSize: 12.5, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{k + 1}</div>
+                          <div style={{flex: 1}}>{it}</div>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#027eb5" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" />
+                          </svg>
+                        </div>
+                      );
+                    })}
                     {m.menu.note && <div style={{fontSize: 13, fontStyle: 'italic', color: '#7a7a7a', lineHeight: '18px', marginTop: 6}}>{m.menu.note}</div>}
                   </div>
                 )}

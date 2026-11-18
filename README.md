@@ -76,6 +76,7 @@ whatsappChat({
 - `zoom` hace zoom al mensaje y `highlight` lo resalta.
 - `card` + `tap` crean la tarjeta con botón, y el cliente la toca.
 - `buttons` + `tapButton` crean respuestas rápidas ("Sí, ahí estaré"), y el cliente toca una.
+- `menu` crea un menú numerado de opciones tocables; con `tapMenu` el cliente toca una y se envía como su respuesta.
 - `{from: 'jump', label: 'Miércoles · 20:00'}` inserta una cortinilla de salto de tiempo.
 
 ## Estructura

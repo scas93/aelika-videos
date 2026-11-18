@@ -1,7 +1,7 @@
 import React from 'react';
 import {nb} from '../core/theme';
 import {PhoneScene, Sub, Tap, Zoom} from '../core/types';
-import {ChatScreen, InputStep, Jump, Msg, SEND_BTN, SEND_Y_ABS, Typing, estH} from './whatsapp-screen';
+import {ChatScreen, InputStep, Jump, MENU_ROW, Msg, SEND_BTN, SEND_Y_ABS, Typing, estH, menuNoteH} from './whatsapp-screen';
 
 export type ChatCard = {
   /** imagen de encabezado de la tarjeta, dentro de /public */
@@ -40,8 +40,10 @@ export type Turn =
       buttons?: string[];
       /** el cliente toca este botón (índice) y se envía como su respuesta */
       tapButton?: number;
-      /** menú numerado en una segunda burbuja */
+      /** menú numerado en una segunda burbuja; cada opción es un botón */
       menu?: {items: string[]; note?: string};
+      /** el cliente toca esta opción del menú (índice) y se envía como su respuesta */
+      tapMenu?: number;
     }
   | {
       /** cortinilla de salto de tiempo, p. ej. "Miércoles · 20:00" */
@@ -133,7 +135,7 @@ const schedule = (d: WhatsAppData) => {
       typing.push([t, t + ty]);
       const at = t + ty;
       const msg = toMsg(turn, at, time, turn.highlight ? {highlight: at + 8} : {});
-      if (turn.menu) msg.menu = turn.menu;
+      if (turn.menu) msg.menu = {...turn.menu};
       if (turn.card && turn.tap) msg.card!.pressAt = at + 30;
       messages.push(msg);
       let pause = turn.pause ?? clamp(Math.round(plain(turn.text).length * 0.5), 16, 70);
@@ -159,6 +161,17 @@ const schedule = (d: WhatsAppData) => {
           messages.push(toMsg({from: 'user', text: turn.buttons[turn.tapButton]}, pressAt + 8, turn.time ?? time));
           pause = pressAt + 8 - at + 30;
         }
+      }
+      if (turn.menu && turn.tapMenu !== undefined) {
+        const n = turn.menu.items.length;
+        const pressAt = at + Math.max(34, pause);
+        msg.menu!.pressAt = pressAt;
+        msg.menu!.pressIndex = turn.tapMenu;
+        // la burbuja del menú queda al fondo: su borde inferior está en y≈750
+        const bottom = 750 - 10 - (turn.menu.note ? menuNoteH(turn.menu.note) + 6 : 0);
+        taps.push({f: pressAt, x: 150, y: bottom - (n - turn.tapMenu) * MENU_ROW + MENU_ROW / 2});
+        messages.push(toMsg({from: 'user', text: turn.menu.items[turn.tapMenu]}, pressAt + 8, turn.time ?? time));
+        pause = pressAt + 8 - at + 30;
       }
       t = at + pause;
     }
