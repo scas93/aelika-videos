@@ -37,7 +37,14 @@ export type ClassesData = {
   customer: {name: string; phone: string; code: string};
   /** notificación con el código */
   codeFrom: string;
-  pay: {packageNote: string; single: string; pack: {name: string; price: string; per: string; badge?: string}; remainingAfter: string};
+  pay: {
+    /** opciones de pago: clase suelta, paquetes, mensualidad… (máx. 5) */
+    options: {title: string; sub: string; price?: string; badge?: string; disabled?: boolean}[];
+    /** opción que elige el cliente */
+    pick: number;
+    /** texto en la confirmación, p. ej. "Te quedan 4 clases en tu paquete" */
+    remainingAfter: string;
+  };
   statusTime?: string;
   subtitles?: Partial<Record<'cover' | 'schedule' | 'filter' | 'detail' | 'identify' | 'pay' | 'done', string>>;
 };
@@ -66,6 +73,8 @@ const T = {
   payOk: 852,
 } as const;
 
+const OPT_TOP = 204;
+const OPT_STEP = 84;
 const DAY_X = (i: number) => 20 + i * 70 + 31;
 const CARD_TOP = 300;
 const CARD_STEP = 88;
@@ -322,11 +331,8 @@ const Pay: React.FC<{f: number; d: ClassesData}> = ({f, d}) => {
   const btnP = prog(f, T.tapPack + 4, T.tapPack + 16);
   const sheet = prog(f, T.paySheet, T.paySheet + 14);
   const ok = f >= T.payOk;
-  const opts: {title: string; sub: string; right?: string; badge?: string; disabled?: boolean}[] = [
-    {title: 'Usar mi paquete', sub: d.pay.packageNote, disabled: true},
-    {title: 'Clase suelta', sub: 'Solo esta clase', right: d.pay.single},
-    {title: d.pay.pack.name, sub: d.pay.pack.per, right: d.pay.pack.price, badge: d.pay.pack.badge},
-  ];
+  const opts = d.pay.options.slice(0, 5);
+  const chosenOpt = opts[d.pay.pick];
   return (
     <>
       <Header title="" />
@@ -339,9 +345,9 @@ const Pay: React.FC<{f: number; d: ClassesData}> = ({f, d}) => {
         {c.name} · {d.days[d.pickDay][0][0] + d.days[d.pickDay][0].slice(1).toLowerCase()} {d.days[d.pickDay][1]} · {c.time} · {c.coach}
       </div>
       {opts.map((o, i) => {
-        const on = picked && i === 2;
+        const on = picked && i === d.pay.pick;
         return (
-          <div key={o.title} style={{position: 'absolute', left: 16, right: 16, top: 210 + i * 94, height: 82, borderRadius: 18, background: on ? rgba(colors.accent, 0.14) : '#fff', border: `${on ? 1.5 : 1}px solid ${on ? colors.accentDark : colors.line}`, display: 'flex', alignItems: 'center', padding: '0 16px', gap: 12, opacity: o.disabled ? 0.45 : 1, boxSizing: 'border-box'}}>
+          <div key={o.title} style={{position: 'absolute', left: 16, right: 16, top: OPT_TOP + i * OPT_STEP, height: OPT_STEP - 10, borderRadius: 18, background: on ? rgba(colors.accent, 0.14) : '#fff', border: `${on ? 1.5 : 1}px solid ${on ? colors.accentDark : colors.line}`, display: 'flex', alignItems: 'center', padding: '0 16px', gap: 12, opacity: o.disabled ? 0.45 : 1, boxSizing: 'border-box'}}>
             <div style={{width: 22, height: 22, borderRadius: '50%', border: `1.5px solid ${on ? colors.accentDark : '#c9c5bd'}`, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
               {on && <div style={{width: 12, height: 12, borderRadius: '50%', background: colors.accentDark}} />}
             </div>
@@ -350,7 +356,7 @@ const Pay: React.FC<{f: number; d: ClassesData}> = ({f, d}) => {
               {o.badge && <div style={{position: 'absolute', top: -9, right: 16, fontSize: 10.5, fontWeight: 700, letterSpacing: 0.8, padding: '3px 10px', borderRadius: 999, background: colors.dark, color: '#fff'}}>{o.badge}</div>}
               <div style={{fontSize: 12.5, color: colors.muted, marginTop: 3}}>{o.sub}</div>
             </div>
-            {o.right && <div style={{fontSize: 18, fontWeight: 300}}>{o.right}</div>}
+            {o.price && <div style={{fontSize: 18, fontWeight: 300}}>{o.price}</div>}
           </div>
         );
       })}
@@ -370,7 +376,7 @@ const Pay: React.FC<{f: number; d: ClassesData}> = ({f, d}) => {
       {sheet > 0 && (
         <>
           <div style={{position: 'absolute', inset: 0, background: `rgba(0,0,0,${0.3 * sheet})`, zIndex: 40}} />
-          <div style={{position: 'absolute', left: 8, right: 8, bottom: 8, height: 330, borderRadius: 36, background: '#f2f2f2', zIndex: 41, transform: `translateY(${(1 - sheet) * 360}px)`, padding: '18px 22px', boxSizing: 'border-box', color: '#111'}}>
+          <div style={{position: 'absolute', left: 8, right: 8, bottom: 80, height: 310, borderRadius: 32, background: '#f2f2f2', zIndex: 41, transform: `translateY(${(1 - sheet) * 420}px)`, padding: '18px 22px', boxSizing: 'border-box', color: '#111'}}>
             <div style={{fontSize: 21, fontWeight: 600}}>Apple Pay</div>
             <div style={{marginTop: 14, borderRadius: 14, background: '#fff', padding: '12px 14px', fontSize: 14.5, display: 'flex', flexDirection: 'column', gap: 8}}>
               <div style={{display: 'flex', justifyContent: 'space-between'}}>
@@ -379,14 +385,14 @@ const Pay: React.FC<{f: number; d: ClassesData}> = ({f, d}) => {
               </div>
               <div style={{display: 'flex', justifyContent: 'space-between'}}>
                 <span style={{color: '#777'}}>{d.title}</span>
-                <span>{d.pay.pack.name}</span>
+                <span>{chosenOpt.title}</span>
               </div>
               <div style={{display: 'flex', justifyContent: 'space-between', fontWeight: 600}}>
                 <span>Total</span>
-                <span>{d.pay.pack.price} MXN</span>
+                <span>{chosenOpt.price} MXN</span>
               </div>
             </div>
-            <div style={{marginTop: 26, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8}}>
+            <div style={{marginTop: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8}}>
               {ok ? (
                 <>
                   <div style={{width: 54, height: 54, borderRadius: '50%', border: '3px solid #0a84ff', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${0.7 + 0.3 * prog(f, T.payOk, T.payOk + 8)})`}}>
@@ -504,7 +510,7 @@ export const classesStorefront = (d: ClassesData): PhoneScene => {
       {f: T.tapName, x: 195, y: 236},
       {f: T.tapPhone, x: 230, y: 326},
       {f: T.tapSend, x: 195, y: 726},
-      {f: T.tapPack, x: 195, y: 210 + 2 * 94 + 41},
+      {f: T.tapPack, x: 195, y: OPT_TOP + d.pay.pick * OPT_STEP + (OPT_STEP - 10) / 2},
       {f: T.tapApplePay, x: 195, y: 666},
     ],
     zooms: [

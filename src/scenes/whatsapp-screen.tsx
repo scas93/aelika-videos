@@ -1,6 +1,7 @@
 import React from 'react';
 import {Img, staticFile, useCurrentFrame} from 'remotion';
 import {BrandAvatar, HomeIndicator, StatusBar} from '../core/Phone';
+import {useBrand} from '../core/brand';
 import {SW, prog, typed} from '../core/theme';
 
 export type Msg = {
@@ -14,6 +15,10 @@ export type Msg = {
   card?: {image: string; footer: string; button: string; pressAt?: number}; // mensaje tipo tarjeta con botón
   /** botones de respuesta rápida bajo la burbuja */
   buttons?: {labels: string[]; pressAt?: number; pressIndex?: number};
+  /** menú numerado en una segunda burbuja (1 Reservar, 2 Horarios…) */
+  menu?: {items: string[]; note?: string};
+  /** aviso del sistema (cifrado de extremo a extremo) */
+  system?: boolean;
 };
 /** salto de tiempo: cortinilla dentro del chat */
 export type Jump = {a: number; b: number; label: string};
@@ -24,7 +29,7 @@ export const INPUT_BAR = 84;
 
 export const estH = (m: Msg) => {
   const lines = m.raw.split('\n').reduce((s, l) => s + Math.max(1, Math.ceil(l.length / 31)), 0);
-  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0) + (m.buttons ? m.buttons.labels.length * 44 : 0);
+  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0) + (m.buttons ? m.buttons.labels.length * 44 : 0) + (m.menu ? m.menu.items.length * 34 + (m.menu.note ? 48 : 0) + 30 : 0);
 };
 
 const Ticks = () => (
@@ -51,6 +56,7 @@ export const ChatScreen: React.FC<{
   jumps?: Jump[];
 }> = ({title, avatar, statusTime, messages, typing = [], inputs = [], jumps = []}) => {
   const f = useCurrentFrame();
+  const brand = useBrand();
   const visible = messages.filter((m) => f >= m.at);
   const isTyping = typing.some(([a, b]) => f >= a && f < b);
   // desplazamiento suave: los mensajes que van entrando empujan hacia arriba
@@ -76,6 +82,9 @@ export const ChatScreen: React.FC<{
                 {m.date && (
                   <div style={{alignSelf: 'center', background: '#fff', borderRadius: 8, padding: '5px 12px', fontSize: 12.5, color: '#54656f', margin: '6px 0', opacity: p, boxShadow: '0 1px .5px rgba(0,0,0,.1)'}}>{m.date}</div>
                 )}
+                {m.system ? (
+                  <div style={{alignSelf: 'center', maxWidth: 330, background: '#fcf3c7', borderRadius: 10, padding: '7px 12px', fontSize: 12.5, lineHeight: '17px', color: '#5b5440', textAlign: 'center', margin: '2px 0 8px', boxShadow: '0 1px .5px rgba(0,0,0,.08)'}}>{m.text}</div>
+                ) : (
                 <div
                   style={{
                     alignSelf: m.out ? 'flex-end' : 'flex-start',
@@ -113,6 +122,18 @@ export const ChatScreen: React.FC<{
                     </div>
                   )}
                 </div>
+                )}
+                {m.menu && (
+                  <div style={{alignSelf: 'flex-start', width: 292, background: '#fff', borderRadius: 14, borderTopLeftRadius: 4, padding: '10px 14px 10px', boxShadow: '0 1px .5px rgba(0,0,0,.13)', opacity: prog(f, m.at + 4, m.at + 12), transform: `translateY(${(1 - prog(f, m.at + 4, m.at + 12)) * 8}px)`}}>
+                    {m.menu.items.map((it, k) => (
+                      <div key={it} style={{display: 'flex', alignItems: 'center', gap: 10, height: 34, fontSize: 16}}>
+                        <div style={{width: 22, height: 22, borderRadius: 5, background: brand.colors.accentDark, color: '#fff', fontSize: 12.5, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{k + 1}</div>
+                        {it}
+                      </div>
+                    ))}
+                    {m.menu.note && <div style={{fontSize: 13, fontStyle: 'italic', color: '#7a7a7a', lineHeight: '18px', marginTop: 6}}>{m.menu.note}</div>}
+                  </div>
+                )}
                 {m.buttons && (
                   <div style={{alignSelf: 'flex-start', width: 292, display: 'flex', flexDirection: 'column', gap: 4, marginTop: -2, opacity: p}}>
                     {m.buttons.labels.map((l, bi) => {

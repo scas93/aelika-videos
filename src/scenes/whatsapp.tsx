@@ -40,6 +40,8 @@ export type Turn =
       buttons?: string[];
       /** el cliente toca este botón (índice) y se envía como su respuesta */
       tapButton?: number;
+      /** menú numerado en una segunda burbuja */
+      menu?: {items: string[]; note?: string};
     }
   | {
       /** cortinilla de salto de tiempo, p. ej. "Miércoles · 20:00" */
@@ -61,6 +63,8 @@ export type WhatsAppData = {
   time?: string;
   /** mensajes que ya estaban en el chat */
   history?: HistoryMsg[];
+  /** muestra "HOY" y el aviso de cifrado al inicio del chat */
+  notice?: boolean;
   script: Turn[];
   /** frames extra al final de la escena */
   hold?: number;
@@ -93,6 +97,9 @@ const toMsg = (m: {from: 'user' | 'bot'; text: string; card?: ChatCard; time?: s
 const schedule = (d: WhatsAppData) => {
   const time = d.time ?? '7:25 p. m.';
   const messages: Msg[] = (d.history ?? []).map((h) => toMsg(h, -100, time));
+  if (d.notice) {
+    messages.unshift({at: -100, raw: '', time: '', date: 'HOY', system: true, text: `🔒 Los mensajes están cifrados de extremo a extremo. Nadie fuera de este chat, ni siquiera ${d.title}, puede leerlos o escucharlos.`});
+  }
   const inputs: InputStep[] = [];
   const typing: Typing[] = [];
   const taps: Tap[] = [];
@@ -126,6 +133,7 @@ const schedule = (d: WhatsAppData) => {
       typing.push([t, t + ty]);
       const at = t + ty;
       const msg = toMsg(turn, at, time, turn.highlight ? {highlight: at + 8} : {});
+      if (turn.menu) msg.menu = turn.menu;
       if (turn.card && turn.tap) msg.card!.pressAt = at + 30;
       messages.push(msg);
       let pause = turn.pause ?? clamp(Math.round(plain(turn.text).length * 0.5), 16, 70);

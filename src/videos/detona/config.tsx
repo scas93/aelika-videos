@@ -1,5 +1,4 @@
 import {VideoConfig} from '../../core/types';
-import {aelikaPanel} from '../../scenes/aelika-panel';
 import {instagramProfile} from '../../scenes/instagram';
 import {classesStorefront} from '../../scenes/storefront/classes';
 import {whatsappChat} from '../../scenes/whatsapp';
@@ -30,14 +29,15 @@ export const detona: VideoConfig = {
   },
 
   scenes: [
-    // ESCENA 1 — Gancho: perfil de Instagram y toque al link de la bio
+    // ESCENA 1 — Gancho: perfil de Instagram y toque al botón de WhatsApp
     instagramProfile({
       username: 'detona_bodyworkout',
       name: 'Detona',
       stats: ['510', '16.4 mil', '154'],
       bio: ['Movimiento que detona tu mejor versión', 'Estudio solo para mujeres 🧘‍♀️', '🤍 Gdl, Jalisco. Rubén Dario 425-108', 'Barre, Intensity Mat, Burn Up, Flow & Force'],
       link: 'reservas.detonabodywork.com',
-      buttons: ['Seguir', 'Mensaje'],
+      buttons: ['Seguir', 'Mensaje', 'WhatsApp'],
+      tapButton: 2,
       ring: true,
       highlights: [
         {image: A('hl0.png'), label: 'Horarios'},
@@ -48,10 +48,42 @@ export const detona: VideoConfig = {
       ],
       grid: [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => A(`feed${i}.jpg`)),
       time: '10:14',
-      subtitle: '¿Reservar tu clase en 20 segundos?',
+      subtitle: '¿Reservar tu clase sin llamadas ni apps?',
     }),
 
-    // ESCENAS 2–8 — Storefront de clases
+    // ESCENA 2 — WhatsApp: menú y preguntas frecuentes
+    whatsappChat({
+      title: 'Detona Body Work',
+      statusTime: '10:14',
+      time: '10:14',
+      notice: true,
+      script: [
+        {from: 'user', text: 'Hola', sub: 'Te escribe directo a su WhatsApp.'},
+        {
+          from: 'bot',
+          text: '¡Hola! Bienvenida a *Detona Body Work* 🤍 Elige una opción para continuar:',
+          menu: {
+            items: ['Reservar clase', 'Horarios', 'Paquetes y precios', 'Ubicación'],
+            note: 'Si prefieres atención personalizada, escribe la palabra "asesor" y con gusto te atendemos.',
+          },
+          sub: 'Te responde al instante con un menú.',
+          pause: 60,
+        },
+        {from: 'user', text: '2', sub: 'Resuelve tus dudas al momento.'},
+        {from: 'bot', text: 'Tenemos clases de lunes a viernes de 06:00 a 21:00 y sábados de 08:00 a 13:00 🕘', pause: 40},
+        {from: 'user', text: '1', sub: 'Y te manda directo a reservar.'},
+        {
+          from: 'bot',
+          text: '*¡Perfecto! 💪*\nReserva en menos de un minuto: elige tu clase, tu horario y tu instructora.',
+          card: {image: A('photo-studio.jpg'), footer: 'reservas.detonabodywork.com', button: 'Reservar mi clase'},
+          tap: true,
+          zoom: true,
+          typing: 18,
+        },
+      ],
+    }),
+
+    // ESCENAS 3–9 — Storefront de clases
     classesStorefront({
       url: 'reservas.detonabodywork.com',
       coverPhoto: A('photo-studio.jpg'),
@@ -91,50 +123,27 @@ export const detona: VideoConfig = {
       customer: {name: 'Valeria Gómez', phone: '33 1987 6543', code: '4827'},
       codeFrom: 'Detona Body Work',
       pay: {
-        packageNote: 'No tienes un paquete activo',
-        single: '$240',
-        pack: {name: 'Paquete 5 clases', price: '$1,140', per: '$228 por clase', badge: 'MÁS POPULAR'},
+        options: [
+          {title: 'Usar mi paquete', sub: 'No tienes un paquete activo', disabled: true},
+          {title: 'Clase suelta', sub: 'Solo esta clase', price: '$240'},
+          {title: 'Paquete 5 clases', sub: '$228 por clase', price: '$1,140', badge: 'MÁS POPULAR'},
+          {title: 'Paquete 10 clases', sub: '$209 por clase · vigencia 60 días', price: '$2,090'},
+          {title: 'Ilimitado mensual', sub: 'Todas las clases que quieras por 30 días', price: '$2,690'},
+        ],
+        pick: 2,
         remainingAfter: 'Te quedan 4 clases en tu paquete',
       },
     }),
-
-    // ESCENA 9 — WhatsApp: confirmación + recordatorio
-    whatsappChat({
-      title: 'Detona Body Work',
-      statusTime: '10:17',
-      time: '10:17 a. m.',
-      script: [
-        {
-          from: 'bot',
-          text: '*¡Lugar apartado, Valeria!* ✅\n🔥 Intensity Mat con Mayte\n📅 Jueves 19 de nov · 06:00\n📍 Rubén Darío 425-108, Gdl\n\nSi no puedes venir, cancela sin costo hasta 12 h antes.',
-          typing: 14,
-          pause: 40,
-          sub: 'Confirmación y recordatorio automáticos.',
-        },
-        {from: 'jump', label: 'Miércoles · 20:00', statusTime: '20:00'},
-        {
-          from: 'bot',
-          text: 'Mañana tienes *Intensity Mat* a las 06:00 💪 ¿Confirmas?',
-          time: '8:00 p. m.',
-          typing: 16,
-          buttons: ['Sí, ahí estaré', 'Cancelar'],
-          tapButton: 0,
-        },
-      ],
-    }),
-
-    // ESCENA 10 — Lado del estudio
-    aelikaPanel({
-      business: 'Detona',
-      dateLabel: 'Jueves 19 de noviembre',
-      item: {time: '06:00', name: 'Intensity Mat', who: 'Mayte', booked: 8, capacity: 10},
-      attendees: ['Valeria G.', 'Ximena M.', 'Paola R.', 'Fernanda L.', 'Mariana C.', 'Daniela S.', 'Regina T.', 'Lucía H.'],
-      highlight: 0,
-      notification: {title: 'Buenos días, Mayte ☀️ Tus clases de hoy:', lines: ['06:00 · Intensity Mat · 8/10', '18:00 · Flow & Force · 6/10']},
-      statusTime: '5:30',
-      subtitle: 'Y tu equipo sabe a quién le toca.',
-    }),
   ],
+
+  addons: {
+    items: [
+      {icon: '🔔', title: 'Recordatorios automáticos', desc: 'Confirmación y recordatorio de cada clase por WhatsApp, sin que muevas un dedo.'},
+      {icon: '📣', title: 'Campañas y promociones', desc: 'Lanza descuentos, clases especiales y eventos a tus alumnas en\u00a0un\u00a0clic.'},
+      {icon: '👥', title: 'Notificaciones para tu equipo', desc: 'Cada instructora recibe sus clases del día y avisos de cambios.'},
+      {icon: '🎁', title: 'Programa de lealtad', desc: 'Sellos y recompensas que hacen volver a tus alumnas.'},
+    ],
+  },
 
   outro: {
     tagline: ['Reservas, paquetes y recordatorios', 'para tu estudio.'],

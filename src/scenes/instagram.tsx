@@ -114,6 +114,8 @@ export type InstagramProfileData = {
   buttons?: string[];
   /** aro de historias alrededor del logo */
   ring?: boolean;
+  /** si se indica, el cliente toca este botón (p. ej. "WhatsApp") en vez del link de la bio */
+  tapButton?: number;
   time?: string;
   subtitle?: string;
 };
@@ -134,7 +136,8 @@ const ProfileScreen: React.FC<{d: InstagramProfileData}> = ({d}) => {
   const {colors} = useBrand();
   const L = profileLayout(d.bio.length);
   const scrollX = -prog(f, 35, 55) * 36;
-  const linkTap = f >= LINK_TAP;
+  const linkTap = f >= LINK_TAP && d.tapButton === undefined;
+  const btnTap = d.tapButton !== undefined && f >= LINK_TAP && f < LINK_TAP + 10 ? d.tapButton : -1;
   const btn = (label: React.ReactNode, w: number | string, blue?: boolean) => (
     <div style={{width: w, flex: typeof w === 'string' ? 1 : undefined, height: 33, borderRadius: 9, background: blue ? '#4a5df9' : '#25292e', color: '#fff', fontWeight: 600, fontSize: 14.5, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{label}</div>
   );
@@ -180,7 +183,7 @@ const ProfileScreen: React.FC<{d: InstagramProfileData}> = ({d}) => {
       )}
       <div style={{position: 'absolute', top: L.buttons, left: 16, right: 16, display: 'flex', gap: 6}}>
         {(d.buttons ?? ['Seguir', 'Mensaje', 'Llamar']).map((b, i) => (
-          <React.Fragment key={b}>{btn(b, '1', i === 0)}</React.Fragment>
+          <div key={b} style={{flex: 1, display: 'flex', transform: i === btnTap ? 'scale(.95)' : 'none', filter: i === btnTap ? 'brightness(1.4)' : 'none'}}>{btn(b, '1', i === 0)}</div>
         ))}
         {btn(<Icon d={I.addUser} size={18} sw={2} />, 34)}
       </div>
@@ -221,6 +224,12 @@ const ProfileScreen: React.FC<{d: InstagramProfileData}> = ({d}) => {
   );
 };
 
+const buttonPos = (d: InstagramProfileData, top: number) => {
+  const n = (d.buttons ?? ['Seguir', 'Mensaje', 'Llamar']).length;
+  const w = (358 - 34 - n * 6) / n;
+  return {x: 16 + (d.tapButton ?? 0) * (w + 6) + w / 2, y: top + 16};
+};
+
 /** Perfil de Instagram: desliza las historias destacadas y toca el link de la bio. 4 s. */
 export const instagramProfile = (d: InstagramProfileData): PhoneScene => {
   const L = profileLayout(d.bio.length);
@@ -231,7 +240,7 @@ export const instagramProfile = (d: InstagramProfileData): PhoneScene => {
     Component: () => <ProfileScreen d={d} />,
     taps: [
       {f: 35, x: 300, y: L.highlights + 32, to: {x: 250, y: L.highlights + 32, d: 18}},
-      {f: LINK_TAP, x: 140, y: L.linkTop + 10},
+      d.tapButton === undefined ? {f: LINK_TAP, x: 140, y: L.linkTop + 10} : {f: LINK_TAP, ...buttonPos(d, L.buttons)},
     ],
     subtitles: [{at: 0, text: d.subtitle ?? 'Entras a su perfil.'}],
   };
