@@ -40,4 +40,12 @@ export type VideoConfig = {
     more?: string;
   };
   outro?: {tagline?: [string, string]; email?: string; phone?: string; cta?: string};
+  /** música de fondo (archivo en /public, p. ej. "musica/pista.mp3") */
+  music?: {
+    src: string;
+    /** volumen 0–1 (por defecto 0.8) */
+    volume?: number;
+    /** segundo de la canción en que empieza el video (por defecto 0) */
+    startAt?: number;
+  };
 };

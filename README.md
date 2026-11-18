@@ -36,6 +36,7 @@ node scripts/stills.mjs CasaOccidente out/stills 140 520 1300
    - `scenes`: la lista de escenas en orden (ver abajo).
    - `addons`: las tarjetas del final (opcional).
    - `outro`: lema, contacto y botón (`cta`, p. ej. "Agenda tu demo"), todos opcionales.
+   - `music`: pista de fondo, p. ej. `{src: 'musica/pista.mp3', volume: 0.8, startAt: 12}`. Entra suave y se desvanece al final. `startAt` es el segundo de la canción en que arranca el video.
 3. Regístralo en `src/videos/index.ts`.
 4. `npm run studio` para revisarlo y `npm run render -- <id>` para exportarlo.
 

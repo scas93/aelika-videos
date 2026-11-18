@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Sequence, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {Intro, Outro} from '../aelika/Aelika';
 import {Addons, addonsDuration} from '../scenes/addons';
 import {BrandProvider, useBrand} from './brand';
@@ -151,8 +151,23 @@ const Flow: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
   );
 };
 
+/** Música con entrada suave y salida desvanecida al final del video. */
+const Music: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
+  if (!cfg.music) return null;
+  const total = videoDuration(cfg);
+  const vol = cfg.music.volume ?? 0.8;
+  return (
+    <Audio
+      src={staticFile(cfg.music.src)}
+      startFrom={Math.round((cfg.music.startAt ?? 0) * 30)}
+      volume={(f) => vol * interpolate(f, [0, 15, total - 60, total - 2], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}
+    />
+  );
+};
+
 export const VideoTemplate: React.FC<{cfg: VideoConfig}> = ({cfg}) => (
   <BrandProvider brand={cfg.brand}>
+    <Music cfg={cfg} />
     <AbsoluteFill style={{width: W, height: H, fontFamily: FONT, overflow: 'hidden', background: '#f3efe9'}}>
       <Sequence from={FLOW_START} layout="none">
         <Flow cfg={cfg} />
