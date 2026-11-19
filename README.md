@@ -45,6 +45,16 @@ node scripts/stills.mjs CasaOccidente out/stills 140 520 1300
 
 `BRIEF.md` tiene la lista de lo que hay que pedirle al cliente.
 
+### Video genérico de fitness (Pulso Studio)
+
+`src/videos/pulso-studio/config.tsx` es un video **genérico** para estudios y gimnasios con una marca ficticia, *Pulso Studio*.
+La narración (Sarah) no menciona el nombre del negocio, así que **para personalizarlo a un prospecto no hay que regenerar la voz**:
+
+1. Copia `src/videos/pulso-studio/` a `src/videos/<gimnasio>/` y regístralo en `src/videos/index.ts`.
+2. En `config.tsx` cambia `id`, `brand` (nombre, logo, colores), los textos de `entryPoints` y `whatsappChat`, y en el storefront el título, las fotos, las clases, los coaches y los precios.
+3. Deja `narration` apuntando a `narracion/pulso-studio/…` (es el mismo audio para todos).
+4. Si cambias el número de opciones o de pasos, revisa los tiempos con `node scripts/stills.mjs` antes de exportar.
+
 ## Escenas disponibles
 
 | Escena | Función | Duración | Qué hace el dedo |

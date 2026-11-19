@@ -33,7 +33,8 @@ export type ClassesData = {
   pickFilter: number;
   /** clase elegida (índice dentro de `classes`) */
   pickClass: number;
-  detail: {duration: string; level: string; focus: string; description: string; dayLong: string};
+  /** coachRole: etiqueta bajo el nombre del coach (por defecto "Instructora") */
+  detail: {duration: string; level: string; focus: string; description: string; dayLong: string; coachRole?: string};
   customer: {name: string; phone: string; code: string};
   /** notificación con el código */
   codeFrom: string;
@@ -253,7 +254,7 @@ const DetailSheet: React.FC<{f: number; d: ClassesData}> = ({f, d}) => {
             <div style={{width: 36, height: 36, borderRadius: '50%', background: rgba(colors.accent, 0.35), color: colors.accentDark, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 600}}>{c.coach[0]}</div>
             <div>
               <div style={{fontSize: 14.5, fontWeight: 500}}>{c.coach}</div>
-              <div style={{fontSize: 12, color: colors.muted}}>Instructora</div>
+              <div style={{fontSize: 12, color: colors.muted}}>{d.detail.coachRole ?? 'Instructora'}</div>
             </div>
           </div>
           <div style={{display: 'flex', gap: 6, marginTop: 14}}>
