@@ -154,7 +154,24 @@ export const detona: VideoConfig = {
   },
 
   // Chill House · Sunset Groove (TurtleBeats, Pixabay) · ~112 BPM
-  music: {src: 'musica/sunset-groove.mp3', volume: 0.8, startAt: 0.25},
+  music: {src: 'musica/sunset-groove.mp3', volume: 0.14, startAt: 0.25},
+
+  // Voz en off: Sarah (ElevenLabs). Guion en ./narracion.json; se regenera con
+  //   node scripts/narrate.mjs src/videos/detona/narracion.json public/narracion/detona
+  // Escenas: 0 = puntos de entrada, 1 = WhatsApp, 2 = storefront
+  narration: {
+    clips: [
+      {src: 'narracion/detona/01.mp3', anchor: 'intro', offset: 0.4},
+      {src: 'narracion/detona/02.mp3', anchor: 0, offset: 0.3},
+      {src: 'narracion/detona/03.mp3', anchor: 1, offset: 1.1},
+      {src: 'narracion/detona/04.mp3', anchor: 2, offset: 0.3},
+      {src: 'narracion/detona/05.mp3', anchor: 2, offset: 11.9},
+      {src: 'narracion/detona/06.mp3', anchor: 2, offset: 23.2},
+      {src: 'narracion/detona/07.mp3', anchor: 2, offset: 30.2},
+      {src: 'narracion/detona/08.mp3', anchor: 'addons', offset: 0.5},
+      {src: 'narracion/detona/09.mp3', anchor: 'outro', offset: 0.4},
+    ],
+  },
 
   // Primer frame del video = miniatura en WhatsApp
   cover: {useOutro: true},
