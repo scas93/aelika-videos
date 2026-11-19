@@ -119,6 +119,10 @@ export const lacarniceriaLira: VideoConfig = {
     ],
   },
 
+  // Chill House · Sunset Groove (TurtleBeats, Pixabay), la misma de Detona. No va en el repo:
+  // descárgala y guárdala como public/musica/sunset-groove.mp3
+  music: {src: 'musica/sunset-groove.mp3', volume: 0.14, startAt: 0.25},
+
   // Voz en off: Eric (ElevenLabs). Guion en ./narracion.json; se regenera con
   //   node scripts/narrate.mjs src/videos/lacarniceria-lira/narracion.json public/narracion/lacarniceria-lira
   // Escenas: 0 = puntos de entrada, 1 = WhatsApp, 2 = storefront
