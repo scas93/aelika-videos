@@ -136,7 +136,7 @@ const PrimaryBtn: React.FC<{label: React.ReactNode; top?: number; pressed?: bool
 };
 
 /** Notificación de WhatsApp que baja desde arriba (solo el globito). */
-const WaBanner: React.FC<{p: number; from: string; children: React.ReactNode}> = ({p, from, children}) => {
+export const WaBanner: React.FC<{p: number; from: string; children: React.ReactNode}> = ({p, from, children}) => {
   if (p <= 0) return null;
   return (
     <div style={{position: 'absolute', top: 52 + (1 - p) * -130, left: 10, right: 10, zIndex: 60, borderRadius: 20, background: 'rgba(245,245,245,.97)', boxShadow: '0 8px 24px rgba(0,0,0,.18)', padding: '10px 12px', display: 'flex', gap: 10, alignItems: 'center'}}>

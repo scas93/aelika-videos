@@ -10,7 +10,7 @@ import {PhoneScene} from '../core/types';
  * Instagram, sitio web y QR alrededor del teléfono; cada una toca su botón de
  * WhatsApp y converge en el teléfono. Después sigue la escena de WhatsApp.
  */
-export type Channel = 'maps' | 'instagram' | 'web' | 'qr';
+export type Channel = 'maps' | 'instagram' | 'facebook' | 'web' | 'qr';
 
 export type EntryPointsData = {
   channels?: Channel[];
@@ -27,6 +27,19 @@ export type EntryPointsData = {
   time?: string;
   dateLabel?: string;
   subtitles?: [string, string];
+  /** textos de las tarjetas (por defecto, los de un estudio) */
+  copy?: {
+    /** título grande del sitio web (por defecto, la primera palabra del nombre) */
+    webTitle?: string;
+    webTagline?: string;
+    webButton?: string;
+    qrTitle?: string;
+    qrWhere?: string;
+    /** etiqueta sobre cada tarjeta, p. ej. {qr: 'QR EN TU RESTAURANTE'} */
+    labels?: Partial<Record<Channel, string>>;
+    /** seguidores en Facebook, p. ej. "2.3 mil" */
+    fbFollowers?: string;
+  };
 };
 
 const DUR = 180;
@@ -104,6 +117,26 @@ const InstagramCard: React.FC<{d: EntryPointsData; pressed: boolean}> = ({d, pre
   </div>
 );
 
+const FacebookCard: React.FC<{d: EntryPointsData; pressed: boolean}> = ({d, pressed}) => (
+  <div style={{background: '#fff', color: '#050505', padding: '16px 14px 16px'}}>
+    <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+      <BrandAvatar size={62} />
+      <div style={{minWidth: 0}}>
+        <div style={{fontSize: 17, fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{d.name}</div>
+        <div style={{fontSize: 14.5, color: '#65676b', marginTop: 2}}>
+          {d.category} · {d.copy?.fbFollowers ?? '2.3 mil'} seguidores
+        </div>
+      </div>
+    </div>
+    <div style={{display: 'flex', gap: 6, marginTop: 16}}>
+      <div style={{flex: 1, height: 44, borderRadius: 10, background: '#e4e6eb', fontSize: 17, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6}}>
+        <span style={{color: '#1877f2'}}>👍</span> Me gusta
+      </div>
+      <WaButton pressed={pressed} full />
+    </div>
+  </div>
+);
+
 const WebCard: React.FC<{d: EntryPointsData; pressed: boolean}> = ({d, pressed}) => {
   const {colors} = useBrand();
   return (
@@ -111,15 +144,15 @@ const WebCard: React.FC<{d: EntryPointsData; pressed: boolean}> = ({d, pressed})
       <div style={{height: 34, background: '#ececec', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14.5, color: '#555'}}>🔒 {d.web}</div>
       <div style={{padding: '18px 14px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
         <BrandAvatar size={56} />
-        <div style={{marginTop: 10, fontSize: 22, fontWeight: 300, letterSpacing: 6}}>{d.name.split(' ')[0].toUpperCase()}</div>
-        <div style={{fontSize: 14.5, color: colors.muted, marginTop: 4, marginBottom: 14}}>¿Lista para tu primera clase?</div>
-        <WaButton label="Escríbenos" pressed={pressed} />
+        <div style={{marginTop: 10, fontSize: 22, fontWeight: 300, letterSpacing: 6}}>{d.copy?.webTitle ?? d.name.split(' ')[0].toUpperCase()}</div>
+        <div style={{fontSize: 14.5, color: colors.muted, marginTop: 4, marginBottom: 14}}>{d.copy?.webTagline ?? '¿Lista para tu primera clase?'}</div>
+        <WaButton label={d.copy?.webButton ?? 'Escríbenos'} pressed={pressed} />
       </div>
     </div>
   );
 };
 
-const QrCard: React.FC<{scan: number}> = ({scan}) => {
+const QrCard: React.FC<{scan: number; d: EntryPointsData}> = ({scan, d}) => {
   const {colors} = useBrand();
   const N = 21;
   const finder = (r: number, c: number) => {
@@ -140,7 +173,7 @@ const QrCard: React.FC<{scan: number}> = ({scan}) => {
   const cell = 7.4;
   return (
     <div style={{background: '#fff', color: colors.dark, padding: '16px 14px', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-      <div style={{fontSize: 18, fontWeight: 600, letterSpacing: 0.3}}>Escanea para reservar</div>
+      <div style={{fontSize: 18, fontWeight: 600, letterSpacing: 0.3}}>{d.copy?.qrTitle ?? 'Escanea para reservar'}</div>
       <div style={{position: 'relative', marginTop: 12, width: N * cell, height: N * cell}}>
         <svg width={N * cell} height={N * cell}>
           {Array.from({length: N * N}).map((_, i) => {
@@ -156,14 +189,14 @@ const QrCard: React.FC<{scan: number}> = ({scan}) => {
         </div>
         {scan > 0 && scan < 1 && <div style={{position: 'absolute', left: -6, right: -6, top: scan * N * cell, height: 3, background: WA, boxShadow: `0 0 12px ${WA}`}} />}
       </div>
-      <div style={{fontSize: 14, color: colors.muted, marginTop: 10}}>en recepción</div>
+      <div style={{fontSize: 14, color: colors.muted, marginTop: 10}}>{d.copy?.qrWhere ?? 'en recepción'}</div>
     </div>
   );
 };
 
-const LABELS: Record<Channel, string> = {maps: 'GOOGLE MAPS', instagram: 'INSTAGRAM', web: 'TU SITIO WEB', qr: 'QR EN TU ESTUDIO'};
+const LABELS: Record<Channel, string> = {maps: 'GOOGLE MAPS', instagram: 'INSTAGRAM', facebook: 'FACEBOOK', web: 'TU SITIO WEB', qr: 'QR EN TU ESTUDIO'};
 // posición aprox. del botón de WhatsApp dentro de cada tarjeta (relativa a la tarjeta)
-const BTN: Record<Channel, {x: number; y: number}> = {maps: {x: 205, y: 209}, instagram: {x: 180, y: 114}, web: {x: 135, y: 189}, qr: {x: 137, y: 116}};
+const BTN: Record<Channel, {x: number; y: number}> = {maps: {x: 205, y: 209}, instagram: {x: 180, y: 114}, facebook: {x: 180, y: 114}, web: {x: 135, y: 189}, qr: {x: 137, y: 116}};
 
 const Overlay: React.FC<{d: EntryPointsData}> = ({d}) => {
   const f = useCurrentFrame();
@@ -200,12 +233,13 @@ const Overlay: React.FC<{d: EntryPointsData}> = ({d}) => {
         return (
           <React.Fragment key={c}>
             <div style={{position: 'absolute', left: x, top: y, width: W_CARD, opacity: appear * (1 - merge), transform: `scale(${K * (0.9 + 0.1 * appear) * (1 - 0.7 * merge)}) translateY(${(1 - appear) * 20}px)`, transformOrigin: 'left top'}}>
-              <div style={{fontSize: 18, fontWeight: 700, letterSpacing: 3, color: labelColor, marginBottom: 10, textAlign: 'center'}}>{LABELS[c]}</div>
+              <div style={{fontSize: 18, fontWeight: 700, letterSpacing: 3, color: labelColor, marginBottom: 10, textAlign: 'center'}}>{d.copy?.labels?.[c] ?? LABELS[c]}</div>
               <div style={{borderRadius: 22, overflow: 'hidden', boxShadow: '0 18px 40px rgba(0,0,0,.18)'}}>
                 {c === 'maps' && <MapsCard d={d} pressed={pressed} />}
                 {c === 'instagram' && <InstagramCard d={d} pressed={pressed} />}
+                {c === 'facebook' && <FacebookCard d={d} pressed={pressed} />}
                 {c === 'web' && <WebCard d={d} pressed={pressed} />}
-                {c === 'qr' && <QrCard scan={prog(f, tap - 10, tap + 10)} />}
+                {c === 'qr' && <QrCard d={d} scan={prog(f, tap - 10, tap + 10)} />}
               </div>
             </div>
             {/* dedo sobre el botón de WhatsApp de cada tarjeta */}

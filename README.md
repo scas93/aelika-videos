@@ -37,7 +37,7 @@ node scripts/stills.mjs CasaOccidente out/stills 140 520 1300
    - `addons`: las tarjetas del final (opcional).
    - `outro`: lema, contacto y botón (`cta`, p. ej. "Agenda tu demo"), todos opcionales.
    - `narration`: voz en off, un audio por frase anclado a una escena: `{clips: [{src: 'narracion/detona/01.mp3', anchor: 'intro'}, {src: '…', anchor: 2, offset: 0.5}]}`. `anchor` es `'intro'`, `'addons'`, `'outro'` o el índice de la escena en `scenes`. Si hay narración, baja la música (`music.volume` ≈ 0.15).
-   - Para generar la narración con ElevenLabs: escribe el guion en `src/videos/<negocio>/narracion.json` (`voiceId`, `speed`, `lines`) y corre `NODE_USE_ENV_PROXY=1 node scripts/narrate.mjs src/videos/<negocio>/narracion.json public/narracion/<negocio>` (en tu computadora, con `ELEVENLABS_API_KEY`). Imprime la duración de cada frase para acomodar los `offset`.
+   - Para generar la narración con ElevenLabs: escribe el guion en `src/videos/<negocio>/narracion.json` (`voiceId`, `speed`, `lines`) y corre `NODE_USE_ENV_PROXY=1 node scripts/narrate.mjs src/videos/<negocio>/narracion.json public/narracion/<negocio>` (en tu computadora con `ELEVENLABS_API_KEY`; en la nube de Claude la llave la inyecta el entorno). Con el plan gratuito de ElevenLabs solo funcionan las voces incluidas en la cuenta (p. ej. Sarah o Eric), no las de la biblioteca pública. Imprime la duración de cada frase para acomodar los `offset`.
    - `cover`: portada del primer frame, que WhatsApp usa como miniatura: `{kicker, title: [línea1, línea2]}` o `{useOutro: true}` para usar la pantalla final de Aelika (logo, lema y contacto). Dura 0.6 s y se desvanece hacia el intro.
    - `music`: pista de fondo, p. ej. `{src: 'musica/pista.mp3', volume: 0.8, startAt: 12}`. Entra suave y se desvanece al final. `startAt` es el segundo de la canción en que arranca el video. Las pistas van en `public/musica/`, que no se sube al repo por la licencia de la música: hay que descargarlas de nuevo (p. ej. Detona usa *Chill House · Sunset Groove* de TurtleBeats en Pixabay, guardada como `public/musica/sunset-groove.mp3`).
 3. Regístralo en `src/videos/index.ts`.
@@ -49,13 +49,14 @@ node scripts/stills.mjs CasaOccidente out/stills 140 520 1300
 
 | Escena | Función | Duración | Qué hace el dedo |
 |---|---|---|---|
-| Puntos de entrada | `entryPoints({...})` | 5 s | Tarjetas de Google Maps, Instagram, sitio web y QR tocan WhatsApp y convergen en el teléfono |
+| Puntos de entrada | `entryPoints({...})` | 6 s | Hasta 4 tarjetas (`channels`: Google Maps, Instagram, Facebook, sitio web, QR) tocan WhatsApp y convergen en el teléfono. Los textos de las tarjetas se cambian con `copy` |
 | Post de Instagram | `instagramPost({...})` | 3 s | Doble toque (like) y toca la cuenta |
 | Perfil de Instagram | `instagramProfile({...})` | 4 s | Desliza las historias y toca el link de la bio |
 | Linktree | `linktree({...})` | 3 s | Toca uno de los botones |
 | Chat de WhatsApp | `whatsappChat({...})` | automática | Envía mensajes y toca la tarjeta con botón |
 | Storefront de citas | `appointmentsStorefront({...})` | 20 s | Servicio → extra → profesional → día y hora → datos → confirmar |
 | Storefront de clases | `classesStorefront({...})` | 35 s | Portada → día → filtro → detalle → WhatsApp + código → paquete/Apple Pay → lugar apartado |
+| Storefront de pedidos | `ordersStorefront({...})` | 34 s | Menú con fotos (toca "+" según `qty` de cada producto, con scroll) → carrito → a domicilio con **cotización de Uber** (precio y tiempo) o para recoger → resumen con productos y envío por separado → Apple Pay → pedido confirmado con seguimiento |
 | Panel de Aelika | `aelikaPanel({...})` | 5 s | Ocupación de la clase + notificación al equipo |
 
 ### Chat de WhatsApp por guion
@@ -97,9 +98,8 @@ public/        fotos y logos, una carpeta por negocio
 
 ## Pendiente: otros giros
 
-Por ahora existen los storefronts de **citas** y **clases**. Los siguientes se construyen sobre `scenes/storefront/shell.tsx` conforme se necesiten:
+Por ahora existen los storefronts de **citas**, **clases** y **pedidos de comida** (sin extras por producto todavía). Los siguientes se construyen sobre `scenes/storefront/shell.tsx` conforme se necesiten:
 
-- **Pedidos de comida**: menú → producto con extras → carrito → entrega o recoger → pago → seguimiento.
 - **Tienda**: catálogo → talla y color → carrito → envío → pago → guía.
 - **Pedidos por encargo**: producto → personalización → fecha → anticipo.
 
