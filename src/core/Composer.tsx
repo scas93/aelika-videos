@@ -174,6 +174,24 @@ const Music: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
   );
 };
 
+/** Narración: cada clip suena desde el inicio de su ancla (+ offset). */
+const Narration: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
+  if (!cfg.narration) return null;
+  const tl = buildTimeline(cfg);
+  const lead = cfg.cover ? COVER_LEN : 0;
+  const anchorFrame = (a: 'intro' | 'addons' | 'outro' | number) =>
+    a === 'intro' ? lead : lead + FLOW_START + (a === 'addons' ? tl.phoneEnd : a === 'outro' ? tl.outroStart : tl.scenes[a].start);
+  return (
+    <>
+      {cfg.narration.clips.map((c, i) => (
+        <Sequence key={i} from={anchorFrame(c.anchor) + Math.round((c.offset ?? 0) * 30)} layout="none">
+          <Audio src={staticFile(c.src)} volume={cfg.narration!.volume ?? 1} />
+        </Sequence>
+      ))}
+    </>
+  );
+};
+
 /** Portada: primer frame del video (miniatura en WhatsApp). */
 const Cover: React.FC<{cover: NonNullable<VideoConfig['cover']>; outro?: VideoConfig['outro']}> = ({cover, outro}) => {
   const f = useCurrentFrame();
@@ -222,6 +240,7 @@ export const VideoTemplate: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
   return (
     <BrandProvider brand={cfg.brand}>
       <Music cfg={cfg} />
+      <Narration cfg={cfg} />
       <AbsoluteFill style={{width: W, height: H, fontFamily: FONT, overflow: 'hidden', background: '#f3efe9'}}>
         <Sequence from={lead + FLOW_START} layout="none">
           <Flow cfg={cfg} />

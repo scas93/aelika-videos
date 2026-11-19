@@ -29,7 +29,7 @@ export type EntryPointsData = {
   subtitles?: [string, string];
 };
 
-const DUR = 150;
+const DUR = 180;
 const W_CARD = 272;
 const K = 1.2; // escala de las tarjetas
 const SLOTS = [
@@ -39,8 +39,8 @@ const SLOTS = [
   {x: 1066 - W_CARD * K, y: 1150},
 ];
 const TAP0 = 34;
-const TAP_STEP = 14;
-const MERGE = 96;
+const TAP_STEP = 20;
+const MERGE = 126;
 const PHONE_C = {x: 540, y: 900};
 const WA = '#25d366';
 

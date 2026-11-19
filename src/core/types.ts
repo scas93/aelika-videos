@@ -55,4 +55,12 @@ export type VideoConfig = {
     /** segundo de la canción en que empieza el video (por defecto 0) */
     startAt?: number;
   };
+  /**
+   * Narración: un audio por frase, anclado al inicio del intro, de una escena
+   * (por su índice en `scenes`), de los add-ons o del outro.
+   */
+  narration?: {
+    volume?: number;
+    clips: {src: string; anchor: 'intro' | 'addons' | 'outro' | number; /** segundos después del ancla */ offset?: number}[];
+  };
 };
