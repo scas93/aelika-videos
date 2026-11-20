@@ -2,10 +2,12 @@
 
 Proyecto en [Remotion](https://www.remotion.dev/) (React → MP4) para los videos de Aelika. Hay **varios tipos de video**, cada uno en su carpeta de `src/videos/`:
 
+**Onboarding:** todo video nuevo empieza preguntando su tipo (skill `video-nuevo`). Cada tipo tiene una ficha `src/videos/<tipo>/TIPO.md` con qué preguntar, qué assets se necesitan, de qué base partir, sus reglas de calidad y una sección de **Aprendizajes** que crece con cada video, para no perder las mejoras. Cada video guarda su `brief.md` (respuestas, origen de los assets, qué datos son reales).
+
 | Tipo | Carpeta | Para qué es | Estado |
 |---|---|---|---|
 | **Demos comerciales** | `src/videos/demos/` | Herramienta de venta: simulan el flujo completo de un cliente con la **marca del prospecto** (su logo, colores, productos y precios) para que se imagine usando Aelika. Se mandan uno a uno a cada prospecto. | En uso: Casa Occidente, Detona, La Carnicería Lira, Pulso Studio (genérico de fitness) |
-| **Marketing** | `src/videos/marketing/` | Anuncios y reels para redes, piezas de marca, etc. | Próximamente (ver `src/videos/marketing/README.md`) |
+| **Marketing** | `src/videos/marketing/` | Anuncios y reels para redes, piezas de marca, etc. | Próximamente (ficha inicial en `src/videos/marketing/TIPO.md`) |
 
 En **las demos comerciales** importa, sobre todo:
 - **Personalización:** que el prospecto vea *su* negocio. Usa sus datos reales; los datos inventados (reseñas, seguidores, precios) solo en las demos genéricas.
@@ -68,7 +70,7 @@ Por pasos:
 3. Regístralo en `src/videos/demos/index.ts`.
 4. `npm run studio` para revisarlo y `npm run render -- <id>` para exportarlo.
 
-`BRIEF.md` tiene la lista de lo que hay que pedirle al cliente.
+`src/videos/demos/TIPO.md` tiene qué preguntarle al prospecto, los assets que se necesitan, las bases y los aprendizajes; cada demo guarda sus respuestas en su `brief.md`.
 
 ### Demo genérica de fitness (Pulso Studio)
 
@@ -133,8 +135,8 @@ src/
   scenes/        escenas reutilizables (instagram, linktree, whatsapp, add-ons, grabación real)
     storefront/  storefronts por giro (shell.tsx = piezas comunes)
   videos/        un registro por tipo de video (index.ts junta todos)
-    demos/       demos comerciales: un config.tsx por video + index.ts
-    marketing/   (próximamente)
+    demos/       demos comerciales: TIPO.md (ficha) + index.ts + una carpeta por video (config.tsx, brief.md, narracion.json)
+    marketing/   (próximamente) TIPO.md
 public/          fotos y logos (una carpeta por negocio), narración y música
 scripts/         render, revisión, arranque de videos, narración
 grabacion/       demos grabando la app real (proyecto aparte, ver grabacion/README.md)

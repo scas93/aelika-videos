@@ -37,6 +37,22 @@ if (name) {
 fs.mkdirSync(out, {recursive: true});
 fs.writeFileSync(path.join(out, 'config.tsx'), `// Copiado de ${base} con \`npm run new\`. Revisa marca, fotos, textos y precios.\n` + cfg);
 if (fs.existsSync(path.join(src, 'narracion.json'))) fs.copyFileSync(path.join(src, 'narracion.json'), path.join(out, 'narracion.json'));
+// brief del video nuevo (lo llena quien hace el onboarding; ver src/videos/<tipo>/TIPO.md)
+fs.writeFileSync(path.join(out, 'brief.md'), `# Brief · ${name ?? id}
+
+- **Tipo:** ${tipo} · **variante:** (personalizada / genérica) · **Id:** \`${id}\` · **fecha:** ${new Date().toISOString().slice(0, 10)}
+- **Base:** \`${base}\`
+
+## Negocio
+
+## Operación (pago, entrega, horarios…)
+
+## Assets y origen
+
+## Datos de ejemplo (no reales)
+
+## Pendiente
+`);
 
 // fotos: se copian las del base como punto de partida (hay que cambiarlas por las del negocio)
 const pubSrc = path.join('public', base);
@@ -55,6 +71,7 @@ fs.writeFileSync(idx, reg);
 
 console.log(`Listo: ${out}/config.tsx (id ${id}), fotos en ${pubOut}/, registrado en ${idx}.
 Siguientes pasos:
+  0. Llena ${out}/brief.md con el onboarding (ver src/videos/${tipo}/TIPO.md).
   1. Cambia el logo y las fotos en ${pubOut}/ (mismos nombres o actualiza config.tsx).
   2. Ajusta en config.tsx colores, textos del chat, productos/clases y precios.
   3. npm run check -- ${id} --sheet   (revisa y arma la hoja de cuadros)

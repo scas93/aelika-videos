@@ -12,7 +12,7 @@ Aelika tiene) y **datos creíbles** (reales del prospecto; inventados solo en de
 Los videos de marketing (anuncios, reels) son otro tipo y vivirán en `src/videos/marketing/`.
 
 Las demos viven en `src/videos/demos/<negocio>/` y se registran en `src/videos/demos/index.ts`.
-Lee `README.md` (escenas disponibles, opciones de cada una) y `BRIEF.md` (qué pedirle al cliente).
+Si llegaste sin pasar por el onboarding, empieza con la skill `video-nuevo`. Lee `src/videos/demos/TIPO.md` (qué preguntar, assets, bases, reglas y **Aprendizajes**) y `README.md` (escenas y opciones). Al terminar, agrega lo aprendido a los Aprendizajes de `TIPO.md` y actualiza el `brief.md` del video.
 
 ## Proceso
 
