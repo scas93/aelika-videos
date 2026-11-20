@@ -1,6 +1,6 @@
-# Brief para un video nuevo
+# Brief para una demo comercial
 
-Lo que se necesita del negocio para armar su video.
+Lo que se necesita del negocio (el prospecto) para armar su demo: un video que simula su flujo con su marca para venderle Aelika.
 
 ## 1. Marca
 - [ ] Nombre comercial y giro

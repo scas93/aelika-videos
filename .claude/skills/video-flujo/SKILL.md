@@ -1,10 +1,17 @@
 ---
 name: video-flujo
-description: Hace o ajusta un video vertical de Aelika con la PLANTILLA de escenas simuladas (Remotion) — puntos de entrada, chat de WhatsApp, storefront de citas/clases/pedidos, add-ons y outro, con narración de ElevenLabs y música. Úsala para un video nuevo de un negocio o giro, una versión personalizada para un prospecto, o cambios de textos, tiempos, voz o formato. Para grabar la app real usa la skill video-grabacion.
+description: Hace o ajusta una DEMO COMERCIAL de Aelika con la plantilla de escenas simuladas (Remotion) — un video que simula el flujo de un cliente con la marca de un prospecto para venderle Aelika (puntos de entrada, chat de WhatsApp, storefront de citas/clases/pedidos, add-ons y outro, con narración y música). Úsala para una demo nueva de un negocio o giro, una versión personalizada para un prospecto, o cambios de textos, tiempos, voz o formato. No es para videos de marketing (anuncios/reels). Para grabar la app real usa la skill video-grabacion.
 ---
 
-# Video de flujo con la plantilla
+# Demo comercial con la plantilla
 
+**Qué es:** una herramienta de venta. Simula el flujo completo de un cliente con la marca de un *prospecto*
+(su logo, colores, productos y precios) para que se imagine usando Aelika. Se manda uno a uno, así que
+60–70 s está bien. Lo que más importa: **personalización**, **fidelidad al producto real** (solo funciones que
+Aelika tiene) y **datos creíbles** (reales del prospecto; inventados solo en demos genéricas como Pulso Studio).
+Los videos de marketing (anuncios, reels) son otro tipo y vivirán en `src/videos/marketing/`.
+
+Las demos viven en `src/videos/demos/<negocio>/` y se registran en `src/videos/demos/index.ts`.
 Lee `README.md` (escenas disponibles, opciones de cada una) y `BRIEF.md` (qué pedirle al cliente).
 
 ## Proceso
@@ -12,12 +19,12 @@ Lee `README.md` (escenas disponibles, opciones de cada una) y `BRIEF.md` (qué p
 1. **Brief.** Pide solo lo que falte: giro, marca (logo/colores o su Instagram), productos o clases con precio,
    forma de entrega/pago, de dónde llegan sus clientes, voz y música. No inventes funciones de Aelika: muestra
    solo lo que ya aparece en otros videos o lo que el usuario confirme.
-2. **Arranque.** `npm run new -- <base> <carpeta> <Id> "Nombre"` copia el video más parecido
+2. **Arranque.** `npm run new -- <base> <carpeta> <Id> "Nombre"` copia la demo más parecida de `src/videos/demos/`
    (citas → casa-occidente, clases → detona o pulso-studio, pedidos de comida → lacarniceria-lira) y lo registra.
 3. **Fotos.** Las del cliente son las mejores. Si no hay, Wikimedia Commons por su API (licencias libres;
    anota créditos en `public/<negocio>/CREDITOS.md`). Unsplash y Pixabay bloquean descargas automáticas:
    no intentes saltar su protección.
-4. **Guion de voz** en `src/videos/<negocio>/narracion.json` y `node scripts/narrate.mjs …` (la llave de
+4. **Guion de voz** en `src/videos/demos/<negocio>/narracion.json` y `node scripts/narrate.mjs …` (la llave de
    ElevenLabs la inyecta el entorno). En el plan gratuito solo sirven las voces de la cuenta (Sarah, Eric…).
    Ancla cada frase a una **marca** de su escena (`anchor: {scene: 2, mark: 'pay'}`) en vez de segundos sueltos.
    Marcas: entryPoints `cards, merge` · whatsappChat `turn0, turn1…` · classes `cover, schedule, filter, detail,

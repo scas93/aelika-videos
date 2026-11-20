@@ -1,6 +1,6 @@
 ---
 name: video-grabacion
-description: Hace o actualiza un video vertical (1080×1920, ≤40 s) GRABANDO la app real de Aelika (staging) con Playwright — chat de WhatsApp, app real dentro de un iPhone, confirmación — con el pipeline de grabacion/. Para videos con escenas simuladas usa la plantilla de la raíz del repo. Úsala cuando pidan un video nuevo para otro negocio, regrabar porque cambió el flujo, o ajustar textos, cámara o tiempos de un video existente.
+description: Hace o actualiza una DEMO COMERCIAL vertical (1080×1920, ≤40 s) GRABANDO la app real de Aelika (staging) con Playwright — chat de WhatsApp, app real dentro de un iPhone, confirmación — con el pipeline de grabacion/. Para videos con escenas simuladas usa la plantilla de la raíz del repo. Úsala cuando pidan un video nuevo para otro negocio, regrabar porque cambió el flujo, o ajustar textos, cámara o tiempos de un video existente.
 ---
 
 # Video de flujo de pedido

@@ -1,7 +1,7 @@
-import {VideoConfig} from '../../core/types';
-import {entryPoints} from '../../scenes/entry-points';
-import {ordersStorefront} from '../../scenes/storefront/orders';
-import {whatsappChat} from '../../scenes/whatsapp';
+import {VideoConfig} from '../../../core/types';
+import {entryPoints} from '../../../scenes/entry-points';
+import {ordersStorefront} from '../../../scenes/storefront/orders';
+import {whatsappChat} from '../../../scenes/whatsapp';
 
 // Fotos y logo en public/lacarniceria-lira/ (créditos en public/lacarniceria-lira/CREDITOS.md)
 const A = (f: string) => `lacarniceria-lira/${f}`;
@@ -124,7 +124,7 @@ export const lacarniceriaLira: VideoConfig = {
   music: {src: 'musica/sunset-groove.mp3', volume: 0.14, startAt: 0.25},
 
   // Voz en off: Eric (ElevenLabs). Guion en ./narracion.json; se regenera con
-  //   node scripts/narrate.mjs src/videos/lacarniceria-lira/narracion.json public/narracion/lacarniceria-lira
+  //   node scripts/narrate.mjs src/videos/demos/lacarniceria-lira/narracion.json public/narracion/lacarniceria-lira
   // Escenas: 0 = puntos de entrada, 1 = WhatsApp, 2 = storefront. Las frases del storefront se anclan a sus marcas.
   narration: {
     clips: [

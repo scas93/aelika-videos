@@ -1,20 +1,24 @@
-// Uso: npm run new -- <base> <carpeta-nueva> <IdNuevo> ["Nombre del negocio"]
+// Uso: npm run new -- <base> <carpeta-nueva> <IdNuevo> ["Nombre del negocio"] [--tipo demos]
 //   p. ej.  npm run new -- pulso-studio gym-titan GymTitan "Gym Titán"
 //
-// Copia src/videos/<base>/ a src/videos/<carpeta-nueva>/, cambia el id, el nombre de la variable,
+// Trabaja dentro de un tipo de video (por defecto `demos`): copia src/videos/<tipo>/<base>/ a
+// src/videos/<tipo>/<carpeta-nueva>/, cambia el id, el nombre de la variable,
 // la carpeta de fotos y (si se da) el nombre del negocio, crea public/<carpeta-nueva>/ y registra el
-// video en src/videos/index.ts. La narración sigue apuntando a la del video base (no se regenera):
+// video en src/videos/<tipo>/index.ts. La narración sigue apuntando a la del video base (no se regenera):
 // si el guion menciona al negocio, regenérala con scripts/narrate.mjs.
 import fs from 'fs';
 import path from 'path';
 
-const [base, dest, id, name] = process.argv.slice(2);
+const argv = process.argv.slice(2);
+const ti = argv.indexOf('--tipo');
+const tipo = ti >= 0 ? argv[ti + 1] : 'demos';
+const [base, dest, id, name] = argv.filter((_, i) => ti < 0 || (i !== ti && i !== ti + 1));
 if (!base || !dest || !id || !/^[A-Za-z][A-Za-z0-9]*$/.test(id)) {
-  console.error('Uso: npm run new -- <base> <carpeta-nueva> <IdNuevo> ["Nombre del negocio"]\n  (IdNuevo sin espacios, p. ej. GymTitan)');
+  console.error('Uso: npm run new -- <base> <carpeta-nueva> <IdNuevo> ["Nombre del negocio"] [--tipo demos]\n  (IdNuevo sin espacios, p. ej. GymTitan)');
   process.exit(1);
 }
-const src = path.join('src/videos', base);
-const out = path.join('src/videos', dest);
+const src = path.join('src/videos', tipo, base);
+const out = path.join('src/videos', tipo, dest);
 if (!fs.existsSync(path.join(src, 'config.tsx'))) throw new Error(`No existe ${src}/config.tsx`);
 if (fs.existsSync(out)) throw new Error(`Ya existe ${out}`);
 
@@ -41,11 +45,12 @@ fs.mkdirSync(pubOut, {recursive: true});
 if (fs.existsSync(pubSrc)) for (const f of fs.readdirSync(pubSrc)) fs.copyFileSync(path.join(pubSrc, f), path.join(pubOut, f));
 
 // registro
-const idx = 'src/videos/index.ts';
+const idx = path.join('src/videos', tipo, 'index.ts');
+if (!fs.existsSync(idx)) throw new Error(`No existe ${idx}: crea el registro del tipo "${tipo}" primero (ver src/videos/index.ts)`);
 let reg = fs.readFileSync(idx, 'utf8');
 const lastImport = [...reg.matchAll(/^import .*$/gm)].pop();
 reg = reg.slice(0, lastImport.index + lastImport[0].length) + `\nimport {${varName}} from './${dest}/config';` + reg.slice(lastImport.index + lastImport[0].length);
-reg = reg.replace(/export const VIDEOS: VideoConfig\[\] = \[([^\]]*)\]/, (_, l) => `export const VIDEOS: VideoConfig[] = [${l.trim()}, ${varName}]`);
+reg = reg.replace(/export const (\w+): VideoConfig\[\] = \[([^\]]*)\]/, (_, n, l) => `export const ${n}: VideoConfig[] = [${l.trim()}, ${varName}]`);
 fs.writeFileSync(idx, reg);
 
 console.log(`Listo: ${out}/config.tsx (id ${id}), fotos en ${pubOut}/, registrado en ${idx}.

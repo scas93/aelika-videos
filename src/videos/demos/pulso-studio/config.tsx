@@ -1,7 +1,7 @@
-import {VideoConfig} from '../../core/types';
-import {entryPoints} from '../../scenes/entry-points';
-import {classesStorefront} from '../../scenes/storefront/classes';
-import {whatsappChat} from '../../scenes/whatsapp';
+import {VideoConfig} from '../../../core/types';
+import {entryPoints} from '../../../scenes/entry-points';
+import {classesStorefront} from '../../../scenes/storefront/classes';
+import {whatsappChat} from '../../../scenes/whatsapp';
 
 /**
  * Video GENÉRICO para el giro fitness (estudios boutique, gimnasios, boxes…).
@@ -166,7 +166,7 @@ export const pulsoStudio: VideoConfig = {
   music: {src: 'musica/sunset-groove.mp3', volume: 0.14, startAt: 0.25},
 
   // Voz en off: Sarah (ElevenLabs). Guion en ./narracion.json; se regenera con
-  //   node scripts/narrate.mjs src/videos/pulso-studio/narracion.json public/narracion/pulso-studio
+  //   node scripts/narrate.mjs src/videos/demos/pulso-studio/narracion.json public/narracion/pulso-studio
   // Escenas: 0 = puntos de entrada, 1 = WhatsApp, 2 = storefront. Las frases del storefront se anclan a sus marcas.
   narration: {
     clips: [

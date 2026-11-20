@@ -1,8 +1,12 @@
 import {VideoConfig} from '../core/types';
-import {casaOccidente} from './casa-occidente/config';
-import {detona} from './detona/config';
-import {lacarniceriaLira} from './lacarniceria-lira/config';
-import {pulsoStudio} from './pulso-studio/config';
+import {DEMOS} from './demos';
 
-/** Registro de videos. Para agregar uno nuevo: crea src/videos/<negocio>/config.tsx y agrégalo aquí. */
-export const VIDEOS: VideoConfig[] = [casaOccidente, detona, lacarniceriaLira, pulsoStudio];
+/**
+ * Registro de videos por TIPO. Cada tipo vive en su carpeta (src/videos/<tipo>/) con su propio index.ts.
+ *  - demos:     demos comerciales para prospectos (simulan el flujo con su marca).
+ *  - marketing: (próximamente) videos para redes y anuncios.
+ */
+export const VIDEO_GROUPS: {name: string; videos: VideoConfig[]}[] = [{name: 'Demos', videos: DEMOS}];
+
+/** Todos los videos, sin importar el tipo (lo usan los scripts de render y revisión). */
+export const VIDEOS: VideoConfig[] = VIDEO_GROUPS.flatMap((g) => g.videos);

@@ -1,8 +1,24 @@
-# Aelika · videos de flujo
+# Aelika · videos
 
-Plantilla en [Remotion](https://www.remotion.dev/) (React → MP4) para hacer videos verticales (1080×1920, 30 fps) que muestran cómo un cliente llega desde Instagram, WhatsApp o Facebook hasta comprar o agendar en un **storefront de Aelika**.
+Proyecto en [Remotion](https://www.remotion.dev/) (React → MP4) para los videos de Aelika. Hay **varios tipos de video**, cada uno en su carpeta de `src/videos/`:
 
-Cada video sigue la misma estructura:
+| Tipo | Carpeta | Para qué es | Estado |
+|---|---|---|---|
+| **Demos comerciales** | `src/videos/demos/` | Herramienta de venta: simulan el flujo completo de un cliente con la **marca del prospecto** (su logo, colores, productos y precios) para que se imagine usando Aelika. Se mandan uno a uno a cada prospecto. | En uso: Casa Occidente, Detona, La Carnicería Lira, Pulso Studio (genérico de fitness) |
+| **Marketing** | `src/videos/marketing/` | Anuncios y reels para redes, piezas de marca, etc. | Próximamente (ver `src/videos/marketing/README.md`) |
+
+En **las demos comerciales** importa, sobre todo:
+- **Personalización:** que el prospecto vea *su* negocio. Usa sus datos reales; los datos inventados (reseñas, seguidores, precios) solo en las demos genéricas.
+- **Fidelidad al producto:** mostrar solo funciones que Aelika tiene y que se parezcan a la app real.
+- **Duración:** 60–70 s está bien (se manda directo al prospecto, no es un anuncio).
+
+`grabacion/` tiene además demos hechas **grabando la app real** (Karmele y Banetto Mayoreo), con otro método (ver abajo).
+
+## Demos comerciales
+
+Plantilla para videos verticales (1080×1920, 30 fps) que muestran cómo un cliente llega desde Instagram, WhatsApp, Google Maps o Facebook hasta comprar, reservar o agendar en un **storefront de Aelika**.
+
+Cada demo sigue la misma estructura:
 
 1. **Intro de Aelika**: el logo animado (~4 s).
 2. **El flujo dentro del teléfono**: las escenas que tú eliges, con dedo, zooms 🔍 y subtítulos.
@@ -31,10 +47,14 @@ Para capturas sueltas: `node scripts/stills.mjs <Id> out/stills 140 520 1300`.
 
 > Chromium se detecta solo (`scripts/browser.mjs`): en la nube de Claude usa el que viene instalado. Si quieres otro, indícalo con `REMOTION_BROWSER=/ruta/al/chrome`.
 
-## Crear un video nuevo
+## Crear una demo nueva
+
+Lo más rápido es `npm run new -- <base> <carpeta> <Id> "Nombre"`, que copia la demo más parecida
+(citas → `casa-occidente`, clases → `detona` o `pulso-studio`, pedidos de comida → `lacarniceria-lira`) y la registra.
+Por pasos:
 
 1. Copia la carpeta de fotos a `public/<negocio>/` (logo redondo, fotos del feed, etc.).
-2. Copia `src/videos/casa-occidente/config.tsx` a `src/videos/<negocio>/config.tsx` y cambia:
+2. Copia `src/videos/demos/casa-occidente/config.tsx` a `src/videos/demos/<negocio>/config.tsx` y cambia:
    - `id`: el nombre de la composición, sin espacios (p. ej. `TaqueriaElGuero`).
    - `brand`: el nombre, el logo, los colores, la tipografía y el fondo (`canvas: 'light'` para marcas claras).
    - `scenes`: la lista de escenas en orden (ver abajo).
@@ -42,23 +62,23 @@ Para capturas sueltas: `node scripts/stills.mjs <Id> out/stills 140 520 1300`.
    - `outro`: lema, contacto y botón (`cta`, p. ej. "Agenda tu demo"), todos opcionales.
    - `narration`: voz en off, un audio por frase anclado a una escena: `{clips: [{src: 'narracion/detona/01.mp3', anchor: 'intro'}, {src: '…', anchor: {scene: 2, mark: 'pay'}, offset: 0.2}]}`. `anchor` es `'intro'`, `'addons'`, `'outro'`, el índice de la escena en `scenes` o, mejor, **una marca de la escena** (`{scene, mark}`): así la frase sigue al momento aunque cambien los tiempos. `offset` (segundos) puede ser negativo. Si hay narración, baja la música (`music.volume` ≈ 0.15).
      Marcas disponibles: `entryPoints` → `cards, merge` · `whatsappChat` → `turn0, turn1…` (inicio de cada turno del guion) · `classesStorefront` → `cover, schedule, filter, detail, identify, pay, applePay, done` · `ordersStorefront` → `menu, add, cart, delivery, quote, pay, applePay, done` · `appointmentsStorefront` → `menu, service, staff, date, data, summary, success` · `recordedClip` → las que le pongas.
-   - Para generar la narración con ElevenLabs: escribe el guion en `src/videos/<negocio>/narracion.json` (`voiceId`, `speed`, `lines`) y corre `NODE_USE_ENV_PROXY=1 node scripts/narrate.mjs src/videos/<negocio>/narracion.json public/narracion/<negocio>` (en tu computadora con `ELEVENLABS_API_KEY`; en la nube de Claude la llave la inyecta el entorno). Con el plan gratuito de ElevenLabs solo funcionan las voces incluidas en la cuenta (p. ej. Sarah o Eric), no las de la biblioteca pública. Imprime la duración de cada frase para acomodar los `offset`.
+   - Para generar la narración con ElevenLabs: escribe el guion en `src/videos/demos/<negocio>/narracion.json` (`voiceId`, `speed`, `lines`) y corre `NODE_USE_ENV_PROXY=1 node scripts/narrate.mjs src/videos/demos/<negocio>/narracion.json public/narracion/<negocio>` (en tu computadora con `ELEVENLABS_API_KEY`; en la nube de Claude la llave la inyecta el entorno). Con el plan gratuito de ElevenLabs solo funcionan las voces incluidas en la cuenta (p. ej. Sarah o Eric), no las de la biblioteca pública. Imprime la duración de cada frase para acomodar los `offset`.
    - `cover`: portada del primer frame, que WhatsApp usa como miniatura: `{kicker, title: [línea1, línea2]}` o `{useOutro: true}` para usar la pantalla final de Aelika (logo, lema y contacto). Dura 0.6 s y se desvanece hacia el intro.
    - `music`: pista de fondo, p. ej. `{src: 'musica/pista.mp3', volume: 0.8, startAt: 12}`. Entra suave y se desvanece al final. `startAt` es el segundo de la canción en que arranca el video. Las pistas van en `public/musica/`, que no se sube al repo por la licencia de la música: hay que descargarlas de nuevo (p. ej. Detona usa *Chill House · Sunset Groove* de TurtleBeats en Pixabay, guardada como `public/musica/sunset-groove.mp3`).
-3. Regístralo en `src/videos/index.ts`.
+3. Regístralo en `src/videos/demos/index.ts`.
 4. `npm run studio` para revisarlo y `npm run render -- <id>` para exportarlo.
 
 `BRIEF.md` tiene la lista de lo que hay que pedirle al cliente.
 
-### Video genérico de fitness (Pulso Studio)
+### Demo genérica de fitness (Pulso Studio)
 
-`src/videos/pulso-studio/config.tsx` es un video **genérico** para estudios y gimnasios con una marca ficticia, *Pulso Studio*.
+`src/videos/demos/pulso-studio/config.tsx` es una demo **genérico** para estudios y gimnasios con una marca ficticia, *Pulso Studio*.
 La narración (Sarah) no menciona el nombre del negocio, así que **para personalizarlo a un prospecto no hay que regenerar la voz**:
 
-1. Copia `src/videos/pulso-studio/` a `src/videos/<gimnasio>/` y regístralo en `src/videos/index.ts`.
+1. `npm run new -- pulso-studio <gimnasio> <Id> "Nombre"` (o copia `src/videos/demos/pulso-studio/` a mano y regístralo en `src/videos/demos/index.ts`).
 2. En `config.tsx` cambia `id`, `brand` (nombre, logo, colores), los textos de `entryPoints` y `whatsappChat`, y en el storefront el título, las fotos, las clases, los coaches y los precios.
 3. Deja `narration` apuntando a `narracion/pulso-studio/…` (es el mismo audio para todos).
-4. Si cambias el número de opciones o de pasos, revisa los tiempos con `node scripts/stills.mjs` antes de exportar.
+4. Revisa con `npm run check -- <Id> --sheet` antes de exportar (sobre todo si cambias el número de opciones o pasos).
 
 ## Escenas disponibles
 
@@ -108,13 +128,16 @@ whatsappChat({
 
 ```
 src/
-  core/        motor: teléfono, dedo, cámara/zooms, subtítulos, marca, línea de tiempo
-  aelika/      intro y outro de Aelika (iguales en todos los videos)
-  scenes/      escenas reutilizables (instagram, linktree, whatsapp, add-ons)
+  core/          motor: teléfono, dedo, cámara/zooms, subtítulos, marca, línea de tiempo
+  aelika/        intro y outro de Aelika (iguales en todos los videos)
+  scenes/        escenas reutilizables (instagram, linktree, whatsapp, add-ons, grabación real)
     storefront/  storefronts por giro (shell.tsx = piezas comunes)
-  videos/      un archivo de configuración por video + registro (index.ts)
-public/        fotos y logos, una carpeta por negocio
-grabacion/     grabación de la app real (proyecto aparte, ver grabacion/README.md)
+  videos/        un registro por tipo de video (index.ts junta todos)
+    demos/       demos comerciales: un config.tsx por video + index.ts
+    marketing/   (próximamente)
+public/          fotos y logos (una carpeta por negocio), narración y música
+scripts/         render, revisión, arranque de videos, narración
+grabacion/       demos grabando la app real (proyecto aparte, ver grabacion/README.md)
 ```
 
 ## Pendiente: otros giros

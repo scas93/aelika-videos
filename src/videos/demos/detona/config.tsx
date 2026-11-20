@@ -1,7 +1,7 @@
-import {VideoConfig} from '../../core/types';
-import {entryPoints} from '../../scenes/entry-points';
-import {classesStorefront} from '../../scenes/storefront/classes';
-import {whatsappChat} from '../../scenes/whatsapp';
+import {VideoConfig} from '../../../core/types';
+import {entryPoints} from '../../../scenes/entry-points';
+import {classesStorefront} from '../../../scenes/storefront/classes';
+import {whatsappChat} from '../../../scenes/whatsapp';
 
 // Fotos y logo en public/detona/
 const A = (f: string) => `detona/${f}`;
@@ -157,7 +157,7 @@ export const detona: VideoConfig = {
   music: {src: 'musica/sunset-groove.mp3', volume: 0.14, startAt: 0.25},
 
   // Voz en off: Sarah (ElevenLabs). Guion en ./narracion.json; se regenera con
-  //   node scripts/narrate.mjs src/videos/detona/narracion.json public/narracion/detona
+  //   node scripts/narrate.mjs src/videos/demos/detona/narracion.json public/narracion/detona
   // Escenas: 0 = puntos de entrada, 1 = WhatsApp, 2 = storefront
   narration: {
     clips: [

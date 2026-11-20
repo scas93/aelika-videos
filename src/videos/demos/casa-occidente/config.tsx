@@ -1,8 +1,8 @@
-import {VideoConfig} from '../../core/types';
-import {instagramPost, instagramProfile} from '../../scenes/instagram';
-import {linktree} from '../../scenes/linktree';
-import {appointmentsStorefront} from '../../scenes/storefront/appointments';
-import {whatsappChat} from '../../scenes/whatsapp';
+import {VideoConfig} from '../../../core/types';
+import {instagramPost, instagramProfile} from '../../../scenes/instagram';
+import {linktree} from '../../../scenes/linktree';
+import {appointmentsStorefront} from '../../../scenes/storefront/appointments';
+import {whatsappChat} from '../../../scenes/whatsapp';
 
 // Fotos y logos en public/casa-occidente/
 const A = (f: string) => `casa-occidente/${f}`;
