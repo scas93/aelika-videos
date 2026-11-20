@@ -518,6 +518,7 @@ export const ordersStorefront = (d: OrdersData): PhoneScene => {
       {f: T.tapApplePay, x: 195, y: 661},
     ].sort((a, b) => a.f - b.f),
     zooms,
+    marks: {menu: T.menu[0], add: T.firstAdd, cart: T.cart[0], delivery: T.delivery[0], quote: T.quoteIn, pay: T.pay[0], applePay: T.tapApplePay, done: T.done[0]},
     subtitles: [
       {at: T.menu[0], text: sub.menu ?? 'Tu menú en línea, con tu marca.'},
       {at: T.firstAdd - 6, text: sub.add ?? 'Arman su pedido en unos cuantos toques.'},

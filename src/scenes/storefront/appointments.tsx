@@ -349,6 +349,7 @@ export const appointmentsStorefront = (d: AppointmentsData): PhoneScene => {
       {f: T.tapConfirm, ...P.cta},
     ],
     zooms: [{a: 278, b: 350, x: 195, y: 372, s: 1.45}],
+    marks: {menu: T.menu[0], service: T.service[0], staff: T.staff[0], date: T.date[0], data: T.data[0], summary: T.summary[0], success: T.success[0]},
     subtitles: [
       {at: T.menu[0], text: sub.menu ?? 'Tu mostrador digital.'},
       {at: T.service[0], text: sub.service ?? 'Eliges tu servicio.'},

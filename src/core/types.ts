@@ -24,7 +24,12 @@ export type PhoneScene = {
   taps?: Tap[];
   zooms?: Zoom[];
   subtitles?: Sub[];
+  /** momentos con nombre dentro de la escena (frames locales), p. ej. {pay: 660}; sirven de ancla a la narración */
+  marks?: Record<string, number>;
 };
+
+/** Ancla de un clip de narración: inicio del intro / add-ons / outro, inicio de una escena (índice) o una marca de escena. */
+export type NarrationAnchor = 'intro' | 'addons' | 'outro' | number | {scene: number; mark: string};
 
 export type Addon = {icon: string; title: string; desc: string};
 
@@ -61,6 +66,6 @@ export type VideoConfig = {
    */
   narration?: {
     volume?: number;
-    clips: {src: string; anchor: 'intro' | 'addons' | 'outro' | number; /** segundos después del ancla */ offset?: number}[];
+    clips: {src: string; anchor: NarrationAnchor; /** segundos después del ancla (puede ser negativo) */ offset?: number}[];
   };
 };

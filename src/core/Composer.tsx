@@ -6,7 +6,7 @@ import {Addons, addonsDuration} from '../scenes/addons';
 import {BrandProvider, useBrand} from './brand';
 import {Finger, Phone} from './Phone';
 import {FONT, H, SW, W, prog, rgba, toCanvas, win} from './theme';
-import {Enter, Tap, VideoConfig, Zoom} from './types';
+import {Enter, NarrationAnchor, Tap, VideoConfig, Zoom} from './types';
 
 // Tiempos fijos de la plantilla (30 fps)
 export const INTRO_LEN = 124;
@@ -35,6 +35,20 @@ export const buildTimeline = (cfg: VideoConfig) => {
 };
 
 export const videoDuration = (cfg: VideoConfig) => buildTimeline(cfg).total;
+
+/** Frame absoluto (en el video completo) de un ancla de narración. */
+export const narrationAnchorFrame = (cfg: VideoConfig, a: NarrationAnchor) => {
+  const tl = buildTimeline(cfg);
+  const lead = cfg.cover ? COVER_LEN : 0;
+  if (a === 'intro') return lead;
+  if (a === 'addons') return lead + FLOW_START + tl.phoneEnd;
+  if (a === 'outro') return lead + FLOW_START + tl.outroStart;
+  if (typeof a === 'number') return lead + FLOW_START + tl.scenes[a].start;
+  const sc = tl.scenes[a.scene];
+  const m = sc.marks?.[a.mark];
+  if (m === undefined) throw new Error(`La escena ${a.scene} (${sc.id}) no tiene la marca "${a.mark}". Marcas: ${Object.keys(sc.marks ?? {}).join(', ')}`);
+  return lead + FLOW_START + sc.start + m;
+};
 
 // ------------------------------------------------------------------ piezas
 const EnterAnim: React.FC<{kind: Enter; children: React.ReactNode}> = ({kind, children}) => {
@@ -179,8 +193,7 @@ const Narration: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
   if (!cfg.narration) return null;
   const tl = buildTimeline(cfg);
   const lead = cfg.cover ? COVER_LEN : 0;
-  const anchorFrame = (a: 'intro' | 'addons' | 'outro' | number) =>
-    a === 'intro' ? lead : lead + FLOW_START + (a === 'addons' ? tl.phoneEnd : a === 'outro' ? tl.outroStart : tl.scenes[a].start);
+  const anchorFrame = (a: NarrationAnchor) => narrationAnchorFrame(cfg, a);
   return (
     <>
       {cfg.narration.clips.map((c, i) => (

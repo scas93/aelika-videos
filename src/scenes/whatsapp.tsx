@@ -109,8 +109,10 @@ const schedule = (d: WhatsAppData) => {
   const subtitles: Sub[] = [];
   const jumps: Jump[] = [];
   const clock: {at: number; time: string}[] = [];
+  const marks: Record<string, number> = {};
   let t = 0;
-  for (const turn of d.script) {
+  for (const [ti, turn] of d.script.entries()) {
+    marks[`turn${ti}`] = t;
     if (turn.sub) subtitles.push({at: t, text: turn.sub});
     if (turn.from === 'jump') {
       jumps.push({a: t, b: t + 34, label: turn.label});
@@ -176,7 +178,7 @@ const schedule = (d: WhatsAppData) => {
       t = at + pause;
     }
   }
-  return {messages, inputs, typing, taps, zooms, subtitles, jumps, clock, duration: t + (d.hold ?? 0)};
+  return {messages, inputs, typing, taps, zooms, subtitles, jumps, clock, marks, duration: t + (d.hold ?? 0)};
 };
 
 /**
@@ -203,5 +205,7 @@ export const whatsappChat = (d: WhatsAppData): PhoneScene => {
     taps: s.taps,
     zooms: s.zooms,
     subtitles: s.subtitles,
+    /** turn0, turn1…: cuando empieza cada turno del guion */
+    marks: s.marks,
   };
 };

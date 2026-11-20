@@ -530,6 +530,7 @@ export const classesStorefront = (d: ClassesData): PhoneScene => {
       {a: 176, b: 262, x: 195, y: 420, s: 1.35},
       {a: 700, b: 778, x: 195, y: 350, s: 1.3},
     ],
+    marks: {cover: T.cover[0], schedule: T.schedule[0], filter: T.tapFilter, detail: T.sheetIn, identify: T.identify[0], pay: T.pay[0], applePay: T.tapApplePay, done: T.done[0]},
     subtitles: [
       {at: T.cover[0], text: sub.cover ?? 'Sin descargar app. Sin crear contraseña.'},
       {at: T.schedule[0], text: sub.schedule ?? 'Ves los lugares disponibles en tiempo real.'},

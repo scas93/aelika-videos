@@ -167,16 +167,16 @@ export const pulsoStudio: VideoConfig = {
 
   // Voz en off: Sarah (ElevenLabs). Guion en ./narracion.json; se regenera con
   //   node scripts/narrate.mjs src/videos/pulso-studio/narracion.json public/narracion/pulso-studio
-  // Escenas: 0 = puntos de entrada, 1 = WhatsApp, 2 = storefront (mismos tiempos que Detona)
+  // Escenas: 0 = puntos de entrada, 1 = WhatsApp, 2 = storefront. Las frases del storefront se anclan a sus marcas.
   narration: {
     clips: [
       {src: 'narracion/pulso-studio/01.mp3', anchor: 'intro', offset: 0.4},
       {src: 'narracion/pulso-studio/02.mp3', anchor: 0, offset: 0.3},
       {src: 'narracion/pulso-studio/03.mp3', anchor: 1, offset: 1.1},
-      {src: 'narracion/pulso-studio/04.mp3', anchor: 2, offset: 0.3},
-      {src: 'narracion/pulso-studio/05.mp3', anchor: 2, offset: 11.9},
-      {src: 'narracion/pulso-studio/06.mp3', anchor: 2, offset: 23.2},
-      {src: 'narracion/pulso-studio/07.mp3', anchor: 2, offset: 30.7},
+      {src: 'narracion/pulso-studio/04.mp3', anchor: {scene: 2, mark: 'cover'}, offset: 0.3},
+      {src: 'narracion/pulso-studio/05.mp3', anchor: {scene: 2, mark: 'detail'}, offset: 0.17},
+      {src: 'narracion/pulso-studio/06.mp3', anchor: {scene: 2, mark: 'pay'}, offset: 0.2},
+      {src: 'narracion/pulso-studio/07.mp3', anchor: {scene: 2, mark: 'done'}, offset: 0.7},
       {src: 'narracion/pulso-studio/08.mp3', anchor: 'addons', offset: 0.7},
       {src: 'narracion/pulso-studio/09.mp3', anchor: 'outro', offset: 0.4},
     ],

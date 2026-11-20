@@ -125,17 +125,17 @@ export const lacarniceriaLira: VideoConfig = {
 
   // Voz en off: Eric (ElevenLabs). Guion en ./narracion.json; se regenera con
   //   node scripts/narrate.mjs src/videos/lacarniceria-lira/narracion.json public/narracion/lacarniceria-lira
-  // Escenas: 0 = puntos de entrada, 1 = WhatsApp, 2 = storefront
+  // Escenas: 0 = puntos de entrada, 1 = WhatsApp, 2 = storefront. Las frases del storefront se anclan a sus marcas.
   narration: {
     clips: [
       {src: 'narracion/lacarniceria-lira/01.mp3', anchor: 'intro', offset: 0.4},
       {src: 'narracion/lacarniceria-lira/02.mp3', anchor: 0, offset: 0.3},
       {src: 'narracion/lacarniceria-lira/03.mp3', anchor: 1, offset: 1.1},
-      {src: 'narracion/lacarniceria-lira/04.mp3', anchor: 2, offset: 0.3},
-      {src: 'narracion/lacarniceria-lira/05.mp3', anchor: 2, offset: 8.9},
-      {src: 'narracion/lacarniceria-lira/06.mp3', anchor: 2, offset: 14.2},
-      {src: 'narracion/lacarniceria-lira/07.mp3', anchor: 2, offset: 22.9},
-      {src: 'narracion/lacarniceria-lira/08.mp3', anchor: 2, offset: 28.9},
+      {src: 'narracion/lacarniceria-lira/04.mp3', anchor: {scene: 2, mark: 'menu'}, offset: 0.3},
+      {src: 'narracion/lacarniceria-lira/05.mp3', anchor: {scene: 2, mark: 'cart'}, offset: -1.1},
+      {src: 'narracion/lacarniceria-lira/06.mp3', anchor: {scene: 2, mark: 'delivery'}, offset: 0.2},
+      {src: 'narracion/lacarniceria-lira/07.mp3', anchor: {scene: 2, mark: 'pay'}, offset: 0.9},
+      {src: 'narracion/lacarniceria-lira/08.mp3', anchor: {scene: 2, mark: 'done'}, offset: 0.23},
       {src: 'narracion/lacarniceria-lira/09.mp3', anchor: 'addons', offset: 0.5},
       {src: 'narracion/lacarniceria-lira/10.mp3', anchor: 'outro', offset: 0.4},
     ],

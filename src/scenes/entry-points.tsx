@@ -294,6 +294,7 @@ export const entryPoints = (d: EntryPointsData): PhoneScene => {
     Component: () => <LockScreen d={d} />,
     Overlay: () => <Overlay d={d} />,
     zooms: [{a: -14, b: DUR + 4, ...center, s: 0.58}],
+    marks: {cards: 0, merge: MERGE},
     subtitles: [
       {at: 0, text: d.subtitles?.[0] ?? 'Tus clientes llegan de donde sea…'},
       {at: MERGE, text: d.subtitles?.[1] ?? '…y todo empieza en tu WhatsApp.'},

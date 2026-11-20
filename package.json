@@ -6,7 +6,11 @@
     "studio": "remotion studio src/index.ts",
     "render": "node scripts/render.mjs",
     "stills": "node scripts/stills.mjs",
-    "typecheck": "tsc --noEmit -p ."
+    "typecheck": "tsc --noEmit -p .",
+    "render:all": "node scripts/render-all.mjs",
+    "check": "node scripts/check.mjs",
+    "new": "node scripts/new-video.mjs",
+    "review": "node scripts/review.mjs"
   },
   "license": "ISC",
   "dependencies": {
@@ -20,7 +24,8 @@
   },
   "devDependencies": {
     "@remotion/bundler": "^4.0.545",
-    "@remotion/renderer": "^4.0.545"
+    "@remotion/renderer": "^4.0.545",
+    "esbuild": "^0.28.1"
   },
   "private": true
 }
