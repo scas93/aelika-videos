@@ -94,6 +94,10 @@ whatsappChat({
 - `menu` crea un menú numerado de opciones tocables; con `tapMenu` el cliente toca una y se envía como su respuesta.
 - `{from: 'jump', label: 'Miércoles · 20:00'}` inserta una cortinilla de salto de tiempo.
 
+## Grabaciones de la app real
+
+`grabacion/` tiene otro método: **grabar la app real** de Aelika en staging con Playwright (toques, eventos, recorte de esperas) y componerla en su propio proyecto de Remotion. Así se hicieron los videos de **Karmele** (pedido B2C con Stripe) y **Banetto Mayoreo** (B2B con login por código de WhatsApp). Ver `grabacion/README.md`.
+
 ## Estructura
 
 ```
@@ -104,6 +108,7 @@ src/
     storefront/  storefronts por giro (shell.tsx = piezas comunes)
   videos/      un archivo de configuración por video + registro (index.ts)
 public/        fotos y logos, una carpeta por negocio
+grabacion/     grabación de la app real (proyecto aparte, ver grabacion/README.md)
 ```
 
 ## Pendiente: otros giros
