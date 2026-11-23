@@ -58,8 +58,16 @@ export type PickupData = {
     address: string;
     /** texto del aviso de WhatsApp al terminar */
     banner: string;
+    /**
+     * opciones de "¿Cuándo pasas por él?" (p. ej. Ahorita / 30 min / 45 min / 60 min / Otra hora) y la elegida.
+     * Con `times`, el pago ofrece tres opciones (en tienda, tarjeta, Apple Pay) y se paga con Apple Pay.
+     */
+    times?: string[];
+    pickTime?: number;
+    /** hora a la que pasa, p. ej. "10:55 a. m." */
+    readyAt?: string;
   };
-  subtitles?: Partial<Record<'menu' | 'cart' | 'data' | 'schedule' | 'summary' | 'sent' | 'checkout' | 'applePay' | 'done', string>>;
+  subtitles?: Partial<Record<'menu' | 'cart' | 'data' | 'schedule' | 'summary' | 'sent' | 'checkout' | 'pay' | 'applePay' | 'done', string>>;
 };
 
 // ------------------------------------------------------------------ tiempos (frames locales)
@@ -92,7 +100,18 @@ export const PICKUP_NOW_T = {
   payOk: 466,
   done: [520, 640],
 } as const;
-const N = PICKUP_NOW_T;
+/** tiempos del modo "recoger ya" con opciones de hora */
+export const PICKUP_NOW_TIMES_T = {
+  checkout: [300, 580],
+  tapTime: 346,
+  tapCard: 410,
+  tapApplePay: 452,
+  paySheet: 460,
+  payOk: 514,
+  done: [580, 700],
+} as const;
+type NowTimes = {checkout: readonly number[]; tapCard: number; tapApplePay: number; paySheet: number; payOk: number; done: readonly number[]; tapTime?: number};
+const nowT = (d: PickupData): NowTimes => (d.now?.times ? PICKUP_NOW_TIMES_T : PICKUP_NOW_T);
 
 const GRID_TOP = 268;
 const CARD_W = 171;
@@ -398,12 +417,56 @@ const Sent: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
 
 
 // ------------------------------------------------------------------ modo "recoger ya"
+const ApplePaySheet: React.FC<{f: number; d: PickupData; N: NowTimes}> = ({f, d, N}) => {
+  const sheet = prog(f, N.paySheet, N.paySheet + 14);
+  const ok = f >= N.payOk;
+  return (
+    <>
+      {sheet > 0 && (
+        <>
+          <div style={{position: 'absolute', inset: 0, background: `rgba(0,0,0,${0.3 * sheet})`, zIndex: 40}} />
+          <div style={{position: 'absolute', left: 8, right: 8, bottom: 80, height: 300, borderRadius: 32, background: '#f2f2f2', zIndex: 41, transform: `translateY(${(1 - sheet) * 420}px)`, padding: '18px 22px', boxSizing: 'border-box', color: '#111'}}>
+            <div style={{fontSize: 21, fontWeight: 600}}>Apple Pay</div>
+            <div style={{marginTop: 14, borderRadius: 14, background: '#fff', padding: '12px 14px', fontSize: 14.5, display: 'flex', flexDirection: 'column', gap: 8}}>
+              <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <span style={{color: '#777'}}>Tarjeta</span>
+                <span>Visa •••• 4242</span>
+              </div>
+              <div style={{display: 'flex', justifyContent: 'space-between', fontWeight: 600}}>
+                <span>Pagar a {d.title}</span>
+                <span>{money(total(d))} MXN</span>
+              </div>
+            </div>
+            <div style={{marginTop: 18, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8}}>
+              {ok ? (
+                <>
+                  <div style={{width: 54, height: 54, borderRadius: '50%', border: '3px solid #0a84ff', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${0.7 + 0.3 * prog(f, N.payOk, N.payOk + 8)})`}}>
+                    <svg width="28" height="28" viewBox="0 0 24 24">
+                      <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#0a84ff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <div style={{fontSize: 15, fontWeight: 600}}>Listo</div>
+                </>
+              ) : (
+                <>
+                  <div style={{width: 54, height: 54, borderRadius: 16, border: '2px solid #111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, opacity: 0.4 + 0.6 * Math.abs(Math.sin(f / 6))}}>⌁</div>
+                  <div style={{fontSize: 14, color: '#555'}}>Haz doble clic para pagar</div>
+                </>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+};
+
 const Checkout: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
+  const N = nowT(d);
+  if (d.now!.times) return <CheckoutTimes f={f} d={d} />;
   const {colors} = useBrand();
   const lines = d.items.filter((i) => i.qty);
   const card = f >= N.tapCard;
-  const sheet = prog(f, N.paySheet, N.paySheet + 14);
-  const ok = f >= N.payOk;
   const opt = (on: boolean, icon: string, t: string, sub: string, left: number) => (
     <div style={{position: 'absolute', top: 470, left, width: 171, height: 76, borderRadius: 14, background: '#fff', border: `${on ? 2 : 1}px solid ${on ? colors.dark : colors.line}`, boxSizing: 'border-box', padding: '10px 12px'}}>
       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
@@ -452,47 +515,87 @@ const Checkout: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
           'Elige cómo pagar'
         )}
       </div>
-      {sheet > 0 && (
-        <>
-          <div style={{position: 'absolute', inset: 0, background: `rgba(0,0,0,${0.3 * sheet})`, zIndex: 40}} />
-          <div style={{position: 'absolute', left: 8, right: 8, bottom: 80, height: 300, borderRadius: 32, background: '#f2f2f2', zIndex: 41, transform: `translateY(${(1 - sheet) * 420}px)`, padding: '18px 22px', boxSizing: 'border-box', color: '#111'}}>
-            <div style={{fontSize: 21, fontWeight: 600}}>Apple Pay</div>
-            <div style={{marginTop: 14, borderRadius: 14, background: '#fff', padding: '12px 14px', fontSize: 14.5, display: 'flex', flexDirection: 'column', gap: 8}}>
-              <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                <span style={{color: '#777'}}>Tarjeta</span>
-                <span>Visa •••• 4242</span>
-              </div>
-              <div style={{display: 'flex', justifyContent: 'space-between', fontWeight: 600}}>
-                <span>Pagar a {d.title}</span>
-                <span>{money(total(d))} MXN</span>
-              </div>
-            </div>
-            <div style={{marginTop: 18, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8}}>
-              {ok ? (
-                <>
-                  <div style={{width: 54, height: 54, borderRadius: '50%', border: '3px solid #0a84ff', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${0.7 + 0.3 * prog(f, N.payOk, N.payOk + 8)})`}}>
-                    <svg width="28" height="28" viewBox="0 0 24 24">
-                      <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#0a84ff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                  <div style={{fontSize: 15, fontWeight: 600}}>Listo</div>
-                </>
-              ) : (
-                <>
-                  <div style={{width: 54, height: 54, borderRadius: 16, border: '2px solid #111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, opacity: 0.4 + 0.6 * Math.abs(Math.sin(f / 6))}}>⌁</div>
-                  <div style={{fontSize: 14, color: '#555'}}>Haz doble clic para pagar</div>
-                </>
-              )}
-            </div>
+      <ApplePaySheet f={f} d={d} N={N} />
+    </>
+  );
+};
+
+
+/** checkout con "¿Cuándo pasas por él?" (opciones de hora) y tres formas de pago; paga con Apple Pay */
+const TIME_W = (SW - 32 - 4 * 6) / 5;
+const PAY_W = (SW - 32 - 16) / 3;
+const CheckoutTimes: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
+  const {colors} = useBrand();
+  const N = nowT(d);
+  const now = d.now!;
+  const lines = d.items.filter((i) => i.qty);
+  const timeOn = f >= N.tapTime!;
+  const apple = f >= N.tapCard;
+  const chip = (on: boolean) => ({borderRadius: 12, border: `${on ? 2 : 1}px solid ${on ? colors.dark : colors.line}`, background: on ? colors.dark : '#fff', color: on ? '#fff' : colors.dark, boxSizing: 'border-box' as const});
+  const pays: [string, string, string][] = [
+    ['🏪', 'En tienda', 'Al recoger'],
+    ['💳', 'Tarjeta', 'Crédito o débito'],
+    ['📱', 'Apple Pay', 'En un toque'],
+  ];
+  return (
+    <>
+      <Header title="Tu pedido" />
+      <div style={{position: 'absolute', top: 112, left: 18, fontSize: 15, fontWeight: 700}}>¿Cuándo pasas por él?</div>
+      <div style={{position: 'absolute', top: 140, left: 16, display: 'flex', gap: 6}}>
+        {now.times!.map((t, i) => (
+          <div key={t} style={{...chip(timeOn && i === now.pickTime), width: TIME_W, height: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600}}>
+            {t}
           </div>
-        </>
-      )}
+        ))}
+      </div>
+      <div style={{position: 'absolute', top: 196, left: 18, right: 18, fontSize: 13, color: timeOn ? '#1f8a4c' : colors.muted, fontWeight: timeOn ? 600 : 400}}>
+        {timeOn ? `⚡ Listo a las ${now.readyAt} · pasas y te vas, sin hacer fila` : `🏪 Recoges en ${now.address}`}
+      </div>
+      <div style={{position: 'absolute', top: 228, left: 16, right: 16, borderRadius: 14, background: '#fff', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 7}}>
+        {lines.map((it) => (
+          <div key={it.name} style={{display: 'flex', justifyContent: 'space-between', fontSize: 14.5}}>
+            <span>
+              {it.qty}× {it.name}
+            </span>
+            <span>{money(it.qty! * it.price)}</span>
+          </div>
+        ))}
+        <div style={{height: 1, background: colors.line, margin: '2px 0'}} />
+        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 17, fontWeight: 700}}>
+          <span>Total</span>
+          <span>{money(total(d))}</span>
+        </div>
+      </div>
+      <div style={{position: 'absolute', top: 430, left: 18, fontSize: 15, fontWeight: 700}}>¿Cómo quieres pagar?</div>
+      <div style={{position: 'absolute', top: 458, left: 16, display: 'flex', gap: 8}}>
+        {pays.map(([icon, t, sub], i) => {
+          const on = apple && i === 2;
+          return (
+            <div key={t} style={{width: PAY_W, height: 78, borderRadius: 14, background: '#fff', border: `${on ? 2 : 1}px solid ${on ? colors.dark : colors.line}`, boxSizing: 'border-box', padding: '9px 10px'}}>
+              <div style={{fontSize: 18, height: 22}}>{icon}</div>
+              <div style={{fontSize: 14, fontWeight: 700, marginTop: 4}}>{t}</div>
+              <div style={{fontSize: 11, color: colors.muted}}>{sub}</div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{position: 'absolute', left: 16, right: 16, top: 718, height: 52, borderRadius: 14, background: apple ? '#000' : '#b9b9b9', color: '#fff', fontSize: 16.5, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transform: f >= N.tapApplePay && f < N.tapApplePay + 8 ? 'scale(.97)' : 'none'}}>
+        {apple ? (
+          <>
+            Pagar con <b style={{fontWeight: 700}}>Apple Pay</b> · {money(total(d))}
+          </>
+        ) : (
+          'Elige cómo pagar'
+        )}
+      </div>
+      <ApplePaySheet f={f} d={d} N={N} />
     </>
   );
 };
 
 const NowDone: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
   const {colors} = useBrand();
+  const N = nowT(d);
   const s = N.done[0];
   const p = prog(f, s + 2, s + 16);
   return (
@@ -509,7 +612,15 @@ const NowDone: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
         <div style={{marginTop: 22, fontSize: 26, fontWeight: 700, opacity: prog(f, s + 10, s + 20)}}>¡Pedido confirmado!</div>
         <div style={{marginTop: 8, padding: '5px 12px', borderRadius: 999, background: '#e6f6ec', color: '#1f8a4c', fontSize: 13, fontWeight: 700, opacity: prog(f, s + 14, s + 24)}}>Pedido {d.orderNumber} · Pagado con Apple Pay</div>
         <div style={{marginTop: 18, padding: '0 34px', textAlign: 'center', fontSize: 15, lineHeight: 1.5, color: '#555', opacity: prog(f, s + 18, s + 28)}}>
-          Lo empezamos a preparar ya. Estará listo en <b style={{color: colors.dark}}>{d.now!.ready}</b> en {d.now!.address}.
+          {d.now!.readyAt ? (
+            <>
+              Pasa por él a las <b style={{color: colors.dark}}>{d.now!.readyAt}</b> en {d.now!.address}: te estará esperando, sin hacer fila.
+            </>
+          ) : (
+            <>
+              Lo empezamos a preparar ya. Estará listo en <b style={{color: colors.dark}}>{d.now!.ready}</b> en {d.now!.address}.
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -519,6 +630,7 @@ const NowDone: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
 // ------------------------------------------------------------------ marco
 const PickupScreen: React.FC<{d: PickupData}> = ({d}) => {
   const f = useCurrentFrame();
+  const N = nowT(d);
   const steps: {a: number; b: number; render: () => React.ReactNode}[] = [
     {
       a: T.menu[0],
@@ -583,6 +695,9 @@ export const pickupStorefront = (d: PickupData): PhoneScene => {
     {a: T.summary[0] + 20, b: T.tapSend - 4, x: 195, y: 380, s: 1.25},
   ];
   if (d.now) {
+    const N = nowT(d);
+    const withTimes = !!d.now.times;
+    const timeX = (i: number) => 16 + i * (TIME_W + 6) + TIME_W / 2;
     const common = [
       ...visibleTaps.filter((_, k) => !adds[addTapsList.indexOf(visibleTaps[k])].scrolled),
       {f: T.scrollAt, x: 200, y: 640, to: {x: 200, y: 640 - SCROLL, d: 18}},
@@ -595,13 +710,19 @@ export const pickupStorefront = (d: PickupData): PhoneScene => {
       duration: N.done[1],
       enter: 'up',
       Component: () => <PickupScreen d={d} />,
-      taps: [...common, {f: N.tapCard, x: 288, y: 508}, {f: N.tapApplePay, x: 195, y: 744}].sort((a, b) => a.f - b.f),
-      zooms: [zooms[0], {a: N.checkout[0] + 24, b: N.tapApplePay - 2, x: 195, y: 470, s: 1.22}],
-      marks: {menu: T.menu[0], add: adds[0].f, cart: T.cart[0], checkout: N.checkout[0], card: N.tapCard, applePay: N.tapApplePay, paid: N.payOk, done: N.done[0]},
+      taps: (withTimes
+        ? [...common, {f: N.tapTime!, x: timeX(d.now.pickTime ?? 0), y: 163}, {f: N.tapCard, x: 16 + 2 * (PAY_W + 8) + PAY_W / 2, y: 497}, {f: N.tapApplePay, x: 195, y: 744}]
+        : [...common, {f: N.tapCard, x: 288, y: 508}, {f: N.tapApplePay, x: 195, y: 744}]
+      ).sort((a, b) => a.f - b.f),
+      zooms: withTimes
+        ? [zooms[0], {a: N.checkout[0] + 20, b: N.tapTime! + 30, x: 195, y: 230, s: 1.3}, {a: N.tapTime! + 40, b: N.tapApplePay - 2, x: 195, y: 470, s: 1.22}]
+        : [zooms[0], {a: N.checkout[0] + 24, b: N.tapApplePay - 2, x: 195, y: 470, s: 1.22}],
+      marks: {menu: T.menu[0], add: adds[0].f, cart: T.cart[0], checkout: N.checkout[0], time: N.tapTime ?? N.checkout[0], card: N.tapCard, applePay: N.tapApplePay, paid: N.payOk, done: N.done[0]},
       subtitles: [
         {at: T.menu[0], text: sub.menu ?? 'Tu menú en línea, con tus productos y precios.'},
         {at: T.cart[0], text: sub.cart ?? 'Revisan su pedido.'},
         {at: N.checkout[0], text: sub.checkout ?? 'Recogen lo antes posible y eligen cómo pagar.'},
+        ...(withTimes ? [{at: N.tapTime! + 36, text: sub.pay ?? 'Eligen cómo pagar.'}] : []),
         {at: N.tapApplePay - 4, text: sub.applePay ?? 'Pagan con Apple Pay en un toque.'},
         {at: N.done[0], text: sub.done ?? 'Pedido confirmado y pagado.'},
       ],

@@ -355,3 +355,51 @@ export const orderPanelPayment = (d: PaymentData): PhoneScene => {
     ],
   };
 };
+
+// ------------------------------------------------------------------ ver un pedido pagado (solo recibir)
+export type ViewData = PanelOrder & {
+  /** "10:55 a. m. · en 30 min" */
+  pickupAt: string;
+  payment: string;
+  subtitles?: Partial<Record<'open' | 'detail', string>>;
+};
+export const VIEW_T = {zoom: [14, 110], detail: 60, end: 160} as const;
+
+const ViewScreen: React.FC<{d: ViewData}> = ({d}) => {
+  const f = useCurrentFrame();
+  return (
+    <Browser f={f} statusTime={d.statusTime ?? '10:24'}>
+      <PageHead d={d} status={<Pill tone="green">Nuevo · pagado</Pill>} />
+      <Card top={122}>
+        <Row k="Entrega" v={d.pickupLabel ?? 'Para recoger'} />
+        <Row k="Pasa a las" v={nb(d.pickupAt)} />
+        <Row k="Cliente" v={d.customer.name} />
+        <Row k="Teléfono" v={d.customer.phone} />
+      </Card>
+      <Products d={d} top={276} />
+      <div style={{position: 'absolute', top: 474, left: 20, right: 20, display: 'flex', alignItems: 'center', gap: 10, fontSize: 14.5, color: GRAY}}>
+        Pago: <Pill tone="green">Pagado · {d.payment}</Pill>
+      </div>
+      <div style={{position: 'absolute', top: 516, left: 16, right: 16, borderRadius: 12, background: '#f3f4f6', padding: '10px 14px', fontSize: 13.5, color: '#374151', lineHeight: 1.4}}>
+        🔔 También llegó a la tablet de la barra.
+      </div>
+    </Browser>
+  );
+};
+
+export const orderPanelView = (d: ViewData): PhoneScene => {
+  const sub = d.subtitles ?? {};
+  return {
+    id: 'panel-pedido',
+    duration: VIEW_T.end,
+    enter: 'up',
+    Component: () => <ViewScreen d={d} />,
+    zooms: [{a: VIEW_T.zoom[0], b: VIEW_T.zoom[1], x: 195, y: 340, s: 1.25}],
+    perspective: d.perspective,
+    marks: {open: 0, detail: VIEW_T.detail},
+    subtitles: [
+      {at: 0, text: sub.open ?? 'Lo abre en el panel de Aelika…'},
+      {at: VIEW_T.detail, text: sub.detail ?? '…ya pagado y con la hora en que pasan por él.'},
+    ],
+  };
+};

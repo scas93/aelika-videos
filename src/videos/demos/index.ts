@@ -5,10 +5,10 @@ import {lacarniceriaLira} from './lacarniceria-lira/config';
 import {pulsoStudio} from './pulso-studio/config';
 import {karmele} from './karmele/config';
 import {cafeAurora} from './cafe-aurora/config';
-import {cafeAuroraAnticipado} from './cafe-aurora-anticipado/config';
+import {cafeAuroraRecoger} from './cafe-aurora-recoger/config';
 
 /**
  * DEMOS COMERCIALES: simulan el flujo de un cliente con la marca de un prospecto para venderle Aelika.
  * Para agregar uno: `npm run new -- <base> <carpeta> <Id> "Nombre"` (lo registra aquí solo).
  */
-export const DEMOS: VideoConfig[] = [casaOccidente, detona, lacarniceriaLira, pulsoStudio, karmele, cafeAurora, cafeAuroraAnticipado];
+export const DEMOS: VideoConfig[] = [casaOccidente, detona, lacarniceriaLira, pulsoStudio, karmele, cafeAurora, cafeAuroraRecoger];
