@@ -2,7 +2,8 @@
 
 - **Tipo:** demos · **variante:** personalizada · **Id:** `Karmele` · **fecha:** 2026-11-23
 - **Base:** `pulso-studio` (estructura) + escenas `pickupStorefront`, `orderPanelReview` y `pickupPay`
-- **Duración:** ~92 s · voz Eric (1.1×; antes Sarah) · música *Sunset Groove*
+- **Estado:** ✅ Terminado (2026-11-23), aprobado por el usuario. Final: `npm run render -- Karmele` → `out/Karmele.mp4`.
+- **Duración:** 89 s · voz Eric (1.1×; antes Sarah) · música *Sunset Groove*
 
 ## Negocio
 
@@ -39,7 +40,7 @@ Dos perspectivas: cliente (sin nombre en la voz ni en los chats) y Nataly.
 Cliente Daniela Ruiz y su teléfono (solo en el formulario, el aviso y el panel), encargada "Nataly", solicitud #128,
 la hora propuesta y la tarjeta de prueba 4242 4242 4242 4242.
 
-## Pendiente
+## Pendiente (para una próxima versión)
 
 - El flujo nuevo aún no está en staging: el video lo **simula** imitando el diseño del storefront y del panel.
   Cuando exista, revisar textos y pantallas (`pickup.tsx`, `pickup-pay.tsx`, `order-panel.tsx`).
