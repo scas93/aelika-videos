@@ -2,7 +2,7 @@
 
 - **Tipo:** demos · **variante:** genérica (cafetería, solo pickup) · **Id:** `CafeAurora` · **fecha:** 2026-11-23
 - **Base:** `lacarniceria-lira` (entrada) + `pickupStorefront` en modo `now` + escena nueva `tabletOrders`
-- **Estado:** en revisión con el usuario
+- **Estado:** ✅ Terminado (2026-11-23), aprobado por el usuario en la primera versión. Final: `npm run render -- CafeAurora` → `out/CafeAurora.mp4`.
 - **Duración:** ~67 s · voz Eric (1.1×) · música *Sunset Groove*
 
 ## Negocio
@@ -30,7 +30,7 @@ Verde café `#2f6b57` y crema. La voz no dice el nombre del negocio.
 
 Nombre, logo, dirección (Av. Chapultepec 120), precios, reseñas, clientes (Andrea M., Sofía G., …) y pedidos #85–#88.
 
-## Pendiente
+## Pendiente (para una próxima versión)
 
 - La vista del iPad está inventada siguiendo el estilo del panel de Aelika: si existe una real, imitarla.
 - Si se personaliza para una cafetería real: cambiar fotos (sin la marca Banetto), menú, precios y dirección.
