@@ -6,14 +6,15 @@ import {HistoryMsg, whatsappChat} from '../../../scenes/whatsapp';
 
 /**
  * Karmele · pedido para recoger con CONFIRMACIÓN de la encargada.
- * Dos perspectivas: el cliente (Santiago) y la encargada de pedidos (Ana).
+ * Dos perspectivas: el cliente (sin nombre en la voz) y la encargada de pedidos (Nataly).
+ * Todos los horarios se pueden elegir: la encargada decide si el pedido puede estar listo.
  * Camino del video: la encargada rechaza por falta de conchas y propone otro horario → el cliente acepta →
  * resumen + datos para transferencia → comprobante → la encargada lo marca como pagado.
  */
 const A = (f: string) => `karmele/${f}`;
 
-const CLIENTE: Perspective = {label: 'CLIENTE', sub: 'Santiago, desde su celular', icon: 'person'};
-const PEDIDOS: Perspective = {label: 'KARMELE · PEDIDOS', sub: 'Ana, encargada de pedidos', icon: 'store', color: '#0b8cf3'};
+const CLIENTE: Perspective = {label: 'CLIENTE', sub: 'desde su celular', icon: 'person'};
+const PEDIDOS: Perspective = {label: 'KARMELE · PEDIDOS', sub: 'Nataly, encargada de pedidos', icon: 'store', color: '#0b8cf3'};
 
 const aelikaAvatar = (
   <div style={{width: 38, height: 38, borderRadius: '50%', background: '#fff', border: '1px solid #e3e3e3', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -27,10 +28,10 @@ const tarjeta = {image: A('conchas.jpg'), footer: 'pide.aelika.com/karmele', but
 const tarjetaTexto = '*¡Perfecto!* 🥐\nArma tu pedido, elige el día y el horario para recogerlo, y te confirmamos por aquí.';
 const recibido = 'Recibimos tu pedido #128 🥐 Lo estamos revisando y te confirmamos en unos minutos.';
 const nuevoPedido =
-  '🔔 *Nuevo pedido #128*\n\n👤 Santiago Castro · +52 33 1234 5678\n📅 Miércoles 25 nov · 9:00 a. m.\n🏪 Recoger en tienda\n\n• 1 Caja con 12 Karmelitos\n• 15 Conchas\n• 8 Bolillos\n\n💰 Total: $1,150.00\n\n¿Hay disponibilidad para ese horario?';
-const propuesta = 'Hola, Santiago 😔 Para el *mié 25 a las 9:00 a. m.* no vamos a tener listas las *conchas*.\n¿Te funciona recogerlo el *mié 25 a las 11:00 a. m.*?';
+  '🔔 *Nuevo pedido #128*\n\n👤 Daniela Ruiz · +52 33 1234 5678\n📅 Miércoles 25 nov · 9:00 a. m.\n🏪 Recoger en tienda\n\n• 1 Caja con 12 Karmelitos\n• 15 Conchas\n• 8 Bolillos\n\n💰 Total: $1,150.00\n\n¿Hay disponibilidad para ese horario?';
+const propuesta = 'Hola 😔 Para el *mié 25 a las 9:00 a. m.* no vamos a tener listas las *conchas*.\n¿Te funciona recogerlo el *mié 25 a las 11:00 a. m.*?';
 const resumen =
-  '📋 *Resumen de tu pedido*\n\nFecha de pedido: 23 de noviembre de 2026\nNombre del cliente: Santiago Castro\nTeléfono: +52 33 1234 5678\nHorario: 25 de noviembre, 11:00 a. m.\n\nPedido:\n- 1 Caja con 12 Karmelitos, 15 conchas, 8 bolillos\n\nMonto total: $1,150.00\nEstatus del pago: Pendiente';
+  '📋 *Resumen de tu pedido*\n\nFecha de pedido: 23 de noviembre de 2026\nNombre del cliente: Daniela Ruiz\nTeléfono: +52 33 1234 5678\nHorario: 25 de noviembre, 11:00 a. m.\n\nPedido:\n- 1 Caja con 12 Karmelitos, 15 conchas, 8 bolillos\n\nMonto total: $1,150.00\nEstatus del pago: Pendiente';
 const pideComprobante = 'Cuando hagas tu transferencia, mándanos tu comprobante por aquí 🙌';
 
 const historialCliente: HistoryMsg[] = [
@@ -38,9 +39,9 @@ const historialCliente: HistoryMsg[] = [
   {from: 'bot', text: recibido, time: '14:36'},
 ];
 const historialEncargada: HistoryMsg[] = [
-  {from: 'bot', text: '¿Quieres proponerle otro horario a Santiago?', time: '14:38'},
+  {from: 'bot', text: '¿Quieres proponerle otro horario al cliente?', time: '14:38'},
   {from: 'user', text: 'Mié 25 · 11:00 a. m.', time: '14:38'},
-  {from: 'bot', text: 'Listo 👍 Le enviamos tu propuesta a Santiago. Te aviso cuando responda.', time: '14:38'},
+  {from: 'bot', text: 'Listo 👍 Le enviamos tu propuesta al cliente. Te aviso cuando responda.', time: '14:38'},
 ];
 
 export const karmele: VideoConfig = {
@@ -102,18 +103,19 @@ export const karmele: VideoConfig = {
         {name: 'Hogaza masa madre', price: 90, photo: A('hogaza.jpg')},
         {name: 'Chocolatin', price: 45, photo: A('chocolatin.jpg')},
       ],
-      customer: {name: 'Santiago Castro', phone: '33 1234 5678'},
+      customer: {name: 'Daniela Ruiz', phone: '33 1234 5678'},
       pickup: {address: 'José María Morelos 2279 A, Arcos Vallarta'},
       days: [
-        ['Hoy', '23', true],
         ['Mar', '24'],
         ['Mié', '25'],
         ['Jue', '26'],
         ['Vie', '27'],
+        ['Sáb', '28'],
       ],
-      pickDay: 2,
+      pickDay: 1,
       dayLong: 'Miércoles 25 nov',
-      slots: [['8:00', true], ['9:00'], ['10:00'], ['11:00'], ['12:00', true], ['13:00']],
+      slots: [['8:00'], ['9:00'], ['10:00'], ['11:00'], ['12:00'], ['13:00']],
+      scheduleNote: 'Pide con al menos un día de anticipación. Karmele te confirma por WhatsApp.',
       pickSlot: 1,
       orderNumber: '#128',
       from: 'Karmele',
@@ -123,7 +125,7 @@ export const karmele: VideoConfig = {
         menu: 'Arma su pedido en tu menú en línea.',
         cart: 'Revisa lo que va a llevar.',
         data: 'Deja su nombre y teléfono.',
-        schedule: 'Elige día y horario, solo entre los disponibles.',
+        schedule: 'Elige el día y el horario para recogerlo.',
         summary: 'Envía su pedido, sin pagar todavía.',
         sent: 'Queda pendiente de tu confirmación.',
       },
@@ -138,11 +140,11 @@ export const karmele: VideoConfig = {
       perspective: PEDIDOS,
       enter: 'left',
       script: [
-        {from: 'bot', text: nuevoPedido, buttons: ['✅ Confirmar', '❌ Rechazar'], tapButton: 1, pause: 120, zoom: true, typing: 10, sub: 'A tu encargada le llega el pedido completo.'},
-        {from: 'bot', text: '¿Por qué lo rechazas?', menu: {items: ['Sin disponibilidad de un producto', 'Horario lleno', 'Otro motivo']}, tapMenu: 0, pause: 30, typing: 14, sub: 'Si no puede surtirlo, indica el motivo…'},
+        {from: 'bot', text: nuevoPedido, buttons: ['✅ Confirmar', '❌ Rechazar'], linkButton: 'Abrir en el panel de Aelika', tapButton: 1, pause: 185, zoom: true, typing: 10, sub: 'A tu encargada le llega el pedido completo…'},
+        {from: 'bot', text: '¿Por qué lo rechazas?', menu: {items: ['Sin disponibilidad de un producto', 'Horario lleno', 'Otro motivo']}, tapMenu: 0, pause: 30, typing: 14, sub: 'Si no puede tenerlo listo, indica el motivo…'},
         {from: 'bot', text: '¿Qué producto no tendrás listo a las 9:00 a. m.?', menu: {items: ['Caja con 12 Karmelitos', 'Conchas', 'Bolillos']}, tapMenu: 1, pause: 30, typing: 14},
-        {from: 'bot', text: '¿Quieres proponerle otro horario a Santiago?', buttons: ['Mié 25 · 11:00 a. m.', 'Mié 25 · 1:00 p. m.', 'No, solo rechazar'], tapButton: 0, pause: 34, typing: 14, sub: '…y le propone otro horario.'},
-        {from: 'bot', text: 'Listo 👍 Le enviamos tu propuesta a Santiago. Te aviso cuando responda.', typing: 14, pause: 34},
+        {from: 'bot', text: '¿Quieres proponerle otro horario al cliente?', buttons: ['Mié 25 · 11:00 a. m.', 'Mié 25 · 1:00 p. m.', 'No, solo rechazar'], tapButton: 0, pause: 34, typing: 14, sub: '…y le propone otro horario.'},
+        {from: 'bot', text: 'Listo 👍 Le enviamos tu propuesta al cliente. Te aviso cuando responda.', typing: 14, pause: 34},
       ],
     }),
 
@@ -173,9 +175,9 @@ export const karmele: VideoConfig = {
       perspective: PEDIDOS,
       enter: 'left',
       script: [
-        {from: 'bot', text: '✅ *Santiago aceptó el nuevo horario*\nPedido #128 confirmado para el mié 25 · 11:00 a. m.', typing: 10, pause: 34, sub: 'Tu encargada ve que el cliente aceptó…'},
-        {from: 'bot', text: '💸 Santiago envió su comprobante del pedido #128 ($1,150.00)', image: A('comprobante.png'), buttons: ['Marcar como pagado', 'Revisar después'], tapButton: 0, typing: 10, pause: 44, sub: '…y marca el pago con un toque.'},
-        {from: 'bot', text: 'Listo ✅ Pedido #128 pagado. Ya le avisamos a Santiago.', typing: 10, pause: 30},
+        {from: 'bot', text: '✅ *El cliente aceptó el nuevo horario*\nPedido #128 confirmado para el mié 25 · 11:00 a. m.', typing: 10, pause: 34, sub: 'Tu encargada ve que el cliente aceptó…'},
+        {from: 'bot', text: '💸 El cliente envió su comprobante del pedido #128 ($1,150.00)', image: A('comprobante.png'), buttons: ['Marcar como pagado', 'Revisar después'], tapButton: 0, typing: 10, pause: 44, sub: '…y marca el pago con un toque.'},
+        {from: 'bot', text: 'Listo ✅ Pedido #128 pagado. Ya le avisamos al cliente.', typing: 10, pause: 30},
       ],
     }),
 
@@ -187,7 +189,7 @@ export const karmele: VideoConfig = {
       history: [{from: 'user', text: '', image: A('comprobante.png'), time: '14:41'}],
       perspective: CLIENTE,
       enter: 'left',
-      script: [{from: 'bot', text: 'Pago recibido ✅ ¡Gracias, Santiago!\nTe esperamos el *miércoles 25 a las 11:00 a. m.* en José María Morelos 2279 A 🥐', typing: 12, pause: 132, highlight: true, sub: 'Y el cliente recibe la confirmación de su pago.'}],
+      script: [{from: 'bot', text: 'Pago recibido ✅ ¡Gracias!\nTe esperamos el *miércoles 25 a las 11:00 a. m.* en José María Morelos 2279 A 🥐', typing: 12, pause: 132, highlight: true, sub: 'Y el cliente recibe la confirmación de su pago.'}],
     }),
   ],
 
@@ -210,7 +212,7 @@ export const karmele: VideoConfig = {
       {src: 'narracion/karmele/01.mp3', anchor: 'intro', offset: 0.4},
       {src: 'narracion/karmele/02.mp3', anchor: {scene: 0, mark: 'turn0'}, offset: 0.6},
       {src: 'narracion/karmele/03.mp3', anchor: {scene: 1, mark: 'menu'}, offset: 0.5},
-      {src: 'narracion/karmele/04.mp3', anchor: {scene: 1, mark: 'data'}, offset: 0.2},
+      {src: 'narracion/karmele/04.mp3', anchor: {scene: 1, mark: 'data'}, offset: 1.0},
       {src: 'narracion/karmele/05.mp3', anchor: {scene: 1, mark: 'summary'}, offset: 0.3},
       {src: 'narracion/karmele/06.mp3', anchor: {scene: 2, mark: 'turn0'}, offset: 0.4},
       {src: 'narracion/karmele/07.mp3', anchor: {scene: 2, mark: 'turn1'}, offset: 0.45},

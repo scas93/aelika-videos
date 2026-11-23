@@ -1,4 +1,4 @@
-// Uso: node scripts/narrate.mjs <guion.json> <carpeta-salida>
+// Uso: node scripts/narrate.mjs <guion.json> <carpeta-salida> [--only 2,4,6]
 // guion.json: {"voiceId": "...", "speed": 1.05, "lines": ["frase 1", "frase 2", ...]}
 // Genera 01.mp3, 02.mp3… con ElevenLabs. La API key la inyecta el proxy del entorno
 // (o defínela en ELEVENLABS_API_KEY si corres esto en tu computadora).
@@ -6,11 +6,15 @@ import fs from 'fs';
 import path from 'path';
 import {execSync} from 'child_process';
 
-const [scriptPath, outDir] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const oi = args.indexOf('--only'); // --only 2,4,6: regenera solo esas frases (ahorra caracteres)
+const only = oi >= 0 ? new Set(args[oi + 1].split(',').map(Number)) : null;
+const [scriptPath, outDir] = args.filter((_, i) => oi < 0 || (i !== oi && i !== oi + 1));
 const cfg = JSON.parse(fs.readFileSync(scriptPath, 'utf8'));
 fs.mkdirSync(outDir, {recursive: true});
 const key = process.env.ELEVENLABS_API_KEY ?? 'proxy-injected';
 for (const [i, text] of cfg.lines.entries()) {
+  if (only && !only.has(i + 1)) continue;
   const file = path.join(outDir, `${String(i + 1).padStart(2, '0')}.mp3`);
   const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${cfg.voiceId}?output_format=mp3_44100_128`, {
     method: 'POST',

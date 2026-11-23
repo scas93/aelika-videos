@@ -16,7 +16,7 @@ export type Msg = {
   /** foto enviada como mensaje (el texto, si hay, va como pie de foto) */
   image?: string;
   /** botones de respuesta rápida bajo la burbuja */
-  buttons?: {labels: string[]; pressAt?: number; pressIndex?: number};
+  buttons?: {labels: string[]; pressAt?: number; pressIndex?: number; /** botón con link (abre una página, p. ej. el panel de Aelika), va al final */ link?: string};
   /** menú numerado en una segunda burbuja (1 Reservar, 2 Horarios…) */
   menu?: {items: string[]; note?: string; pressAt?: number; pressIndex?: number};
   /** aviso del sistema (cifrado de extremo a extremo) */
@@ -35,7 +35,7 @@ export const menuNoteH = (note: string) => Math.ceil(note.length / 42) * 18 + 6;
 
 export const estH = (m: Msg) => {
   const lines = m.raw.split('\n').reduce((s, l) => s + Math.max(1, Math.ceil(l.length / 31)), 0);
-  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0) + (m.image ? IMAGE_H + 6 : 0) + (m.buttons ? m.buttons.labels.length * 44 : 0) + (m.menu ? m.menu.items.length * MENU_ROW + (m.menu.note ? menuNoteH(m.menu.note) : 0) + 26 : 0);
+  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0) + (m.image ? IMAGE_H + 6 : 0) + (m.buttons ? (m.buttons.labels.length + (m.buttons.link ? 1 : 0)) * 44 : 0) + (m.menu ? m.menu.items.length * MENU_ROW + (m.menu.note ? menuNoteH(m.menu.note) : 0) + 26 : 0);
 };
 
 const Ticks = () => (
@@ -160,6 +160,14 @@ export const ChatScreen: React.FC<{
                         </div>
                       );
                     })}
+                    {m.buttons.link && (
+                      <div style={{height: 40, borderRadius: 10, background: '#fff', boxShadow: '0 1px .5px rgba(0,0,0,.13)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#027eb5', fontSize: 15.5, fontWeight: 500}}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#027eb5" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+                        </svg>
+                        {m.buttons.link}
+                      </div>
+                    )}
                   </div>
                 )}
               </React.Fragment>

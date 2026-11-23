@@ -45,6 +45,8 @@ export type Turn =
       buttons?: string[];
       /** el cliente toca este botón (índice) y se envía como su respuesta */
       tapButton?: number;
+      /** botón con link al final de los botones (p. ej. "Abrir en el panel"); no se toca */
+      linkButton?: string;
       /** menú numerado en una segunda burbuja; cada opción es un botón */
       menu?: {items: string[]; note?: string};
       /** el cliente toca esta opción del menú (índice) y se envía como su respuesta */
@@ -167,8 +169,8 @@ const schedule = (d: WhatsAppData) => {
         pause = Math.max(pause, 42);
       }
       if (turn.buttons) {
-        const n = turn.buttons.length;
-        msg.buttons = {labels: turn.buttons};
+        const n = turn.buttons.length + (turn.linkButton ? 1 : 0);
+        msg.buttons = {labels: turn.buttons, link: turn.linkButton};
         if (turn.tapButton !== undefined) {
           const pressAt = at + Math.max(30, pause);
           msg.buttons.pressAt = pressAt;

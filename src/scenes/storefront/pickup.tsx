@@ -9,7 +9,7 @@ import {WaBanner} from './classes';
 /**
  * Storefront de PEDIDO PARA RECOGER CON CONFIRMACIÓN (panaderías, pastelerías, encargos…).
  * Imita el diseño real del storefront de Aelika (cuadrícula de productos y hojas que suben).
- * Flujo: menú → carrito → datos → fecha y horario con disponibilidad → resumen (sin pago) → pedido enviado,
+ * Flujo: menú → carrito → datos → fecha y horario → resumen (sin pago) → pedido enviado,
  *        pendiente de que el negocio confirme por WhatsApp.
  */
 export type PickupItem = {name: string; price: number; photo: string; /** cuántas piezas pide el cliente */ qty?: number; /** etiqueta corta en el resumen, p. ej. "conchas" */ short?: string};
@@ -35,6 +35,8 @@ export type PickupData = {
   from: string;
   /** nota de pago en el resumen */
   payNote: string;
+  /** nota bajo los horarios (default: anticipación de un día) */
+  scheduleNote?: string;
   statusTime?: string;
   subtitles?: Partial<Record<'menu' | 'cart' | 'data' | 'schedule' | 'summary' | 'sent', string>>;
 };
@@ -294,7 +296,7 @@ const Schedule: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
             );
           })}
         </div>
-        <div style={{position: 'absolute', top: 470, left: 18, right: 18, fontSize: 12.5, color: '#8a8a8a'}}>Solo ves horarios con disponibilidad. Pide con al menos un día de anticipación.</div>
+        <div style={{position: 'absolute', top: 470, left: 18, right: 18, fontSize: 12.5, color: '#8a8a8a'}}>{d.scheduleNote ?? 'Pide con al menos un día de anticipación.'}</div>
       </div>
       <BlackBtn label="Continuar" disabled={f < T.tapSlot} pressed={f >= T.tapContinue3 && f < T.tapContinue3 + 8} />
     </>
@@ -445,7 +447,7 @@ export const pickupStorefront = (d: PickupData): PhoneScene => {
       {at: T.menu[0], text: sub.menu ?? 'Tu menú en línea, con tus productos y precios.'},
       {at: T.cart[0], text: sub.cart ?? 'Revisan su pedido.'},
       {at: T.data[0], text: sub.data ?? 'Dejan su nombre y teléfono.'},
-      {at: T.schedule[0], text: sub.schedule ?? 'Eligen día y horario con disponibilidad.'},
+      {at: T.schedule[0], text: sub.schedule ?? 'Eligen día y horario para recogerlo.'},
       {at: T.summary[0], text: sub.summary ?? 'Envían su pedido, sin pagar todavía.'},
       {at: T.sent[0], text: sub.sent ?? 'Queda pendiente de tu confirmación.'},
     ],
