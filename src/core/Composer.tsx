@@ -6,7 +6,7 @@ import {Addons, addonsDuration} from '../scenes/addons';
 import {BrandProvider, useBrand} from './brand';
 import {Finger, Phone} from './Phone';
 import {FONT, H, SW, W, prog, rgba, toCanvas, win} from './theme';
-import {Enter, NarrationAnchor, Tap, VideoConfig, Zoom} from './types';
+import {Enter, NarrationAnchor, Perspective, Tap, VideoConfig, Zoom} from './types';
 
 // Tiempos fijos de la plantilla (30 fps)
 export const INTRO_LEN = 124;
@@ -31,7 +31,14 @@ export const buildTimeline = (cfg: VideoConfig) => {
   const subs = scenes.flatMap((s) =>
     (s.subtitles ?? []).map((sub, i, arr) => ({a: s.start + sub.at, b: s.start + (arr[i + 1]?.at ?? s.duration), text: sub.text})),
   );
-  return {scenes, phoneEnd, addonsLen, outroStart, taps, zooms, subs, total: (cfg.cover ? COVER_LEN : 0) + FLOW_START + outroStart + OUTRO_LEN};
+  // perspectiva vigente por tramo (se hereda hasta que una escena la cambie)
+  const persp: {a: number; b: number; p: Perspective}[] = [];
+  for (const s of scenes) {
+    if (!s.perspective) continue;
+    if (persp.length) persp[persp.length - 1].b = s.start;
+    persp.push({a: s.start, b: phoneEnd, p: s.perspective});
+  }
+  return {scenes, phoneEnd, addonsLen, outroStart, taps, zooms, subs, persp, total: (cfg.cover ? COVER_LEN : 0) + FLOW_START + outroStart + OUTRO_LEN};
 };
 
 export const videoDuration = (cfg: VideoConfig) => buildTimeline(cfg).total;
@@ -114,6 +121,43 @@ const Subtitles: React.FC<{subs: {a: number; b: number; text: string}[]}> = ({su
   );
 };
 
+/** Etiqueta de perspectiva sobre el teléfono; al cambiar de dueño, sale una y entra la otra. */
+const PerspectiveBadge: React.FC<{ranges: {a: number; b: number; p: Perspective}[]}> = ({ranges}) => {
+  const f = useCurrentFrame();
+  const {colors} = useBrand();
+  const r = ranges.find((x) => f >= x.a - 6 && f < x.b + 6);
+  if (!r) return null;
+  const first = r === ranges[0];
+  const inn = first ? prog(f, r.a + 4, r.a + 16) : prog(f, r.a, r.a + 12);
+  const out = r === ranges[ranges.length - 1] ? prog(f, r.b, r.b + 12) : prog(f, r.b - 6, r.b);
+  const p = Math.min(inn, 1 - out);
+  if (p <= 0) return null;
+  const pop = 1 + 0.12 * Math.sin(Math.PI * prog(f, r.a + 6, r.a + 20)) * (first ? 0 : 1);
+  const c = r.p.color ?? colors.accent;
+  const icon =
+    r.p.icon === 'store' ? (
+      <path d="M4 10h16v10H4zM3 10l2-5h14l2 5M9 20v-5h6v5" fill="none" stroke="#fff" strokeWidth="2" strokeLinejoin="round" />
+    ) : (
+      <>
+        <circle cx="12" cy="8" r="4" fill="none" stroke="#fff" strokeWidth="2" />
+        <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+      </>
+    );
+  return (
+    <div style={{position: 'absolute', left: 0, right: 0, top: 18, display: 'flex', justifyContent: 'center', zIndex: 25, opacity: p, transform: `translateY(${(1 - p) * -24}px) scale(${pop})`}}>
+      <div style={{display: 'flex', alignItems: 'center', gap: 16, padding: '12px 30px 12px 14px', borderRadius: 999, background: rgba(colors.dark, 0.88), border: `2px solid ${c}`, boxShadow: '0 10px 30px rgba(0,0,0,.3)', fontFamily: FONT}}>
+        <div style={{width: 54, height: 54, borderRadius: '50%', background: c, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          <svg width="30" height="30" viewBox="0 0 24 24">{icon}</svg>
+        </div>
+        <div>
+          <div style={{fontSize: 30, fontWeight: 700, letterSpacing: 2.5, color: colors.light}}>{r.p.label}</div>
+          {r.p.sub && <div style={{fontSize: 21, color: rgba(colors.light, 0.75), marginTop: 1}}>{r.p.sub}</div>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Background: React.FC = () => {
   const f = useCurrentFrame();
   const {colors, canvas} = useBrand();
@@ -170,6 +214,11 @@ const Flow: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
         <Outro {...cfg.outro} />
       </Sequence>
       <Subtitles subs={tl.subs} />
+      {tl.persp.length > 0 && (
+        <Sequence from={0} durationInFrames={tl.phoneEnd + 20} layout="none">
+          <PerspectiveBadge ranges={tl.persp} />
+        </Sequence>
+      )}
     </AbsoluteFill>
   );
 };

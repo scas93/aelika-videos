@@ -26,7 +26,12 @@ export type PhoneScene = {
   subtitles?: Sub[];
   /** momentos con nombre dentro de la escena (frames locales), p. ej. {pay: 660}; sirven de ancla a la narración */
   marks?: Record<string, number>;
+  /** de quién es el teléfono en esta escena (videos con varias perspectivas); se mantiene hasta que otra escena la cambie */
+  perspective?: Perspective;
 };
+
+/** Etiqueta sobre el teléfono: "CLIENTE", "KARMELE · PEDIDOS"… */
+export type Perspective = {label: string; sub?: string; icon?: 'person' | 'store'; color?: string};
 
 /** Ancla de un clip de narración: inicio del intro / add-ons / outro, inicio de una escena (índice) o una marca de escena. */
 export type NarrationAnchor = 'intro' | 'addons' | 'outro' | number | {scene: number; mark: string};

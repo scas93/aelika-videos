@@ -6,7 +6,7 @@ Proyecto en [Remotion](https://www.remotion.dev/) (React → MP4) para los video
 
 | Tipo | Carpeta | Para qué es | Estado |
 |---|---|---|---|
-| **Demos comerciales** | `src/videos/demos/` | Herramienta de venta: simulan el flujo completo de un cliente con la **marca del prospecto** (su logo, colores, productos y precios) para que se imagine usando Aelika. Se mandan uno a uno a cada prospecto. | En uso: Casa Occidente, Detona, La Carnicería Lira, Pulso Studio (genérico de fitness) |
+| **Demos comerciales** | `src/videos/demos/` | Herramienta de venta: simulan el flujo completo de un cliente con la **marca del prospecto** (su logo, colores, productos y precios) para que se imagine usando Aelika. Se mandan uno a uno a cada prospecto. | En uso: Casa Occidente, Detona, La Carnicería Lira, Pulso Studio (genérico de fitness), Karmele (dos perspectivas) |
 | **Marketing** | `src/videos/marketing/` | Anuncios y reels para redes, piezas de marca, etc. | Próximamente (ficha inicial en `src/videos/marketing/TIPO.md`) |
 
 En **las demos comerciales** importa, sobre todo:
@@ -90,10 +90,11 @@ La narración (Sarah) no menciona el nombre del negocio, así que **para persona
 | Post de Instagram | `instagramPost({...})` | 3 s | Doble toque (like) y toca la cuenta |
 | Perfil de Instagram | `instagramProfile({...})` | 4 s | Desliza las historias y toca el link de la bio |
 | Linktree | `linktree({...})` | 3 s | Toca uno de los botones |
-| Chat de WhatsApp | `whatsappChat({...})` | automática | Envía mensajes y toca la tarjeta con botón |
+| Chat de WhatsApp | `whatsappChat({...})` | automática | Envía mensajes y toca la tarjeta con botón. Mensajes con `image` (foto + texto), `avatar` del chat (imagen o componente) y `perspective` |
 | Storefront de citas | `appointmentsStorefront({...})` | 20 s | Servicio → extra → profesional → día y hora → datos → confirmar |
 | Storefront de clases | `classesStorefront({...})` | 35 s | Portada → día → filtro → detalle → WhatsApp + código → paquete/Apple Pay → lugar apartado |
 | Storefront de pedidos | `ordersStorefront({...})` | 34 s | Menú con fotos (toca "+" según `qty` de cada producto, con scroll) → carrito → a domicilio con **cotización de Uber** (precio y tiempo) o para recoger → resumen con productos y envío por separado → Apple Pay → pedido confirmado con seguimiento |
+| Storefront para recoger | `pickupStorefront({...})` | 27 s | Menú (toca "+" según `qty`, rápido como dejando presionado) → carrito → datos → día y horario con cupo ("sin cupo"/"lleno") → resumen con nota de pago → pedido enviado, pendiente de confirmación. Marcas `menu, add, cart, data, schedule, day, slot, summary, send, sent` |
 | Panel de Aelika | `aelikaPanel({...})` | 5 s | Ocupación de la clase + notificación al equipo |
 | Grabación real | `recordedClip({src, from, length, speed})` | la que indiques | Un video grabado de la app (p. ej. de `grabacion/`, 1170×2532) dentro del teléfono; tiempos de `taps`, `zooms`, `subtitles` y `marks` en segundos |
 
@@ -121,6 +122,10 @@ whatsappChat({
 - `buttons` + `tapButton` crean respuestas rápidas ("Sí, ahí estaré"), y el cliente toca una.
 - `menu` crea un menú numerado de opciones tocables; con `tapMenu` el cliente toca una y se envía como su respuesta.
 - `{from: 'jump', label: 'Miércoles · 20:00'}` inserta una cortinilla de salto de tiempo.
+
+### Varias perspectivas
+
+Cualquier escena acepta `perspective: {label, sub?, icon?: 'person' | 'store', color?}` (en `whatsappChat` va dentro de sus datos). Muestra una etiqueta arriba del teléfono ("CLIENTE", "KARMELE · PEDIDOS") que se mantiene hasta que otra escena la cambie. Ejemplo: `src/videos/demos/karmele/`.
 
 ## Grabaciones de la app real
 

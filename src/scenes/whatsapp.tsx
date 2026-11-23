@@ -1,6 +1,7 @@
 import React from 'react';
 import {nb} from '../core/theme';
-import {PhoneScene, Sub, Tap, Zoom} from '../core/types';
+import {BrandAvatar} from '../core/Phone';
+import {Perspective, PhoneScene, Sub, Tap, Zoom} from '../core/types';
 import {ChatScreen, InputStep, Jump, MENU_ROW, Msg, SEND_BTN, SEND_Y_ABS, Typing, estH, menuNoteH} from './whatsapp-screen';
 
 export type ChatCard = {
@@ -18,6 +19,8 @@ export type Turn =
       text: string;
       /** el texto ya viene escrito (p. ej. desde el link del Linktree) */
       prefilled?: boolean;
+      /** el cliente manda una foto (p. ej. su comprobante); `text` es el pie de foto */
+      image?: string;
       sub?: string;
       pause?: number;
     }
@@ -29,6 +32,8 @@ export type Turn =
       pause?: number;
       typing?: number;
       card?: ChatCard;
+      /** foto enviada como mensaje (p. ej. datos para transferencia); `text` es el pie de foto */
+      image?: string;
       /** el cliente toca el botón de la tarjeta */
       tap?: boolean;
       /** 🔍 zoom a este mensaje */
@@ -54,7 +59,7 @@ export type Turn =
       sub?: string;
     };
 
-export type HistoryMsg = {from: 'user' | 'bot'; text: string; card?: ChatCard; time?: string};
+export type HistoryMsg = {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: string; time?: string};
 
 export type WhatsAppData = {
   /** nombre del contacto en el encabezado */
@@ -70,6 +75,10 @@ export type WhatsAppData = {
   script: Turn[];
   /** frames extra al final de la escena */
   hold?: number;
+  /** avatar del contacto: ruta de imagen en /public o un componente (por defecto, el logo de la marca) */
+  avatar?: string | React.ReactNode;
+  /** de quién es el teléfono (videos con varias perspectivas) */
+  perspective?: Perspective;
   enter?: 'none' | 'left' | 'up' | 'fade';
 };
 
@@ -85,13 +94,14 @@ const CARD_CENTER = {x: 160, y: 610};
 const SEND = {x: SEND_BTN.x, y: SEND_Y_ABS};
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
-const toMsg = (m: {from: 'user' | 'bot'; text: string; card?: ChatCard; time?: string}, at: number, time: string, extra: Partial<Msg> = {}): Msg => ({
+const toMsg = (m: {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: string; time?: string}, at: number, time: string, extra: Partial<Msg> = {}): Msg => ({
   at,
   out: m.from === 'user',
   raw: plain(m.text),
   text: rich(m.text),
   time: m.time ?? time,
   card: m.card ? {image: m.card.image, footer: m.card.footer ?? '', button: m.card.button} : undefined,
+  image: m.image,
   ...extra,
 });
 
@@ -119,7 +129,12 @@ const schedule = (d: WhatsAppData) => {
       if (turn.statusTime) clock.push({at: t + 16, time: turn.statusTime});
       t += 34;
     } else if (turn.from === 'user') {
-      if (turn.prefilled) {
+      if (turn.image) {
+        // foto desde la cámara/galería: toca el ícono de cámara y se envía
+        taps.push({f: t + 4, x: 21, y: SEND_Y_ABS});
+        messages.push(toMsg(turn, t + 16, time));
+        t += 16 + (turn.pause ?? 30);
+      } else if (turn.prefilled) {
         inputs.push({text: turn.text, a: -1, b: -1, sent: t + 32});
         taps.push({f: t + 30, ...SEND});
         messages.push(toMsg(turn, t + 32, time));
@@ -200,6 +215,7 @@ export const whatsappChat = (d: WhatsAppData): PhoneScene => {
         typing={s.typing}
         inputs={s.inputs}
         jumps={s.jumps}
+        avatar={typeof d.avatar === 'string' ? <BrandAvatar size={38} src={d.avatar} /> : d.avatar}
       />
     ),
     taps: s.taps,
@@ -207,5 +223,6 @@ export const whatsappChat = (d: WhatsAppData): PhoneScene => {
     subtitles: s.subtitles,
     /** turn0, turn1…: cuando empieza cada turno del guion */
     marks: s.marks,
+    perspective: d.perspective,
   };
 };

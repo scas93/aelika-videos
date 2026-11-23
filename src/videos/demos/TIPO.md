@@ -51,6 +51,7 @@ Pregunta solo lo que falte (revisa primero lo que el usuario ya dio). Guarda las
 | Clases (personalizada) | `detona` | `entryPoints` → WhatsApp → `classesStorefront` |
 | Clases (genérica) | `pulso-studio` | igual que Detona, con textos neutros |
 | Pedidos de comida | `lacarniceria-lira` | `entryPoints` → WhatsApp → `ordersStorefront` (Uber o recoger, Apple Pay) |
+| Pedido para recoger con confirmación (dos perspectivas) | `karmele` | WhatsApp → `pickupStorefront` → chat de la encargada (confirmar/rechazar) → cliente → pago por transferencia |
 | App real grabada | `grabacion/` (Karmele, Banetto) | Otro método: ver skill `video-grabacion` |
 
 ## Reglas de calidad
@@ -71,3 +72,4 @@ Agrega aquí, con fecha, lo que aprendas en cada demo. Es la memoria de este tip
 - **2026-11-19 · Pulso Studio** — Una genérica de giro reutiliza la misma narración en cada versión personalizada si la voz no dice el nombre del negocio. Etiquetas fijas como "Instructora" deben ser configurables (`coachRole`).
 - **2026-11-20 · Proceso** — Ancla la narración a marcas de escena (`{scene, mark}`) en vez de segundos: al cambiar una escena, la voz se acomoda sola.
 - **2026-11-11 · Karmele/Banetto (grabación)** — Grabando la app real: forzar escala 3×, quitar `backdrop-filter` y un pixel que cambie cada 33 ms para tener ~40 fps; buscar botones por texto visible y productos por nombre, nunca por índice.
+- **2026-11-23 · Karmele (dos perspectivas)** — Para mostrar al cliente y al negocio, alterna escenas de WhatsApp y marca cada una con `perspective: {label, sub, icon, color}`: aparece una etiqueta arriba del teléfono que se mantiene hasta que otra escena la cambie. Usa otro color para el negocio y `avatar` en el chat de la encargada (`<AelikaIcon size={24}/>`; `AelikaMark` es el logo completo con texto y sale enorme). Los mensajes con imagen (`image`) sirven para datos de transferencia y comprobantes. Si staging aún no tiene el flujo nuevo, simúlalo imitando el diseño real (`pickupStorefront`) y anótalo en el brief. Con varios cambios de chat, alarga las pausas (`pause`) donde la narración es larga para que no se encimen frases. `npm run new` ya no sobrescribe archivos existentes en `public/<carpeta>/`.

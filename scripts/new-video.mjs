@@ -58,7 +58,8 @@ fs.writeFileSync(path.join(out, 'brief.md'), `# Brief · ${name ?? id}
 const pubSrc = path.join('public', base);
 const pubOut = path.join('public', dest);
 fs.mkdirSync(pubOut, {recursive: true});
-if (fs.existsSync(pubSrc)) for (const f of fs.readdirSync(pubSrc)) fs.copyFileSync(path.join(pubSrc, f), path.join(pubOut, f));
+// solo copia lo que falte: nunca sobrescribe fotos o logos que ya estén en public/<carpeta-nueva>/
+if (fs.existsSync(pubSrc)) for (const f of fs.readdirSync(pubSrc)) if (!fs.existsSync(path.join(pubOut, f))) fs.copyFileSync(path.join(pubSrc, f), path.join(pubOut, f));
 
 // registro
 const idx = path.join('src/videos', tipo, 'index.ts');

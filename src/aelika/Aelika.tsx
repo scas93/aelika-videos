@@ -166,5 +166,8 @@ export const Outro: React.FC<{tagline?: [string, string]; email?: string; phone?
   );
 };
 
+/** Solo el ícono de Aelika (triángulo con degradado), del tamaño indicado en px. */
+export const AelikaIcon: React.FC<{size: number}> = ({size}) => <Icon size={size} sheen={0} />;
+
 /** Logo de Aelika estático (para interfaces dentro del teléfono). */
 export const AelikaMark: React.FC<{size: number; color?: string}> = ({size, color}) => <AelikaLogo t={300} scale={size} color={color} />;

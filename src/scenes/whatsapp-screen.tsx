@@ -13,6 +13,8 @@ export type Msg = {
   date?: string; // separador de fecha antes del mensaje
   highlight?: number; // frame en que se resalta
   card?: {image: string; footer: string; button: string; pressAt?: number}; // mensaje tipo tarjeta con botón
+  /** foto enviada como mensaje (el texto, si hay, va como pie de foto) */
+  image?: string;
   /** botones de respuesta rápida bajo la burbuja */
   buttons?: {labels: string[]; pressAt?: number; pressIndex?: number};
   /** menú numerado en una segunda burbuja (1 Reservar, 2 Horarios…) */
@@ -26,13 +28,14 @@ export type Typing = [number, number];
 export type InputStep = {text: string; a: number; b: number; sent: number};
 
 export const INPUT_BAR = 84;
+export const IMAGE_H = 250;
 export const MENU_ROW = 40;
 /** alto aprox. de la nota en cursiva del menú (13px, ~42 caracteres por línea) */
 export const menuNoteH = (note: string) => Math.ceil(note.length / 42) * 18 + 6;
 
 export const estH = (m: Msg) => {
   const lines = m.raw.split('\n').reduce((s, l) => s + Math.max(1, Math.ceil(l.length / 31)), 0);
-  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0) + (m.buttons ? m.buttons.labels.length * 44 : 0) + (m.menu ? m.menu.items.length * MENU_ROW + (m.menu.note ? menuNoteH(m.menu.note) : 0) + 26 : 0);
+  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0) + (m.image ? IMAGE_H + 6 : 0) + (m.buttons ? m.buttons.labels.length * 44 : 0) + (m.menu ? m.menu.items.length * MENU_ROW + (m.menu.note ? menuNoteH(m.menu.note) : 0) + 26 : 0);
 };
 
 const Ticks = () => (
@@ -92,11 +95,11 @@ export const ChatScreen: React.FC<{
                   style={{
                     alignSelf: m.out ? 'flex-end' : 'flex-start',
                     maxWidth: 292,
-                    width: m.card ? 292 : undefined,
+                    width: m.card ? 292 : m.image ? 262 : undefined,
                     background: m.out ? '#d9fdd3' : '#fff',
                     borderRadius: 14,
                     [m.out ? 'borderTopRightRadius' : 'borderTopLeftRadius']: 4,
-                    padding: m.card ? '4px 4px 0' : '7px 10px 5px',
+                    padding: m.card || m.image ? '4px 4px 0' : '7px 10px 5px',
                     fontSize: 15.5,
                     lineHeight: '21px',
                     whiteSpace: 'pre-wrap',
@@ -108,7 +111,8 @@ export const ChatScreen: React.FC<{
                   }}
                 >
                   {m.card && <Img src={staticFile(m.card.image)} style={{width: '100%', height: 140, objectFit: 'cover', borderRadius: 10, display: 'block'}} />}
-                  <div style={{padding: m.card ? '7px 7px 4px' : 0}}>
+                  {m.image && <Img src={staticFile(m.image)} style={{width: '100%', height: IMAGE_H, objectFit: 'cover', borderRadius: 10, display: 'block'}} />}
+                  <div style={{padding: m.card || m.image ? '7px 7px 4px' : 0}}>
                     {m.text}
                     {m.card && <div style={{fontSize: 13, color: '#667781', marginTop: 4}}>{m.card.footer}</div>}
                     <div style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', fontSize: 11, color: '#667781', marginTop: 1}}>
