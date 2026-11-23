@@ -1,0 +1,19 @@
+{
+  "voiceId": "cjVigY5qzO86Huf0OWal",
+  "voiceName": "Eric (ElevenLabs)",
+  "speed": 1.1,
+  "lines": [
+    "Así funcionan los pedidos anticipados en tu cafetería con Aelika.",
+    "Tu cliente te escribe por WhatsApp, y el asistente le manda el link para pedir, con su número ya cargado.",
+    "Arma su pedido para una junta, en tu menú en línea.",
+    "Elige el día y la hora a la que quiere recogerlo.",
+    "Y lo envía como solicitud, sin cobro todavía.",
+    "Tu encargada recibe el aviso, y revisa la solicitud en el panel de Aelika, desde su teléfono o desde la tablet.",
+    "Consulta con cocina. Como a las ocho no alcanzan, propone otra hora.",
+    "Tu cliente recibe la propuesta por WhatsApp, y la acepta con un toque.",
+    "Puede pagar en tienda, con tarjeta o con Apple Pay. Elige Apple Pay, y su pedido queda confirmado.",
+    "Y en la tablet de tu barra, el pedido ya aparece pagado y con su hora de recolección.",
+    "Además, puedes sumar recordatorios, un programa de lealtad y promociones.",
+    "Aelika: pedidos, confirmaciones y pagos por WhatsApp. Agendemos una llamada."
+  ]
+}

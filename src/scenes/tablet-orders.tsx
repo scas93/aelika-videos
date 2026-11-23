@@ -23,6 +23,10 @@ export type TabletData = {
     customer: string;
     time: string;
     ready: string;
+    /** default "Para recoger · lo antes posible" */
+    delivery?: string;
+    /** default "Listo en" */
+    readyLabel?: string;
     lines: {qty: number; name: string; price: number; photo?: string}[];
     payment: string;
     note?: string;
@@ -145,8 +149,8 @@ const Screen: React.FC<{d: TabletData; f: number}> = ({d, f}) => {
             <div style={{display: 'flex', gap: 10, marginTop: 12}}>
               {[
                 ['Cliente', o.customer],
-                ['Entrega', 'Para recoger · lo antes posible'],
-                ['Listo en', o.ready],
+                ['Entrega', o.delivery ?? 'Para recoger · lo antes posible'],
+                [o.readyLabel ?? 'Listo en', o.ready],
               ].map(([k, v]) => (
                 <div key={k} style={{flex: k === 'Entrega' ? 1.6 : 1, border: `1px solid ${LINE}`, borderRadius: 12, background: '#fff', padding: '8px 12px'}}>
                   <div style={{fontSize: 11.5, color: GRAY}}>{k}</div>

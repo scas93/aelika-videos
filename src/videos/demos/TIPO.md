@@ -53,6 +53,7 @@ Pregunta solo lo que falte (revisa primero lo que el usuario ya dio). Guarda las
 | Pedidos de comida | `lacarniceria-lira` | `entryPoints` → WhatsApp → `ordersStorefront` (Uber o recoger, Apple Pay) |
 | Pedido para recoger con confirmación (dos perspectivas) | `karmele` | WhatsApp → `pickupStorefront` (solicitud) → aviso a la encargada → `orderPanelReview` (confirmar o proponer hora) → propuesta por WhatsApp → `pickupPay` (aceptar y pagar con tarjeta) → confirmación |
 | Cafetería para recoger ya (genérica, dos perspectivas con iPad) | `cafe-aurora` | `entryPoints` → WhatsApp → `pickupStorefront` con `now` (pagar en tienda o tarjeta/Apple Pay) → confirmación → aviso en el teléfono del local → `tabletOrders` (iPad) |
+| Pedido anticipado con confirmación de hora (cafetería genérica) | `cafe-aurora-anticipado` | igual que Karmele, con Apple Pay como opción de pago (`pickupPay` con `method: 'applePay'`) y la tablet al final (`tabletOrders`) |
 | App real grabada | `grabacion/` (Karmele, Banetto) | Otro método: ver skill `video-grabacion` |
 
 ## Reglas de calidad
@@ -81,4 +82,5 @@ Agrega aquí, con fecha, lo que aprendas en cada demo. Es la memoria de este tip
 - **2026-11-23 · Karmele (terminado)** — Aprobado tras 6 versiones. Lo que más cambió fue el flujo de negocio, no el diseño: en la próxima demo con flujo nuevo, confirma el flujo completo (quién hace qué, dónde y cómo se paga) antes de producir.
 - **2026-11-23 · Café Aurora** — Para fotos de cafetería/panadería, el sitio de Banetto (panaderiabanetto.com) tiene bebidas y pan en 1200 px; se encontró desde su storefront de staging. Para mostrar que el local recibe pedidos en un iPad, `tabletOrders` dibuja un iPad horizontal como capa sobre el lienzo (tapa el teléfono); la interfaz se dibuja a 740 px y se escala para que el texto se lea. El pedido "para recoger ya" usa `pickupStorefront` con `now` (sin datos ni fecha).
 - **2026-11-23 · Café Aurora (terminado)** — Aprobado en la primera versión: una sola tanda de preguntas al inicio (marca, pago, cuándo recoge, qué hace el local) dejó el flujo claro antes de producir.
+- **2026-11-23 · Café Aurora · pedido anticipado** — Reusar la marca y las fotos de otra genérica (`A = cafe-aurora/…`) arma una serie sin repetir assets. En `pickupStorefront`, los productos de las filas 1–2 deben terminar de agregarse antes del scroll (frame ~128): pide pocas piezas de esos y deja uno de la fila 3 para después del scroll.
 
