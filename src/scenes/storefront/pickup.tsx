@@ -66,6 +66,8 @@ export type PickupData = {
     pickTime?: number;
     /** hora a la que pasa, p. ej. "10:55 a. m." */
     readyAt?: string;
+    /** al tocar "Otra hora" (debe ser la opción `pickTime`): elige día y hora */
+    custom?: {days: string[]; pickDay: number; slots: string[]; pickSlot: number};
   };
   subtitles?: Partial<Record<'menu' | 'cart' | 'data' | 'schedule' | 'summary' | 'sent' | 'checkout' | 'pay' | 'applePay' | 'done', string>>;
 };
@@ -110,8 +112,20 @@ export const PICKUP_NOW_TIMES_T = {
   payOk: 514,
   done: [580, 700],
 } as const;
-type NowTimes = {checkout: readonly number[]; tapCard: number; tapApplePay: number; paySheet: number; payOk: number; done: readonly number[]; tapTime?: number};
-const nowT = (d: PickupData): NowTimes => (d.now?.times ? PICKUP_NOW_TIMES_T : PICKUP_NOW_T);
+/** tiempos con "Otra hora" → día y hora */
+export const PICKUP_NOW_CUSTOM_T = {
+  checkout: [300, 640],
+  tapTime: 346,
+  tapDay: 384,
+  tapSlot: 414,
+  tapCard: 470,
+  tapApplePay: 512,
+  paySheet: 520,
+  payOk: 574,
+  done: [640, 760],
+} as const;
+type NowTimes = {checkout: readonly number[]; tapCard: number; tapApplePay: number; paySheet: number; payOk: number; done: readonly number[]; tapTime?: number; tapDay?: number; tapSlot?: number};
+const nowT = (d: PickupData): NowTimes => (d.now?.custom ? PICKUP_NOW_CUSTOM_T : d.now?.times ? PICKUP_NOW_TIMES_T : PICKUP_NOW_T);
 
 const GRID_TOP = 268;
 const CARD_W = 171;
@@ -531,6 +545,9 @@ const CheckoutTimes: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
   const lines = d.items.filter((i) => i.qty);
   const timeOn = f >= N.tapTime!;
   const apple = f >= N.tapCard;
+  const cu = now.custom;
+  const pick = cu ? prog(f, N.tapTime! + 4, N.tapTime! + 16) : 0;
+  const DY = cu ? 112 * pick : 0; // lo que baja todo al abrir el selector
   const chip = (on: boolean) => ({borderRadius: 12, border: `${on ? 2 : 1}px solid ${on ? colors.dark : colors.line}`, background: on ? colors.dark : '#fff', color: on ? '#fff' : colors.dark, boxSizing: 'border-box' as const});
   const pays: [string, string, string][] = [
     ['🏪', 'En tienda', 'Al recoger'],
@@ -548,10 +565,28 @@ const CheckoutTimes: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
           </div>
         ))}
       </div>
-      <div style={{position: 'absolute', top: 196, left: 18, right: 18, fontSize: 13, color: timeOn ? '#1f8a4c' : colors.muted, fontWeight: timeOn ? 600 : 400}}>
-        {timeOn ? `⚡ Listo a las ${now.readyAt} · pasas y te vas, sin hacer fila` : `🏪 Recoges en ${now.address}`}
+      {cu && pick > 0 && (
+        <div style={{opacity: pick}}>
+          <div style={{position: 'absolute', top: 196, left: 16, display: 'flex', gap: 6}}>
+            {cu.days.map((x, i) => (
+              <div key={x} style={{...chip(f >= N.tapDay! && i === cu.pickDay), width: TIME_W, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13.5, fontWeight: 600}}>
+                {x}
+              </div>
+            ))}
+          </div>
+          <div style={{position: 'absolute', top: 250, left: 16, display: 'flex', gap: 6}}>
+            {cu.slots.map((x, i) => (
+              <div key={x} style={{...chip(f >= N.tapSlot! && i === cu.pickSlot), width: TIME_W, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13.5, fontWeight: 600}}>
+                {x}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <div style={{position: 'absolute', top: 196 + DY, left: 18, right: 18, fontSize: 13, color: (cu ? f >= N.tapSlot! : timeOn) ? '#1f8a4c' : colors.muted, fontWeight: (cu ? f >= N.tapSlot! : timeOn) ? 600 : 400}}>
+        {(cu ? f >= N.tapSlot! : timeOn) ? `⚡ Pasas ${cu ? 'el ' : 'a las '}${now.readyAt} · llegas y te vas, sin hacer fila` : `🏪 Recoges en ${now.address}`}
       </div>
-      <div style={{position: 'absolute', top: 228, left: 16, right: 16, borderRadius: 14, background: '#fff', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 7}}>
+      <div style={{position: 'absolute', top: 228 + DY, left: 16, right: 16, borderRadius: 14, background: '#fff', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 7}}>
         {lines.map((it) => (
           <div key={it.name} style={{display: 'flex', justifyContent: 'space-between', fontSize: 14.5}}>
             <span>
@@ -566,8 +601,8 @@ const CheckoutTimes: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
           <span>{money(total(d))}</span>
         </div>
       </div>
-      <div style={{position: 'absolute', top: 430, left: 18, fontSize: 15, fontWeight: 700}}>¿Cómo quieres pagar?</div>
-      <div style={{position: 'absolute', top: 458, left: 16, display: 'flex', gap: 8}}>
+      <div style={{position: 'absolute', top: 430 + DY - (cu ? 26 : 0), left: 18, fontSize: 15, fontWeight: 700}}>¿Cómo quieres pagar?</div>
+      <div style={{position: 'absolute', top: 458 + DY - (cu ? 26 : 0), left: 16, display: 'flex', gap: 8}}>
         {pays.map(([icon, t, sub], i) => {
           const on = apple && i === 2;
           return (
@@ -614,7 +649,7 @@ const NowDone: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
         <div style={{marginTop: 18, padding: '0 34px', textAlign: 'center', fontSize: 15, lineHeight: 1.5, color: '#555', opacity: prog(f, s + 18, s + 28)}}>
           {d.now!.readyAt ? (
             <>
-              Pasa por él a las <b style={{color: colors.dark}}>{d.now!.readyAt}</b> en {d.now!.address}: te estará esperando, sin hacer fila.
+              Pasa por él {d.now!.custom ? 'el' : 'a las'} <b style={{color: colors.dark}}>{d.now!.readyAt}</b> en {d.now!.address}: te estará esperando, sin hacer fila.
             </>
           ) : (
             <>
@@ -711,18 +746,24 @@ export const pickupStorefront = (d: PickupData): PhoneScene => {
       enter: 'up',
       Component: () => <PickupScreen d={d} />,
       taps: (withTimes
-        ? [...common, {f: N.tapTime!, x: timeX(d.now.pickTime ?? 0), y: 163}, {f: N.tapCard, x: 16 + 2 * (PAY_W + 8) + PAY_W / 2, y: 497}, {f: N.tapApplePay, x: 195, y: 744}]
+        ? [
+            ...common,
+            {f: N.tapTime!, x: timeX(d.now.pickTime ?? 0), y: 163},
+            ...(d.now.custom ? [{f: N.tapDay!, x: timeX(d.now.custom.pickDay), y: 218}, {f: N.tapSlot!, x: timeX(d.now.custom.pickSlot), y: 270}] : []),
+            {f: N.tapCard, x: 16 + 2 * (PAY_W + 8) + PAY_W / 2, y: 497 + (d.now.custom ? 112 - 26 : 0)},
+            {f: N.tapApplePay, x: 195, y: 744},
+          ]
         : [...common, {f: N.tapCard, x: 288, y: 508}, {f: N.tapApplePay, x: 195, y: 744}]
       ).sort((a, b) => a.f - b.f),
       zooms: withTimes
-        ? [zooms[0], {a: N.checkout[0] + 20, b: N.tapTime! + 30, x: 195, y: 230, s: 1.3}, {a: N.tapTime! + 40, b: N.tapApplePay - 2, x: 195, y: 470, s: 1.22}]
+        ? [zooms[0], {a: N.checkout[0] + 20, b: (N.tapSlot ?? N.tapTime!) + 30, x: 195, y: 230, s: 1.3}, {a: (N.tapSlot ?? N.tapTime!) + 40, b: N.tapApplePay - 2, x: 195, y: 520, s: 1.22}]
         : [zooms[0], {a: N.checkout[0] + 24, b: N.tapApplePay - 2, x: 195, y: 470, s: 1.22}],
       marks: {menu: T.menu[0], add: adds[0].f, cart: T.cart[0], checkout: N.checkout[0], time: N.tapTime ?? N.checkout[0], card: N.tapCard, applePay: N.tapApplePay, paid: N.payOk, done: N.done[0]},
       subtitles: [
         {at: T.menu[0], text: sub.menu ?? 'Tu menú en línea, con tus productos y precios.'},
         {at: T.cart[0], text: sub.cart ?? 'Revisan su pedido.'},
         {at: N.checkout[0], text: sub.checkout ?? 'Recogen lo antes posible y eligen cómo pagar.'},
-        ...(withTimes ? [{at: N.tapTime! + 36, text: sub.pay ?? 'Eligen cómo pagar.'}] : []),
+        ...(withTimes ? [{at: (N.tapSlot ?? N.tapTime!) + 36, text: sub.pay ?? 'Eligen cómo pagar.'}] : []),
         {at: N.tapApplePay - 4, text: sub.applePay ?? 'Pagan con Apple Pay en un toque.'},
         {at: N.done[0], text: sub.done ?? 'Pedido confirmado y pagado.'},
       ],

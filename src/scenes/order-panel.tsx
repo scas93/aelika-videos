@@ -372,7 +372,7 @@ const ViewScreen: React.FC<{d: ViewData}> = ({d}) => {
       <PageHead d={d} status={<Pill tone="green">Nuevo · pagado</Pill>} />
       <Card top={122}>
         <Row k="Entrega" v={d.pickupLabel ?? 'Para recoger'} />
-        <Row k="Pasa a las" v={nb(d.pickupAt)} />
+        <Row k="Pasa por él" v={nb(d.pickupAt)} />
         <Row k="Cliente" v={d.customer.name} />
         <Row k="Teléfono" v={d.customer.phone} />
       </Card>

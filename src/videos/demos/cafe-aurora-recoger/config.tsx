@@ -6,7 +6,8 @@ import {whatsappChat} from '../../../scenes/whatsapp';
 
 /**
  * Café Aurora · PIDE Y PASA A RECOGER SIN HACER FILA (cafetería genérica).
- * Cliente, en un solo paso: WhatsApp → menú → elige cuándo pasa (ahorita, 30, 45, 60 min u otra hora) →
+ * Menú solo de pan. Cliente, en un solo paso: WhatsApp → menú → elige cuándo pasa (ahorita, 30, 45, 60 min u
+ * otra hora → día y hora) →
  * paga (en tienda, tarjeta o Apple Pay) → confirmado.
  * Encargado: recibe el pedido en su teléfono (aviso de WhatsApp → panel de Aelika) y luego en el iPad de la barra.
  * Marca ficticia y fotos de Café Aurora (Banetto); la voz no dice el nombre del negocio.
@@ -19,21 +20,21 @@ const IPAD: Perspective = {label: 'TU CAFETERÍA', sub: 'en el iPad de la barra'
 
 const URL = 'pide.aelika.com/cafe-aurora';
 const DIRECCION = 'Av. Chapultepec 120, Americana';
-const PASA = '10:55 a. m.';
+const PASA = 'martes 24 a las 9:00 a. m.';
 const AUTO = 'Mensaje automático de Aelika';
 const items = [
-  {name: 'Latte', price: 65, photo: A('latte.jpg'), qty: 2},
-  {name: 'Americano', price: 50, photo: A('americano.jpg')},
-  {name: 'Croissant', price: 48, photo: A('croissant.jpg'), qty: 1},
-  {name: 'Rol de canela', price: 55, photo: A('rol-canela.jpg')},
-  {name: 'Chocolatín', price: 52, photo: A('chocolatin.jpg'), qty: 1},
-  {name: 'Galleta red velvet', price: 38, photo: A('galleta.jpg'), qty: 1},
-  {name: 'Frappé moka', price: 85, photo: A('frappe.jpg')},
-  {name: 'Alfajor de chocolate', price: 35, photo: A('alfajor.jpg')},
+  {name: 'Croissant', price: 48, photo: A('croissant.jpg'), qty: 2},
+  {name: 'Croissant de almendra', price: 62, photo: A('croissant-almendra.jpg')},
+  {name: 'Chocolatín', price: 52, photo: A('chocolatin.jpg'), qty: 2},
+  {name: 'Kouign amann', price: 68, photo: A('kouign-amann.jpg')},
+  {name: 'Rol de canela', price: 55, photo: A('rol-canela.jpg'), qty: 2},
+  {name: 'Espiral de naranja', price: 50, photo: A('espiral-naranja.jpg')},
+  {name: 'Baguette', price: 45, photo: A('baguette.jpg')},
+  {name: 'Hogaza natural', price: 95, photo: A('hogaza.jpg')},
 ];
 const pedidas = items.filter((i) => i.qty).map((i) => ({qty: i.qty!, name: i.name, price: i.price, photo: i.photo}));
-const total = pedidas.reduce((a, i) => a + i.qty * i.price, 0); // $268
-const avisoNuevo = `🔔 *Nuevo pedido #91* de Andrea M.\nPasa a recogerlo a las *${PASA}* (en 30 min)\n💳 Pagado con Apple Pay: $${total}.00`;
+const total = pedidas.reduce((a, i) => a + i.qty * i.price, 0); // $310
+const avisoNuevo = `🔔 *Nuevo pedido #91* de Andrea M.\nPasa a recogerlo el *${PASA}*\n💳 Pagado con Apple Pay: $${total}.00`;
 
 export const cafeAuroraRecoger: VideoConfig = {
   id: 'CafeAuroraRecoger',
@@ -66,7 +67,7 @@ export const cafeAuroraRecoger: VideoConfig = {
       notice: true,
       perspective: CLIENTE,
       script: [
-        {from: 'user', text: 'hola! quiero pedir para pasar a recoger', sub: 'Tu cliente te escribe por WhatsApp…'},
+        {from: 'user', text: 'hola! quiero pedir pan para pasar a recoger', sub: 'Tu cliente te escribe por WhatsApp…'},
         {
           from: 'bot',
           text: '¡Hola! Bienvenido a Café Aurora ☕ ¿Qué te gustaría hacer?',
@@ -77,8 +78,8 @@ export const cafeAuroraRecoger: VideoConfig = {
         },
         {
           from: 'bot',
-          text: '*¡Va!* ☕\nPide desde aquí y pasa por él sin hacer fila.',
-          card: {image: A('latte.jpg'), footer: URL, button: 'Hacer mi pedido'},
+          text: '*¡Va!* 🥐\nPide tu pan desde aquí y pasa por él sin hacer fila.',
+          card: {image: A('croissant.jpg'), footer: URL, button: 'Hacer mi pedido'},
           tap: true,
           zoom: true,
           typing: 18,
@@ -91,7 +92,7 @@ export const cafeAuroraRecoger: VideoConfig = {
     pickupStorefront({
       url: URL,
       title: 'Café Aurora',
-      categories: ['Café', 'Pan dulce', 'Galletas', 'Fríos'],
+      categories: ['Croissants', 'Pan dulce', 'Pan salado', 'Especiales'],
       items,
       orderNumber: '#91',
       from: 'Café Aurora',
@@ -100,14 +101,15 @@ export const cafeAuroraRecoger: VideoConfig = {
         ready: '30 min',
         address: DIRECCION,
         times: ['Ahorita', '30 min', '45 min', '60 min', 'Otra hora'],
-        pickTime: 1,
+        pickTime: 4,
+        custom: {days: ['Hoy', 'Mañana', 'Mié 25', 'Jue 26', 'Vie 27'], pickDay: 1, slots: ['8:00', '8:30', '9:00', '9:30', '10:00'], pickSlot: 2},
         readyAt: PASA,
-        banner: `Pedido #91 confirmado ✅ Pasa por él a las ${PASA}, te estará esperando ☕`,
+        banner: `Pedido #91 confirmado ✅ Pasa por él el ${PASA}, te estará esperando 🥐`,
       },
       subtitles: {
         menu: 'Arma su pedido en tu menú en línea.',
         cart: 'Revisa lo que va a llevar.',
-        checkout: 'Elige cuándo pasa: ahorita, en 30, 45 o 60 min.',
+        checkout: 'Elige cuándo pasa: ahorita, al rato, o qué día y hora.',
         pay: 'Paga en tienda, con tarjeta o con Apple Pay.',
         applePay: 'Paga con Apple Pay en un toque.',
         done: 'Listo: pasa, recoge y se va, sin hacer fila.',
@@ -131,7 +133,7 @@ export const cafeAuroraRecoger: VideoConfig = {
       date: '',
       time: '',
       items: pedidas,
-      pickupAt: `${PASA} · en 30 min`,
+      pickupAt: 'Mar 24 · 9:00 a. m.',
       payment: 'Apple Pay',
       statusTime: '10:25',
       perspective: ENCARGADO,
@@ -147,7 +149,7 @@ export const cafeAuroraRecoger: VideoConfig = {
         {number: '#89', customer: 'Luis R.', items: 3, time: '10:12', status: 'prep'},
         {number: '#88', customer: 'Diego P.', items: 1, time: '10:05', status: 'ready'},
       ],
-      order: {number: '#91', customer: 'Andrea M.', time: '10:25', delivery: 'Para recoger · en 30 min', readyLabel: 'Pasa a las', ready: PASA, lines: pedidas, payment: 'Apple Pay'},
+      order: {number: '#91', customer: 'Andrea M.', time: '10:25', delivery: 'Para recoger · mañana', readyLabel: 'Pasa', ready: 'Mar 24 · 9:00', lines: pedidas, payment: 'Apple Pay'},
       subtitles: {open: 'Y en el iPad de tu barra…', arrive: '…cada pedido llega con aviso…', detail: '…para tenerlo listo cuando llegue.'},
     }),
   ],
@@ -157,9 +159,9 @@ export const cafeAuroraRecoger: VideoConfig = {
     title: 'Todo lo que',
     titleAccent: 'puedes sumar',
     items: [
-      {icon: '🎁', title: 'Programa de lealtad', desc: 'Sellos digitales: el décimo café va por tu cuenta.'},
-      {icon: '📣', title: 'Promociones y campañas', desc: 'Avisa del pan recién salido o de tu bebida de temporada.'},
-      {icon: '🔔', title: 'Recordatorios automáticos', desc: 'Un mensaje para que vuelvan por su café de siempre.'},
+      {icon: '🎁', title: 'Programa de lealtad', desc: 'Sellos digitales: el décimo pan va por tu cuenta.'},
+      {icon: '📣', title: 'Promociones y campañas', desc: 'Avisa del pan recién salido o del pan de temporada.'},
+      {icon: '🔔', title: 'Recordatorios automáticos', desc: 'Un mensaje para que vuelvan por su pan de siempre.'},
     ],
   },
 
