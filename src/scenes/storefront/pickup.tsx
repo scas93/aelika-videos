@@ -21,20 +21,22 @@ export type PickupData = {
   categories: string[];
   /** 8 productos (cuadrícula de 2 columnas); los de las filas 3–4 requieren scroll */
   items: PickupItem[];
-  customer: {name: string; phone: string};
-  pickup: {address: string};
+  /** modo solicitud: datos del cliente */
+  customer?: {name: string; phone: string};
+  /** modo solicitud: sucursal */
+  pickup?: {address: string};
   /** días: [etiqueta, número, deshabilitado?] */
-  days: [string, string, boolean?][];
-  pickDay: number;
-  dayLong: string;
+  days?: [string, string, boolean?][];
+  pickDay?: number;
+  dayLong?: string;
   /** horarios del día elegido: [hora, lleno?] */
-  slots: [string, boolean?][];
-  pickSlot: number;
+  slots?: [string, boolean?][];
+  pickSlot?: number;
   orderNumber: string;
   /** quién manda el aviso de WhatsApp al final */
   from: string;
   /** nota de pago en el resumen */
-  payNote: string;
+  payNote?: string;
   /** el teléfono ya viene cargado desde WhatsApp (no se teclea) */
   phonePrefilled?: boolean;
   /** textos de la solicitud: botón de envío, título y nota de la pantalla final, aviso de WhatsApp */
@@ -46,7 +48,18 @@ export type PickupData = {
   /** nota bajo los horarios (default: anticipación de un día) */
   scheduleNote?: string;
   statusTime?: string;
-  subtitles?: Partial<Record<'menu' | 'cart' | 'data' | 'schedule' | 'summary' | 'sent', string>>;
+  /**
+   * Modo "RECOGER YA" (cafeterías): sin datos ni fecha. Tras el carrito: recoger lo antes posible + cómo pagar
+   * (en tienda o con tarjeta) → Apple Pay → pedido confirmado. Sin `now`, es el modo solicitud (Karmele).
+   */
+  now?: {
+    /** "~15 min" */
+    ready: string;
+    address: string;
+    /** texto del aviso de WhatsApp al terminar */
+    banner: string;
+  };
+  subtitles?: Partial<Record<'menu' | 'cart' | 'data' | 'schedule' | 'summary' | 'sent' | 'checkout' | 'applePay' | 'done', string>>;
 };
 
 // ------------------------------------------------------------------ tiempos (frames locales)
@@ -70,6 +83,16 @@ export const PICKUP_T = {
   tapSend: 668,
 } as const;
 const T = PICKUP_T;
+/** tiempos del modo "recoger ya" (después del carrito) */
+export const PICKUP_NOW_T = {
+  checkout: [300, 520],
+  tapCard: 362,
+  tapApplePay: 404,
+  paySheet: 412,
+  payOk: 466,
+  done: [520, 640],
+} as const;
+const N = PICKUP_NOW_T;
 
 const GRID_TOP = 268;
 const CARD_W = 171;
@@ -254,8 +277,8 @@ const CartSheet: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
 };
 
 const Data: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
-  const name = typed(d.customer.name, f, T.typeName[0], T.typeName[1]);
-  const phone = d.phonePrefilled ? d.customer.phone : typed(d.customer.phone, f, T.typePhone[0], T.typePhone[1]);
+  const name = typed(d.customer!.name, f, T.typeName[0], T.typeName[1]);
+  const phone = d.phonePrefilled ? d.customer!.phone : typed(d.customer!.phone, f, T.typePhone[0], T.typePhone[1]);
   return (
     <>
       <Header title="Tus datos" />
@@ -278,13 +301,13 @@ const Schedule: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
         <div style={{fontSize: 24}}>🏪</div>
         <div>
           <div style={{fontSize: 15.5, fontWeight: 700}}>Recoger en tienda</div>
-          <div style={{fontSize: 12.5, color: colors.muted, marginTop: 1}}>{d.pickup.address}</div>
+          <div style={{fontSize: 12.5, color: colors.muted, marginTop: 1}}>{d.pickup!.address}</div>
         </div>
       </div>
       <div style={{position: 'absolute', top: 208, left: 18, fontSize: 14, fontWeight: 600}}>Día</div>
       <div style={{position: 'absolute', top: 234, left: 16, right: 0, display: 'flex', gap: 8}}>
-        {d.days.map(([lab, num, off], i) => {
-          const on = dayOn && i === d.pickDay;
+        {d.days!.map(([lab, num, off], i) => {
+          const on = dayOn && i === d.pickDay!;
           return (
             <div key={i} style={{width: 62, height: 58, borderRadius: 12, border: `1.5px solid ${on ? colors.dark : colors.line}`, background: on ? colors.dark : off ? '#f1f1f1' : '#fff', color: on ? '#fff' : off ? '#b5b5b5' : colors.dark, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box'}}>
               <div style={{fontSize: 12.5, fontWeight: 600}}>{lab}</div>
@@ -294,10 +317,10 @@ const Schedule: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
         })}
       </div>
       <div style={{opacity: slotsIn, transform: `translateY(${(1 - slotsIn) * 10}px)`}}>
-        <div style={{position: 'absolute', top: 314, left: 18, fontSize: 14, fontWeight: 600}}>Horario · {d.dayLong}</div>
+        <div style={{position: 'absolute', top: 314, left: 18, fontSize: 14, fontWeight: 600}}>Horario · {d.dayLong!}</div>
         <div style={{position: 'absolute', top: 342, left: 16, right: 16, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8}}>
-          {d.slots.map(([h, full], i) => {
-            const on = f >= T.tapSlot && i === d.pickSlot;
+          {d.slots!.map(([h, full], i) => {
+            const on = f >= T.tapSlot && i === d.pickSlot!;
             return (
               <div key={h} style={{height: 50, borderRadius: 12, border: `1.5px solid ${on ? colors.dark : colors.line}`, background: on ? colors.dark : full ? '#f1f1f1' : '#fff', color: on ? '#fff' : full ? '#b5b5b5' : colors.dark, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 600, textDecoration: full ? 'line-through' : 'none'}}>
                 {h}
@@ -306,7 +329,7 @@ const Schedule: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
             );
           })}
         </div>
-        <div style={{position: 'absolute', top: 354 + Math.ceil(d.slots.length / 3) * 58, left: 18, right: 18, fontSize: 12.5, color: '#8a8a8a'}}>{d.scheduleNote ?? 'Pide con al menos un día de anticipación.'}</div>
+        <div style={{position: 'absolute', top: 354 + Math.ceil(d.slots!.length / 3) * 58, left: 18, right: 18, fontSize: 12.5, color: '#8a8a8a'}}>{d.scheduleNote ?? 'Pide con al menos un día de anticipación.'}</div>
       </div>
       <BlackBtn label="Continuar" disabled={f < T.tapSlot} pressed={f >= T.tapContinue3 && f < T.tapContinue3 + 8} />
     </>
@@ -337,10 +360,10 @@ const Summary: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
       <div style={{position: 'absolute', top: 290, left: 16, right: 16, borderRadius: 14, background: '#fff', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 6, fontSize: 14.5}}>
         <div>🏪 Recoger en tienda</div>
         <div>
-          📅 <b>{d.dayLong}</b> · {d.slots[d.pickSlot][0]}
+          📅 <b>{d.dayLong!}</b> · {d.slots![d.pickSlot!][0]}
         </div>
         <div>
-          👤 {d.customer.name} · {d.customer.phone}
+          👤 {d.customer!.name} · {d.customer!.phone}
         </div>
       </div>
       <div style={{position: 'absolute', top: 420, left: 16, right: 16, borderRadius: 14, background: rgba(colors.accent, 0.12), border: `1px solid ${rgba(colors.accent, 0.4)}`, padding: '12px 14px', fontSize: 14, lineHeight: 1.45, color: '#3d2a1c'}}>{d.payNote}</div>
@@ -366,7 +389,127 @@ const Sent: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
           {d.sentPill ?? `Pedido ${d.orderNumber} · Pendiente de confirmación`}
         </div>
         <div style={{marginTop: 18, padding: '0 34px', textAlign: 'center', fontSize: 15, lineHeight: 1.5, color: '#555', opacity: prog(f, s + 18, s + 28)}}>
-          {d.sentNote ?? `${d.title} revisa la disponibilidad para el ${d.dayLong.toLowerCase()} a las ${d.slots[d.pickSlot][0]} y te confirma por WhatsApp con los datos para pagar.`}
+          {d.sentNote ?? `${d.title} revisa la disponibilidad para el ${d.dayLong!.toLowerCase()} a las ${d.slots![d.pickSlot!][0]} y te confirma por WhatsApp con los datos para pagar.`}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// ------------------------------------------------------------------ modo "recoger ya"
+const Checkout: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
+  const {colors} = useBrand();
+  const lines = d.items.filter((i) => i.qty);
+  const card = f >= N.tapCard;
+  const sheet = prog(f, N.paySheet, N.paySheet + 14);
+  const ok = f >= N.payOk;
+  const opt = (on: boolean, icon: string, t: string, sub: string, left: number) => (
+    <div style={{position: 'absolute', top: 470, left, width: 171, height: 76, borderRadius: 14, background: '#fff', border: `${on ? 2 : 1}px solid ${on ? colors.dark : colors.line}`, boxSizing: 'border-box', padding: '10px 12px'}}>
+      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+        <span style={{fontSize: 20}}>{icon}</span>
+        <div style={{width: 18, height: 18, borderRadius: '50%', border: `2px solid ${on ? colors.dark : '#c9c9c9'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box'}}>{on && <div style={{width: 9, height: 9, borderRadius: '50%', background: colors.dark}} />}</div>
+      </div>
+      <div style={{fontSize: 14.5, fontWeight: 700, marginTop: 4}}>{t}</div>
+      <div style={{fontSize: 11.5, color: colors.muted}}>{sub}</div>
+    </div>
+  );
+  return (
+    <>
+      <Header title="Tu pedido" />
+      <div style={{position: 'absolute', top: 114, left: 16, right: 16, borderRadius: 14, background: '#fff', border: `2px solid ${colors.dark}`, padding: '12px 14px', display: 'flex', gap: 12, alignItems: 'center'}}>
+        <div style={{fontSize: 24}}>🏪</div>
+        <div>
+          <div style={{fontSize: 15.5, fontWeight: 700}}>Recoger en tienda · lo antes posible</div>
+          <div style={{fontSize: 13, color: '#1f8a4c', fontWeight: 600, marginTop: 2}}>⚡ Listo en {d.now!.ready}</div>
+          <div style={{fontSize: 12.5, color: colors.muted, marginTop: 1}}>{d.now!.address}</div>
+        </div>
+      </div>
+      <div style={{position: 'absolute', top: 216, left: 16, right: 16, borderRadius: 14, background: '#fff', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 7}}>
+        {lines.map((it) => (
+          <div key={it.name} style={{display: 'flex', justifyContent: 'space-between', fontSize: 14.5}}>
+            <span>
+              {it.qty}× {it.name}
+            </span>
+            <span>{money(it.qty! * it.price)}</span>
+          </div>
+        ))}
+        <div style={{height: 1, background: colors.line, margin: '2px 0'}} />
+        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 17, fontWeight: 700}}>
+          <span>Total</span>
+          <span>{money(total(d))}</span>
+        </div>
+      </div>
+      <div style={{position: 'absolute', top: 440, left: 18, fontSize: 15, fontWeight: 700}}>¿Cómo quieres pagar?</div>
+      {opt(false, '🏪', 'En tienda', 'Pagas al recoger', 16)}
+      {opt(card, '💳', 'Con tarjeta', 'Apple Pay o tarjeta', 203)}
+      <div style={{position: 'absolute', left: 16, right: 16, top: 718, height: 52, borderRadius: 14, background: card ? '#000' : '#b9b9b9', color: '#fff', fontSize: 16.5, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transform: f >= N.tapApplePay && f < N.tapApplePay + 8 ? 'scale(.97)' : 'none'}}>
+        {card ? (
+          <>
+            Pagar con <b style={{fontWeight: 700}}>Apple Pay</b> · {money(total(d))}
+          </>
+        ) : (
+          'Elige cómo pagar'
+        )}
+      </div>
+      {sheet > 0 && (
+        <>
+          <div style={{position: 'absolute', inset: 0, background: `rgba(0,0,0,${0.3 * sheet})`, zIndex: 40}} />
+          <div style={{position: 'absolute', left: 8, right: 8, bottom: 80, height: 300, borderRadius: 32, background: '#f2f2f2', zIndex: 41, transform: `translateY(${(1 - sheet) * 420}px)`, padding: '18px 22px', boxSizing: 'border-box', color: '#111'}}>
+            <div style={{fontSize: 21, fontWeight: 600}}>Apple Pay</div>
+            <div style={{marginTop: 14, borderRadius: 14, background: '#fff', padding: '12px 14px', fontSize: 14.5, display: 'flex', flexDirection: 'column', gap: 8}}>
+              <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <span style={{color: '#777'}}>Tarjeta</span>
+                <span>Visa •••• 4242</span>
+              </div>
+              <div style={{display: 'flex', justifyContent: 'space-between', fontWeight: 600}}>
+                <span>Pagar a {d.title}</span>
+                <span>{money(total(d))} MXN</span>
+              </div>
+            </div>
+            <div style={{marginTop: 18, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8}}>
+              {ok ? (
+                <>
+                  <div style={{width: 54, height: 54, borderRadius: '50%', border: '3px solid #0a84ff', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${0.7 + 0.3 * prog(f, N.payOk, N.payOk + 8)})`}}>
+                    <svg width="28" height="28" viewBox="0 0 24 24">
+                      <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#0a84ff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <div style={{fontSize: 15, fontWeight: 600}}>Listo</div>
+                </>
+              ) : (
+                <>
+                  <div style={{width: 54, height: 54, borderRadius: 16, border: '2px solid #111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, opacity: 0.4 + 0.6 * Math.abs(Math.sin(f / 6))}}>⌁</div>
+                  <div style={{fontSize: 14, color: '#555'}}>Haz doble clic para pagar</div>
+                </>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </>
+  );
+};
+
+const NowDone: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
+  const {colors} = useBrand();
+  const s = N.done[0];
+  const p = prog(f, s + 2, s + 16);
+  return (
+    <div style={{position: 'absolute', inset: 0}}>
+      <WaBanner p={prog(f, s + 44, s + 56)} from={d.from}>
+        {d.now!.banner}
+      </WaBanner>
+      <div style={{position: 'absolute', top: 190, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+        <div style={{width: 104, height: 104, borderRadius: '50%', background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${0.6 + 0.4 * p})`, opacity: p}}>
+          <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 12.5 9.5 18 20 6.5" />
+          </svg>
+        </div>
+        <div style={{marginTop: 22, fontSize: 26, fontWeight: 700, opacity: prog(f, s + 10, s + 20)}}>¡Pedido confirmado!</div>
+        <div style={{marginTop: 8, padding: '5px 12px', borderRadius: 999, background: '#e6f6ec', color: '#1f8a4c', fontSize: 13, fontWeight: 700, opacity: prog(f, s + 14, s + 24)}}>Pedido {d.orderNumber} · Pagado con Apple Pay</div>
+        <div style={{marginTop: 18, padding: '0 34px', textAlign: 'center', fontSize: 15, lineHeight: 1.5, color: '#555', opacity: prog(f, s + 18, s + 28)}}>
+          Lo empezamos a preparar ya. Estará listo en <b style={{color: colors.dark}}>{d.now!.ready}</b> en {d.now!.address}.
         </div>
       </div>
     </div>
@@ -387,10 +530,17 @@ const PickupScreen: React.FC<{d: PickupData}> = ({d}) => {
         </>
       ),
     },
-    {a: T.data[0], b: T.data[1], render: () => <Data f={f} d={d} />},
-    {a: T.schedule[0], b: T.schedule[1], render: () => <Schedule f={f} d={d} />},
-    {a: T.summary[0], b: T.summary[1], render: () => <Summary f={f} d={d} />},
-    {a: T.sent[0], b: T.sent[1] + 20, render: () => <Sent f={f} d={d} />},
+    ...(d.now
+      ? [
+          {a: N.checkout[0], b: N.checkout[1], render: () => <Checkout f={f} d={d} />},
+          {a: N.done[0], b: N.done[1] + 20, render: () => <NowDone f={f} d={d} />},
+        ]
+      : [
+          {a: T.data[0], b: T.data[1], render: () => <Data f={f} d={d} />},
+          {a: T.schedule[0], b: T.schedule[1], render: () => <Schedule f={f} d={d} />},
+          {a: T.summary[0], b: T.summary[1], render: () => <Summary f={f} d={d} />},
+          {a: T.sent[0], b: T.sent[1] + 20, render: () => <Sent f={f} d={d} />},
+        ]),
   ];
   return (
     <div style={{position: 'absolute', inset: 0, background: '#f4f4f6', color: '#111', overflow: 'hidden'}}>
@@ -432,6 +582,31 @@ export const pickupStorefront = (d: PickupData): PhoneScene => {
     {a: T.tapDay - 10, b: T.tapContinue3 - 6, x: 195, y: 360, s: 1.3},
     {a: T.summary[0] + 20, b: T.tapSend - 4, x: 195, y: 380, s: 1.25},
   ];
+  if (d.now) {
+    const common = [
+      ...visibleTaps.filter((_, k) => !adds[addTapsList.indexOf(visibleTaps[k])].scrolled),
+      {f: T.scrollAt, x: 200, y: 640, to: {x: 200, y: 640 - SCROLL, d: 18}},
+      ...visibleTaps.filter((_, k) => adds[addTapsList.indexOf(visibleTaps[k])].scrolled),
+      {f: T.tapCart, x: 195, y: BAR_Y + 25},
+      {f: T.tapContinue1, x: 195, y: 844 - 72 - 18 - 26},
+    ];
+    return {
+      id: 'storefront-recoger-ya',
+      duration: N.done[1],
+      enter: 'up',
+      Component: () => <PickupScreen d={d} />,
+      taps: [...common, {f: N.tapCard, x: 288, y: 508}, {f: N.tapApplePay, x: 195, y: 744}].sort((a, b) => a.f - b.f),
+      zooms: [zooms[0], {a: N.checkout[0] + 24, b: N.tapApplePay - 2, x: 195, y: 470, s: 1.22}],
+      marks: {menu: T.menu[0], add: adds[0].f, cart: T.cart[0], checkout: N.checkout[0], card: N.tapCard, applePay: N.tapApplePay, paid: N.payOk, done: N.done[0]},
+      subtitles: [
+        {at: T.menu[0], text: sub.menu ?? 'Tu menú en línea, con tus productos y precios.'},
+        {at: T.cart[0], text: sub.cart ?? 'Revisan su pedido.'},
+        {at: N.checkout[0], text: sub.checkout ?? 'Recogen lo antes posible y eligen cómo pagar.'},
+        {at: N.tapApplePay - 4, text: sub.applePay ?? 'Pagan con Apple Pay en un toque.'},
+        {at: N.done[0], text: sub.done ?? 'Pedido confirmado y pagado.'},
+      ],
+    };
+  }
   return {
     id: 'storefront-recoger',
     duration: T.sent[1],
@@ -446,8 +621,8 @@ export const pickupStorefront = (d: PickupData): PhoneScene => {
       {f: T.typeName[0] - 6, x: 195, y: 128 + 24 + 25},
       ...(d.phonePrefilled ? [] : [{f: T.typePhone[0] - 4, x: 195, y: 214 + 24 + 25}]),
       {f: T.tapContinue2, x: 195, y: 744},
-      {f: T.tapDay, x: 16 + d.pickDay * 70 + 31, y: 263},
-      {f: T.tapSlot, ...slotXY(d.pickSlot)},
+      {f: T.tapDay, x: 16 + d.pickDay! * 70 + 31, y: 263},
+      {f: T.tapSlot, ...slotXY(d.pickSlot!)},
       {f: T.tapContinue3, x: 195, y: 744},
       {f: T.tapSend, x: 195, y: 744},
     ].sort((a, b) => a.f - b.f),

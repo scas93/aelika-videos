@@ -52,6 +52,7 @@ Pregunta solo lo que falte (revisa primero lo que el usuario ya dio). Guarda las
 | Clases (genérica) | `pulso-studio` | igual que Detona, con textos neutros |
 | Pedidos de comida | `lacarniceria-lira` | `entryPoints` → WhatsApp → `ordersStorefront` (Uber o recoger, Apple Pay) |
 | Pedido para recoger con confirmación (dos perspectivas) | `karmele` | WhatsApp → `pickupStorefront` (solicitud) → aviso a la encargada → `orderPanelReview` (confirmar o proponer hora) → propuesta por WhatsApp → `pickupPay` (aceptar y pagar con tarjeta) → confirmación |
+| Cafetería para recoger ya (genérica, dos perspectivas con iPad) | `cafe-aurora` | `entryPoints` → WhatsApp → `pickupStorefront` con `now` (pagar en tienda o tarjeta/Apple Pay) → confirmación → aviso en el teléfono del local → `tabletOrders` (iPad) |
 | App real grabada | `grabacion/` (Karmele, Banetto) | Otro método: ver skill `video-grabacion` |
 
 ## Reglas de calidad
@@ -78,3 +79,5 @@ Agrega aquí, con fecha, lo que aprendas en cada demo. Es la memoria de este tip
 - **2026-11-23 · Karmele (flujo de solicitud)** — El flujo real de pedidos con confirmación: el cliente envía una **solicitud sin cobro**; el negocio **confirma la hora o propone otra** en el panel; el bot manda link de pago o link de propuesta (aceptar → pago; rechazar → cancela); el pago es con tarjeta en esa página. Sin transferencias ni comprobantes. Antes de armar un flujo nuevo, pide al usuario el flujo paso a paso: cambió tres veces en este video. No pongas datos bancarios si el pago no es por transferencia.
 - **2026-11-23 · Karmele (ajustes de voz y menú)** — La voz no enumera lo que el cliente pide ("arma su pedido en el menú en línea" basta) ni explica caminos que no se ven en pantalla: confunde. Horarios cada 30 min. Un producto de temporada va primero y destacado (`badge` en `pickupStorefront`). Los avisos al negocio llevan "Ver pedido" y "Hablar con cliente" (`cta` + `cta2`).
 - **2026-11-23 · Karmele (terminado)** — Aprobado tras 6 versiones. Lo que más cambió fue el flujo de negocio, no el diseño: en la próxima demo con flujo nuevo, confirma el flujo completo (quién hace qué, dónde y cómo se paga) antes de producir.
+- **2026-11-23 · Café Aurora** — Para fotos de cafetería/panadería, el sitio de Banetto (panaderiabanetto.com) tiene bebidas y pan en 1200 px; se encontró desde su storefront de staging. Para mostrar que el local recibe pedidos en un iPad, `tabletOrders` dibuja un iPad horizontal como capa sobre el lienzo (tapa el teléfono); la interfaz se dibuja a 740 px y se escala para que el texto se lea. El pedido "para recoger ya" usa `pickupStorefront` con `now` (sin datos ni fecha).
+
