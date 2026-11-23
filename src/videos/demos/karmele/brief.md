@@ -2,7 +2,7 @@
 
 - **Tipo:** demos · **variante:** personalizada · **Id:** `Karmele` · **fecha:** 2026-11-23
 - **Base:** `pulso-studio` (estructura) + escena nueva `pickupStorefront`
-- **Duración:** 90.7 s · voz Sarah (1.1×) · música *Sunset Groove*
+- **Duración:** 95.1 s · voz Sarah (1.1×) · música *Sunset Groove*
 
 ## Negocio
 
@@ -12,10 +12,10 @@ Color de marca `#a2652f`.
 ## Operación (pago, entrega, horarios…)
 
 - Solo **recoger en tienda**; todos los horarios se pueden elegir (con un día de anticipación): la encargada decide si el pedido puede estar listo.
-- El pedido se envía **sin pagar**: la encargada lo confirma o rechaza por WhatsApp; el mensaje trae un botón para abrirlo en el panel de Aelika.
+- El pedido se envía **sin pagar**. A la encargada le llega un aviso por WhatsApp ("Karmele Chatbot", mensaje automático de Aelika) con el botón **Ver pedido**, que abre el panel de Aelika: **toda la gestión es en el panel** (aceptar/rechazar, motivo, proponer horario, marcar pagado). Al terminar, Aelika le avisa al cliente por WhatsApp.
 - Si rechaza: motivo (p. ej. sin disponibilidad de un producto) y, opcional, propone otro horario.
-- Al aceptar: plantilla con el resumen + imagen con los datos de transferencia; el cliente manda su comprobante
-  y la encargada lo marca como pagado.
+- Cuando el cliente acepta: plantilla con el resumen + imagen con los datos de transferencia; el cliente manda su comprobante
+  ; a la encargada le llega el aviso y lo marca como pagado en el panel.
 - El total lo calcula la app con los precios del menú.
 
 **Dos perspectivas:** cliente (sin nombre en la voz ni en los chats) y encargada de pedidos (Nataly), con una etiqueta arriba del teléfono.
@@ -40,5 +40,5 @@ y el comprobante. Productos, precios y dirección son reales (los 8 productos es
 ## Pendiente
 
 - El flujo de confirmación aún no está en staging (allí sigue el checkout con tarjeta): el video lo **simula**
-  imitando el diseño del storefront. Si cambia la app real, ajusta `pickupStorefront`.
+  imitando el diseño del storefront y del panel (capturas de Banetto). Si cambia la app real, ajusta `pickupStorefront` y `order-panel.tsx`.
 - Logo oficial de Karmele.

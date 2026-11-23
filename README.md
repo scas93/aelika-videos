@@ -90,11 +90,12 @@ La narración (Sarah) no menciona el nombre del negocio, así que **para persona
 | Post de Instagram | `instagramPost({...})` | 3 s | Doble toque (like) y toca la cuenta |
 | Perfil de Instagram | `instagramProfile({...})` | 4 s | Desliza las historias y toca el link de la bio |
 | Linktree | `linktree({...})` | 3 s | Toca uno de los botones |
-| Chat de WhatsApp | `whatsappChat({...})` | automática | Envía mensajes y toca la tarjeta con botón. Mensajes con `image` (foto + texto), `linkButton` (botón con link al final, p. ej. "Abrir en el panel de Aelika"), `avatar` del chat (imagen o componente) y `perspective` |
+| Chat de WhatsApp | `whatsappChat({...})` | automática | Envía mensajes y toca la tarjeta con botón. Mensajes con `image` (foto + texto), `footer` ("Mensaje automático de Aelika"), `cta` + `tapCta` (botón con link dentro de la burbuja, p. ej. "Ver pedido"), `avatar` del chat (imagen o componente) y `perspective` |
 | Storefront de citas | `appointmentsStorefront({...})` | 20 s | Servicio → extra → profesional → día y hora → datos → confirmar |
 | Storefront de clases | `classesStorefront({...})` | 35 s | Portada → día → filtro → detalle → WhatsApp + código → paquete/Apple Pay → lugar apartado |
 | Storefront de pedidos | `ordersStorefront({...})` | 34 s | Menú con fotos (toca "+" según `qty` de cada producto, con scroll) → carrito → a domicilio con **cotización de Uber** (precio y tiempo) o para recoger → resumen con productos y envío por separado → Apple Pay → pedido confirmado con seguimiento |
 | Storefront para recoger | `pickupStorefront({...})` | 27 s | Menú (toca "+" según `qty`, rápido como dejando presionado) → carrito → datos → día y horario (opcional: "sin cupo"/"lleno"; nota con `scheduleNote`) → resumen con nota de pago → pedido enviado, pendiente de confirmación. Marcas `menu, add, cart, data, schedule, day, slot, summary, send, sent` |
+| Panel de Aelika: pedido | `orderPanelReview({...})` / `orderPanelPayment({...})` | 15 s / 7 s | El panel (app.aelika.com) dentro del navegador de WhatsApp. Revisión: rechazar → motivo → producto → proponer otro horario → enviar al cliente (marcas `open, reject, reason, propose, send, sent`). Pago: comprobante → Marcar pagado (marcas `open, paid`). Toast "Le avisamos al cliente por WhatsApp" |
 | Panel de Aelika | `aelikaPanel({...})` | 5 s | Ocupación de la clase + notificación al equipo |
 | Grabación real | `recordedClip({src, from, length, speed})` | la que indiques | Un video grabado de la app (p. ej. de `grabacion/`, 1170×2532) dentro del teléfono; tiempos de `taps`, `zooms`, `subtitles` y `marks` en segundos |
 

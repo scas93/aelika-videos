@@ -45,8 +45,12 @@ export type Turn =
       buttons?: string[];
       /** el cliente toca este botón (índice) y se envía como su respuesta */
       tapButton?: number;
-      /** botón con link al final de los botones (p. ej. "Abrir en el panel"); no se toca */
-      linkButton?: string;
+      /** texto gris bajo el mensaje, p. ej. "Mensaje automático de Aelika" */
+      footer?: string;
+      /** botón con link dentro de la burbuja, p. ej. "Ver pedido" (abre el panel de Aelika) */
+      cta?: string;
+      /** se toca el botón con link (la siguiente escena es la página que abre) */
+      tapCta?: boolean;
       /** menú numerado en una segunda burbuja; cada opción es un botón */
       menu?: {items: string[]; note?: string};
       /** el cliente toca esta opción del menú (índice) y se envía como su respuesta */
@@ -61,7 +65,7 @@ export type Turn =
       sub?: string;
     };
 
-export type HistoryMsg = {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: string; time?: string};
+export type HistoryMsg = {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: string; time?: string; footer?: string; cta?: string};
 
 export type WhatsAppData = {
   /** nombre del contacto en el encabezado */
@@ -96,7 +100,7 @@ const CARD_CENTER = {x: 160, y: 610};
 const SEND = {x: SEND_BTN.x, y: SEND_Y_ABS};
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
-const toMsg = (m: {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: string; time?: string}, at: number, time: string, extra: Partial<Msg> = {}): Msg => ({
+const toMsg = (m: {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: string; time?: string; footer?: string; cta?: string}, at: number, time: string, extra: Partial<Msg> = {}): Msg => ({
   at,
   out: m.from === 'user',
   raw: plain(m.text),
@@ -104,6 +108,8 @@ const toMsg = (m: {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: 
   time: m.time ?? time,
   card: m.card ? {image: m.card.image, footer: m.card.footer ?? '', button: m.card.button} : undefined,
   image: m.image,
+  footer: m.footer,
+  cta: m.cta ? {label: m.cta} : undefined,
   ...extra,
 });
 
@@ -168,9 +174,16 @@ const schedule = (d: WhatsAppData) => {
         taps.push({f: at + 30, ...CARD_BUTTON});
         pause = Math.max(pause, 42);
       }
+      if (turn.cta && turn.tapCta) {
+        // el botón queda al fondo de la burbuja, que termina en y≈750
+        const pressAt = at + Math.max(30, pause);
+        msg.cta!.pressAt = pressAt;
+        taps.push({f: pressAt, x: 156, y: 727});
+        pause = pressAt - at + 14;
+      }
       if (turn.buttons) {
-        const n = turn.buttons.length + (turn.linkButton ? 1 : 0);
-        msg.buttons = {labels: turn.buttons, link: turn.linkButton};
+        const n = turn.buttons.length;
+        msg.buttons = {labels: turn.buttons};
         if (turn.tapButton !== undefined) {
           const pressAt = at + Math.max(30, pause);
           msg.buttons.pressAt = pressAt;
