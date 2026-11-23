@@ -14,9 +14,9 @@ Color de marca `#a2652f`.
 1. **Entrada (chatbot):** menú con Hacer un pedido / Ver menú / Ubicación y horarios. "Hacer un pedido" manda el
    link al storefront con el teléfono del cliente ya cargado.
 2. **Solicitud (storefront):** carrito, nombre y la hora a la que quiere recoger → se envía como solicitud, sin cobro.
-   Solo recoger en tienda; todos los horarios se pueden elegir (con un día de anticipación).
+   Solo recoger en tienda; horarios cada 30 min, todos se pueden elegir (con un día de anticipación).
 3. **Confirmación (Nataly y cocina):** a Nataly le llega un aviso por WhatsApp ("Karmele Chatbot", mensaje automático
-   de Aelika, botón **Ver pedido**). En el panel ve la solicitud **Por confirmar**, consulta con cocina y elige
+   de Aelika, botones **Ver pedido** y **Hablar con cliente**, por si quiere escribirle por WhatsApp). En el panel ve la solicitud **Por confirmar**, consulta con cocina y elige
    **Confirmar hora** o **Proponer otra hora**. Toda la gestión es en el panel, no en WhatsApp.
 4. **Respuesta al cliente (bot):** si confirma → link de pago directo; si propone → link para aceptar o rechazar
    (aceptar = pasa al pago; rechazar = la solicitud se cancela).
@@ -29,7 +29,8 @@ Dos perspectivas: cliente (sin nombre en la voz ni en los chats) y Nataly.
 ## Assets y origen
 
 - Fotos de producto: tienda en línea de Karmele (karmele.com.mx/tienda-en-linea), recortadas a 600×600.
-  Los 8 productos y sus precios son de su menú real.
+  Los 8 productos y sus precios son de su menú real. La **Rosca de Reyes (Mediana, $360)** va primero y destacada
+  (tarjeta de color con listón "🎀 Temporada"); foto de su tienda.
 - `logo.png`: círculo café con "K", generado (no es el logo oficial; cámbialo si lo mandan).
 - Diseño del panel de Aelika según capturas de Banetto (detalle de pedido y aviso con "Ir al sitio").
 

@@ -12,7 +12,7 @@ import {WaBanner} from './classes';
  * Flujo: menú → carrito → datos → fecha y horario → resumen (sin pago) → pedido enviado,
  *        pendiente de que el negocio confirme por WhatsApp.
  */
-export type PickupItem = {name: string; price: number; photo: string; /** cuántas piezas pide el cliente */ qty?: number; /** etiqueta corta en el resumen, p. ej. "conchas" */ short?: string};
+export type PickupItem = {name: string; price: number; photo: string; /** cuántas piezas pide el cliente */ qty?: number; /** etiqueta corta en el resumen, p. ej. "conchas" */ short?: string; /** producto destacado: tarjeta de color con listón, p. ej. "🎀 Temporada" */ badge?: string};
 
 export type PickupData = {
   url: string;
@@ -182,9 +182,10 @@ const Menu: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
           const x = colX(i % 2);
           const y = rowY(Math.floor(i / 2)) + 14;
           return (
-            <div key={it.name} style={{position: 'absolute', left: x, top: y, width: CARD_W, height: CARD_H, borderRadius: 16, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.06)', overflow: 'hidden'}}>
+            <div key={it.name} style={{position: 'absolute', left: x, top: y, width: CARD_W, height: CARD_H, borderRadius: 16, background: it.badge ? rgba(colors.accent, 0.14) : '#fff', border: it.badge ? `2px solid ${colors.accent}` : 'none', boxSizing: 'border-box', boxShadow: it.badge ? `0 4px 14px ${rgba(colors.accent, 0.3)}` : '0 1px 3px rgba(0,0,0,.06)', overflow: 'hidden'}}>
               <div style={{position: 'relative', margin: 8, height: 150, borderRadius: 12, overflow: 'hidden'}}>
                 <Img src={staticFile(it.photo)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+                {it.badge && <div style={{position: 'absolute', top: 6, left: 6, padding: '4px 9px', borderRadius: 999, background: colors.accent, color: '#fff', fontSize: 11.5, fontWeight: 700, boxShadow: '0 2px 6px rgba(0,0,0,.25)'}}>{it.badge}</div>}
                 {n ? (
                   <div style={{position: 'absolute', right: 6, bottom: 6, height: 32, borderRadius: 16, background: colors.dark, color: '#fff', display: 'flex', alignItems: 'center', gap: 10, padding: '0 6px', fontSize: 14.5, fontWeight: 700}}>
                     <span style={{width: 18, textAlign: 'center', opacity: 0.8}}>−</span>
@@ -196,7 +197,7 @@ const Menu: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
                 )}
               </div>
               <div style={{padding: '0 10px', fontSize: 14, fontWeight: 500, lineHeight: '18px', height: 36, overflow: 'hidden'}}>{it.name}</div>
-              <div style={{padding: '4px 10px 0', fontSize: 14.5, fontWeight: 700}}>{money(it.price)}</div>
+              <div style={{padding: '4px 10px 0', fontSize: 14.5, fontWeight: 700, color: it.badge ? colors.accentDark : undefined}}>{money(it.price)}</div>
             </div>
           );
         })}
@@ -305,7 +306,7 @@ const Schedule: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
             );
           })}
         </div>
-        <div style={{position: 'absolute', top: 470, left: 18, right: 18, fontSize: 12.5, color: '#8a8a8a'}}>{d.scheduleNote ?? 'Pide con al menos un día de anticipación.'}</div>
+        <div style={{position: 'absolute', top: 354 + Math.ceil(d.slots.length / 3) * 58, left: 18, right: 18, fontSize: 12.5, color: '#8a8a8a'}}>{d.scheduleNote ?? 'Pide con al menos un día de anticipación.'}</div>
       </div>
       <BlackBtn label="Continuar" disabled={f < T.tapSlot} pressed={f >= T.tapContinue3 && f < T.tapContinue3 + 8} />
     </>

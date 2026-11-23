@@ -49,6 +49,8 @@ export type Turn =
       footer?: string;
       /** botón con link dentro de la burbuja, p. ej. "Ver pedido" (abre el panel de Aelika) */
       cta?: string;
+      /** segundo botón con link debajo del primero, p. ej. "Hablar con cliente" (no se toca) */
+      cta2?: string;
       /** se toca el botón con link (la siguiente escena es la página que abre) */
       tapCta?: boolean;
       /** menú numerado en una segunda burbuja; cada opción es un botón */
@@ -65,7 +67,7 @@ export type Turn =
       sub?: string;
     };
 
-export type HistoryMsg = {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: string; time?: string; footer?: string; cta?: string};
+export type HistoryMsg = {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: string; time?: string; footer?: string; cta?: string; cta2?: string};
 
 export type WhatsAppData = {
   /** nombre del contacto en el encabezado */
@@ -100,7 +102,7 @@ const CARD_CENTER = {x: 160, y: 610};
 const SEND = {x: SEND_BTN.x, y: SEND_Y_ABS};
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
-const toMsg = (m: {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: string; time?: string; footer?: string; cta?: string}, at: number, time: string, extra: Partial<Msg> = {}): Msg => ({
+const toMsg = (m: {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: string; time?: string; footer?: string; cta?: string; cta2?: string}, at: number, time: string, extra: Partial<Msg> = {}): Msg => ({
   at,
   out: m.from === 'user',
   raw: plain(m.text),
@@ -109,7 +111,7 @@ const toMsg = (m: {from: 'user' | 'bot'; text: string; card?: ChatCard; image?: 
   card: m.card ? {image: m.card.image, footer: m.card.footer ?? '', button: m.card.button} : undefined,
   image: m.image,
   footer: m.footer,
-  cta: m.cta ? {label: m.cta} : undefined,
+  cta: m.cta ? {label: m.cta, second: m.cta2} : undefined,
   ...extra,
 });
 
@@ -178,7 +180,7 @@ const schedule = (d: WhatsAppData) => {
         // el botón queda al fondo de la burbuja, que termina en y≈750
         const pressAt = at + Math.max(30, pause);
         msg.cta!.pressAt = pressAt;
-        taps.push({f: pressAt, x: 156, y: 727});
+        taps.push({f: pressAt, x: 156, y: 727 - (turn.cta2 ? 46 : 0)});
         pause = pressAt - at + 14;
       }
       if (turn.buttons) {

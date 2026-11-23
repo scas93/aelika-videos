@@ -20,7 +20,7 @@ export type Msg = {
   /** texto gris bajo el mensaje, p. ej. "Mensaje automático de Aelika" */
   footer?: string;
   /** botón con link dentro de la burbuja ("Ver pedido", "Ir al sitio") */
-  cta?: {label: string; pressAt?: number};
+  cta?: {label: string; pressAt?: number; /** segundo botón con link, debajo (p. ej. "Hablar con cliente") */ second?: string};
   /** menú numerado en una segunda burbuja (1 Reservar, 2 Horarios…) */
   menu?: {items: string[]; note?: string; pressAt?: number; pressIndex?: number};
   /** aviso del sistema (cifrado de extremo a extremo) */
@@ -39,7 +39,7 @@ export const menuNoteH = (note: string) => Math.ceil(note.length / 42) * 18 + 6;
 
 export const estH = (m: Msg) => {
   const lines = m.raw.split('\n').reduce((s, l) => s + Math.max(1, Math.ceil(l.length / 31)), 0);
-  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0) + (m.image ? IMAGE_H + 6 : 0) + (m.buttons ? m.buttons.labels.length * 44 : 0) + (m.footer ? 20 : 0) + (m.cta ? 46 : 0) + (m.menu ? m.menu.items.length * MENU_ROW + (m.menu.note ? menuNoteH(m.menu.note) : 0) + 26 : 0);
+  return lines * 21 + 30 + 6 + (m.date ? 40 : 0) + (m.card ? 140 + 20 + 46 : 0) + (m.image ? IMAGE_H + 6 : 0) + (m.buttons ? m.buttons.labels.length * 44 : 0) + (m.footer ? 20 : 0) + (m.cta ? (m.cta.second ? 92 : 46) : 0) + (m.menu ? m.menu.items.length * MENU_ROW + (m.menu.note ? menuNoteH(m.menu.note) : 0) + 26 : 0);
 };
 
 const Ticks = () => (
@@ -139,6 +139,14 @@ export const ChatScreen: React.FC<{
                         <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
                       </svg>
                       {m.cta.label}
+                    </div>
+                  )}
+                  {m.cta?.second && (
+                    <div style={{borderTop: '1px solid #e9edef', margin: '5px -10px -5px', height: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, color: '#027eb5', fontSize: 16, fontWeight: 500}}>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#027eb5" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+                      </svg>
+                      {m.cta.second}
                     </div>
                   )}
                 </div>
