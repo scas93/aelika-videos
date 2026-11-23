@@ -2,7 +2,7 @@
 
 - **Tipo:** demos · **variante:** personalizada · **Id:** `Karmele` · **fecha:** 2026-11-23
 - **Base:** `pulso-studio` (estructura) + escenas `pickupStorefront`, `orderPanelReview` y `pickupPay`
-- **Duración:** ~92 s · voz Sarah (1.1×) · música *Sunset Groove*
+- **Duración:** ~92 s · voz Eric (1.1×; antes Sarah) · música *Sunset Groove*
 
 ## Negocio
 

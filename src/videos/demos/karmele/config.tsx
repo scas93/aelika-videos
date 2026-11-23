@@ -222,7 +222,7 @@ export const karmele: VideoConfig = {
     ],
   },
 
-  // Voz en off: Sarah (ElevenLabs). Guion en ./narracion.json; se regenera con
+  // Voz en off: Eric (ElevenLabs). Guion en ./narracion.json; se regenera con
   //   NODE_USE_ENV_PROXY=1 node scripts/narrate.mjs src/videos/demos/karmele/narracion.json public/narracion/karmele [--only 2,4]
   // Escenas: 0 cliente (WhatsApp) · 1 cliente (solicitud) · 2 Nataly (aviso) · 3 Nataly (panel) ·
   //          4 cliente (propuesta) · 5 cliente (aceptar y pagar) · 6 cliente (confirmación)
