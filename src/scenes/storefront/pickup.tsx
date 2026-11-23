@@ -35,6 +35,14 @@ export type PickupData = {
   from: string;
   /** nota de pago en el resumen */
   payNote: string;
+  /** el teléfono ya viene cargado desde WhatsApp (no se teclea) */
+  phonePrefilled?: boolean;
+  /** textos de la solicitud: botón de envío, título y nota de la pantalla final, aviso de WhatsApp */
+  sendLabel?: string;
+  sentTitle?: string;
+  sentPill?: string;
+  sentNote?: string;
+  sentBanner?: string;
   /** nota bajo los horarios (default: anticipación de un día) */
   scheduleNote?: string;
   statusTime?: string;
@@ -71,7 +79,7 @@ const SCROLL = 250;
 const BAR_Y = 700;
 const colX = (c: number) => 16 + c * (CARD_W + GAP);
 const rowY = (r: number) => GRID_TOP + r * (CARD_H + 14);
-const money = (n: number) => '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+export const money = (n: number) => '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
 /** toques de "+": uno lento al empezar cada producto y luego rápidos (como dejar presionado) */
 const addTaps = (d: PickupData) => {
@@ -100,7 +108,7 @@ const qtyAt = (d: PickupData, f: number) => {
 const total = (d: PickupData) => d.items.reduce((a, it) => a + (it.qty ?? 0) * it.price, 0);
 
 // ------------------------------------------------------------------ piezas
-const Header: React.FC<{title: string; back?: boolean}> = ({title, back = true}) => {
+export const Header: React.FC<{title: string; back?: boolean}> = ({title, back = true}) => {
   const {colors} = useBrand();
   return (
     <div style={{position: 'absolute', top: 56, left: 16, right: 16, height: 44, display: 'flex', alignItems: 'center', gap: 14}}>
@@ -116,7 +124,7 @@ const Header: React.FC<{title: string; back?: boolean}> = ({title, back = true})
   );
 };
 
-const BlackBtn: React.FC<{label: React.ReactNode; top?: number; pressed?: boolean; disabled?: boolean}> = ({label, top = 718, pressed, disabled}) => {
+export const BlackBtn: React.FC<{label: React.ReactNode; top?: number; pressed?: boolean; disabled?: boolean}> = ({label, top = 718, pressed, disabled}) => {
   const {colors} = useBrand();
   return (
     <div style={{position: 'absolute', left: 16, right: 16, top, height: 52, borderRadius: 14, background: disabled ? '#b9b9b9' : colors.dark, color: '#fff', fontSize: 16.5, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: pressed ? 'scale(.97)' : 'none'}}>
@@ -125,7 +133,7 @@ const BlackBtn: React.FC<{label: React.ReactNode; top?: number; pressed?: boolea
   );
 };
 
-const Input: React.FC<{label: string; top: number; value: string; placeholder: string; focus: boolean; f: number}> = ({label, top, value, placeholder, focus, f}) => {
+export const Input: React.FC<{label: string; top: number; value: string; placeholder: string; focus: boolean; f: number; tag?: string}> = ({label, top, value, placeholder, focus, f, tag}) => {
   const {colors} = useBrand();
   return (
     <>
@@ -133,6 +141,7 @@ const Input: React.FC<{label: string; top: number; value: string; placeholder: s
       <div style={{position: 'absolute', top: top + 24, left: 16, right: 16, height: 50, borderRadius: 12, background: '#fff', border: `${focus ? 2 : 1}px solid ${focus ? colors.accent : colors.line}`, display: 'flex', alignItems: 'center', padding: '0 14px', fontSize: 16.5, boxSizing: 'border-box'}}>
         {value ? <span>{value}</span> : <span style={{color: '#a6a6a6'}}>{focus ? '' : placeholder}</span>}
         {focus && f % 30 < 18 && <span style={{width: 2, height: 21, background: colors.accent, marginLeft: 1}} />}
+        {tag && <span style={{marginLeft: 'auto', fontSize: 12, fontWeight: 600, color: '#1f8a4c', background: '#e6f6ec', borderRadius: 999, padding: '3px 9px'}}>{tag}</span>}
       </div>
     </>
   );
@@ -245,12 +254,12 @@ const CartSheet: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
 
 const Data: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
   const name = typed(d.customer.name, f, T.typeName[0], T.typeName[1]);
-  const phone = typed(d.customer.phone, f, T.typePhone[0], T.typePhone[1]);
+  const phone = d.phonePrefilled ? d.customer.phone : typed(d.customer.phone, f, T.typePhone[0], T.typePhone[1]);
   return (
     <>
       <Header title="Tus datos" />
-      <Input label="Nombre" top={128} value={name} placeholder="Tu nombre" focus={f >= T.typeName[0] - 6 && f < T.typePhone[0] - 4} f={f} />
-      <Input label="Teléfono" top={214} value={phone} placeholder="33 1234 5678" focus={f >= T.typePhone[0] - 4 && f < T.tapContinue2} f={f} />
+      <Input label="Nombre" top={128} value={name} placeholder="Tu nombre" focus={f >= T.typeName[0] - 6 && f < (d.phonePrefilled ? T.tapContinue2 : T.typePhone[0] - 4)} f={f} />
+      <Input label="Teléfono" top={214} value={phone} placeholder="33 1234 5678" focus={!d.phonePrefilled && f >= T.typePhone[0] - 4 && f < T.tapContinue2} f={f} tag={d.phonePrefilled ? '✓ de WhatsApp' : undefined} />
       <div style={{position: 'absolute', top: 300, left: 18, right: 18, fontSize: 13, color: '#8a8a8a'}}>Te avisaremos por WhatsApp cuando tu pedido cambie de estatus.</div>
       <BlackBtn label="Continuar" disabled={!phone} pressed={f >= T.tapContinue2 && f < T.tapContinue2 + 8} />
     </>
@@ -334,7 +343,7 @@ const Summary: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
         </div>
       </div>
       <div style={{position: 'absolute', top: 420, left: 16, right: 16, borderRadius: 14, background: rgba(colors.accent, 0.12), border: `1px solid ${rgba(colors.accent, 0.4)}`, padding: '12px 14px', fontSize: 14, lineHeight: 1.45, color: '#3d2a1c'}}>{d.payNote}</div>
-      <BlackBtn label={`Enviar pedido · ${money(total(d))}`} pressed={f >= T.tapSend && f < T.tapSend + 8} />
+      <BlackBtn label={`${d.sendLabel ?? 'Enviar pedido'} · ${money(total(d))}`} pressed={f >= T.tapSend && f < T.tapSend + 8} />
     </>
   );
 };
@@ -347,16 +356,16 @@ const Sent: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
   return (
     <div style={{position: 'absolute', inset: 0}}>
       <WaBanner p={banner} from={d.from}>
-        Recibimos tu pedido {d.orderNumber} 🥐 Lo estamos revisando y te confirmamos en unos minutos.
+        {d.sentBanner ?? `Recibimos tu pedido ${d.orderNumber} 🥐 Lo estamos revisando y te confirmamos en unos minutos.`}
       </WaBanner>
       <div style={{position: 'absolute', top: 190, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
         <div style={{width: 104, height: 104, borderRadius: '50%', background: '#fff4e5', border: `3px solid ${colors.accent}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 46, transform: `scale(${0.6 + 0.4 * p})`, opacity: p}}>⏳</div>
-        <div style={{marginTop: 22, fontSize: 26, fontWeight: 700, opacity: prog(f, s + 10, s + 20)}}>¡Pedido enviado!</div>
+        <div style={{marginTop: 22, fontSize: 26, fontWeight: 700, opacity: prog(f, s + 10, s + 20)}}>{d.sentTitle ?? '¡Pedido enviado!'}</div>
         <div style={{marginTop: 8, padding: '5px 12px', borderRadius: 999, background: '#fff4e5', color: '#9a5a12', fontSize: 13, fontWeight: 700, opacity: prog(f, s + 14, s + 24)}}>
-          Pedido {d.orderNumber} · Pendiente de confirmación
+          {d.sentPill ?? `Pedido ${d.orderNumber} · Pendiente de confirmación`}
         </div>
         <div style={{marginTop: 18, padding: '0 34px', textAlign: 'center', fontSize: 15, lineHeight: 1.5, color: '#555', opacity: prog(f, s + 18, s + 28)}}>
-          {d.title} revisa la disponibilidad para el {d.dayLong.toLowerCase()} a las {d.slots[d.pickSlot][0]} y te confirma por WhatsApp con los datos para pagar.
+          {d.sentNote ?? `${d.title} revisa la disponibilidad para el ${d.dayLong.toLowerCase()} a las ${d.slots[d.pickSlot][0]} y te confirma por WhatsApp con los datos para pagar.`}
         </div>
       </div>
     </div>
@@ -434,7 +443,7 @@ export const pickupStorefront = (d: PickupData): PhoneScene => {
       {f: T.tapCart, x: 195, y: BAR_Y + 25},
       {f: T.tapContinue1, x: 195, y: 844 - 72 - 18 - 26},
       {f: T.typeName[0] - 6, x: 195, y: 128 + 24 + 25},
-      {f: T.typePhone[0] - 4, x: 195, y: 214 + 24 + 25},
+      ...(d.phonePrefilled ? [] : [{f: T.typePhone[0] - 4, x: 195, y: 214 + 24 + 25}]),
       {f: T.tapContinue2, x: 195, y: 744},
       {f: T.tapDay, x: 16 + d.pickDay * 70 + 31, y: 263},
       {f: T.tapSlot, ...slotXY(d.pickSlot)},

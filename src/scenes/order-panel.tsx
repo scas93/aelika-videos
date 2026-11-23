@@ -7,7 +7,7 @@ import {Perspective, PhoneScene, Tap, Zoom} from '../core/types';
 /**
  * PANEL DE AELIKA (detalle de un pedido) abierto desde el botón "Ver pedido" de WhatsApp,
  * dentro del navegador de WhatsApp (app.aelika.com). Imita el diseño real del panel.
- * - orderPanelReview: la encargada rechaza el pedido, elige motivo y producto, y propone otro horario.
+ * - orderPanelReview: solicitud 'Por confirmar': la encargada confirma la hora pedida o propone otra.
  * - orderPanelPayment: ve el comprobante que mandó el cliente y marca el pedido como pagado.
  * Al terminar, Aelika le avisa al cliente por WhatsApp (toast).
  */
@@ -25,18 +25,16 @@ export type PanelOrder = {
 };
 
 export type ReviewData = PanelOrder & {
-  reasons: string[];
-  pickReason: number;
-  /** chips de "¿Qué producto?" */
-  products: string[];
-  pickProduct: number;
+  /** días y horarios para proponer otra hora */
   proposeDays: string[];
   pickProposeDay: number;
   proposeSlots: string[];
   pickProposeSlot: number;
   /** "11:00 a. m.": hora propuesta que se muestra al final */
   proposedTime: string;
-  subtitles?: Partial<Record<'open' | 'reject' | 'propose' | 'sent', string>>;
+  /** nota junto al pago, p. ej. "se cobra con tarjeta al confirmar" */
+  payNote?: string;
+  subtitles?: Partial<Record<'open' | 'kitchen' | 'propose' | 'sent', string>>;
 };
 
 export type PaymentData = PanelOrder & {
@@ -163,34 +161,26 @@ const Products: React.FC<{d: PanelOrder; top: number}> = ({d, top}) => (
   </>
 );
 
-// ------------------------------------------------------------------ revisión (rechazar y proponer horario)
+// ------------------------------------------------------------------ revisión (confirmar hora o proponer otra)
 export const REVIEW_T = {
-  detailsZoom: [12, 80],
-  tapReject: 100,
-  sheet: [106, 120],
-  tapReason: 142,
-  tapProduct: 172,
-  tapToggle: 202,
-  propose: [204, 216],
-  tapDay: 228,
-  tapSlot: 254,
-  tapSend: 290,
-  sheetOut: [296, 310],
-  toast: 306,
-  end: 440,
+  detailsZoom: [12, 84],
+  kitchen: 96,
+  tapPropose: 150,
+  sheet: [156, 170],
+  tapDay: 194,
+  tapSlot: 222,
+  tapSend: 258,
+  sheetOut: [264, 278],
+  toast: 274,
+  end: 370,
 } as const;
 const R = REVIEW_T;
-const SHEET_TOP = 214;
-const PROD_W = [150, 104, 88];
-const prodX = (i: number) => 16 + PROD_W.slice(0, i).reduce((a, w) => a + w + 8, 0) + PROD_W[i] / 2;
+const SHEET_TOP = 330;
 const dayX = (i: number) => 16 + i * 90 + 41;
 const SLOT_W = (SW - 32 - 24) / 4;
 const slotX = (i: number) => 16 + i * (SLOT_W + 8) + SLOT_W / 2;
-const SY = {reason: (i: number) => SHEET_TOP + 82 + i * 40 + 19, product: SHEET_TOP + 248, toggle: SHEET_TOP + 300, day: SHEET_TOP + 350, slot: SHEET_TOP + 402, send: SHEET_TOP + 500};
+const SY = {day: SHEET_TOP + 104, slot: SHEET_TOP + 168, send: SHEET_TOP + 270};
 
-const Radio: React.FC<{on: boolean}> = ({on}) => (
-  <div style={{width: 20, height: 20, borderRadius: '50%', border: `2px solid ${on ? INK : '#c7cad1'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box'}}>{on && <div style={{width: 10, height: 10, borderRadius: '50%', background: INK}} />}</div>
-);
 const Chip: React.FC<{on: boolean; w?: number; h?: number; children: React.ReactNode}> = ({on, w, h = 36, children}) => (
   <div style={{width: w, height: h, borderRadius: 10, border: `1.5px solid ${on ? INK : LINE}`, background: on ? INK : '#fff', color: on ? '#fff' : INK, fontSize: 14, fontWeight: 500, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box', flexShrink: 0}}>{children}</div>
 );
@@ -199,19 +189,18 @@ const ReviewScreen: React.FC<{d: ReviewData}> = ({d}) => {
   const f = useCurrentFrame();
   const sheet = prog(f, R.sheet[0], R.sheet[1]) - prog(f, R.sheetOut[0], R.sheetOut[1]);
   const sent = f >= R.sheetOut[0] + 6;
-  const prop = prog(f, R.propose[0], R.propose[1]);
   const press = (at: number) => f >= at && f < at + 8;
   return (
     <Browser f={f} statusTime={d.statusTime ?? '14:36'}>
-      <PageHead d={d} status={sent ? <Pill tone="blue">Propuesta enviada al cliente</Pill> : <Pill tone="amber">Por confirmar</Pill>} />
+      <PageHead d={d} status={sent ? <Pill tone="blue">Hora propuesta · esperando al cliente</Pill> : <Pill tone="amber">Por confirmar</Pill>} />
       <Card top={122}>
         <Row k="Entrega" v={d.pickupLabel ?? 'Recoger en tienda'} />
         <Row
-          k="Horario"
+          k="Hora"
           v={
             sent ? (
               <span>
-                <s style={{color: GRAY, fontWeight: 400}}>{nb(d.time)}</s> → {d.date} · {nb(d.proposedTime)}
+                <s style={{color: GRAY, fontWeight: 400}}>{nb(d.time)}</s> → {nb(d.proposedTime)}
               </span>
             ) : (
               `${d.date} · ${nb(d.time)}`
@@ -223,67 +212,47 @@ const ReviewScreen: React.FC<{d: ReviewData}> = ({d}) => {
       </Card>
       <Products d={d} top={276} />
       <div style={{position: 'absolute', top: 474, left: 20, right: 20, display: 'flex', alignItems: 'center', gap: 10, fontSize: 14.5, color: GRAY}}>
-        Pago: <Pill tone="gray">Pendiente</Pill>
-        <span style={{fontSize: 12.5}}>se paga al confirmar</span>
+        Pago: <Pill tone="gray">Sin cobro</Pill>
+        <span style={{fontSize: 12.5}}>{d.payNote ?? 'se cobra al confirmar'}</span>
       </div>
       {/* acciones */}
       <div style={{position: 'absolute', top: 520, left: 16, right: 16, display: 'flex', gap: 10, opacity: 1 - prog(f, R.sheetOut[0], R.sheetOut[0] + 6)}}>
-        <div style={{flex: 1, height: 50, borderRadius: 12, border: `1.5px solid ${LINE}`, background: press(R.tapReject) ? '#fdecec' : '#fff', color: '#c0262d', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 16, fontWeight: 600}}>✕ Rechazar</div>
-        <div style={{flex: 1, height: 50, borderRadius: 12, background: INK, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 16, fontWeight: 600}}>
-          <Check color="#fff" /> Aceptar
+        <div style={{flex: 1, height: 50, borderRadius: 12, border: `1.5px solid ${LINE}`, background: press(R.tapPropose) ? '#f3f4f6' : '#fff', color: INK, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 15, fontWeight: 600}}>🕒 Proponer otra hora</div>
+        <div style={{flex: 1, height: 50, borderRadius: 12, background: INK, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 15, fontWeight: 600}}>
+          <Check color="#fff" /> Confirmar hora
         </div>
       </div>
-      {/* hoja de rechazo */}
+      {/* hoja: proponer otra hora */}
       {sheet > 0 && (
         <>
           <div style={{position: 'absolute', inset: 0, background: `rgba(0,0,0,${0.35 * sheet})`, zIndex: 10}} />
-          <div style={{position: 'absolute', left: 0, right: 0, top: SHEET_TOP - TOP + (1 - sheet) * 560, height: 600, background: '#fff', borderRadius: '20px 20px 0 0', zIndex: 11}}>
+          <div style={{position: 'absolute', left: 0, right: 0, top: SHEET_TOP - TOP + (1 - sheet) * 460, height: 460, background: '#fff', borderRadius: '20px 20px 0 0', zIndex: 11}}>
             <div style={{position: 'absolute', top: 8, left: '50%', marginLeft: -20, width: 40, height: 5, borderRadius: 3, background: '#d4d6db'}} />
-            <div style={{position: 'absolute', top: 24, left: 20, fontSize: 19, fontWeight: 700}}>Rechazar pedido {d.orderNumber}</div>
-            <div style={{position: 'absolute', top: 60, left: 20, fontSize: 13, fontWeight: 600, color: GRAY}}>Motivo</div>
-            {d.reasons.map((r, i) => (
-              <div key={r} style={{position: 'absolute', top: 82 + i * 40, left: 16, right: 16, height: 38, display: 'flex', alignItems: 'center', gap: 12, fontSize: 15, padding: '0 6px', borderRadius: 10, background: press(R.tapReason) && i === d.pickReason ? '#f3f4f6' : 'transparent'}}>
-                <Radio on={f >= R.tapReason && i === d.pickReason} />
-                {r}
-              </div>
-            ))}
-            <div style={{position: 'absolute', top: 208, left: 20, fontSize: 13, fontWeight: 600, color: GRAY, opacity: prog(f, R.tapReason, R.tapReason + 8)}}>¿Qué producto no tendrás listo?</div>
-            <div style={{position: 'absolute', top: 230, left: 16, display: 'flex', gap: 8, opacity: prog(f, R.tapReason, R.tapReason + 8)}}>
-              {d.products.map((p, i) => (
-                <Chip key={p} w={PROD_W[i]} on={f >= R.tapProduct && i === d.pickProduct}>
-                  {p}
+            <div style={{position: 'absolute', top: 24, left: 20, fontSize: 19, fontWeight: 700}}>Proponer otra hora</div>
+            <div style={{position: 'absolute', top: 56, left: 20, fontSize: 13.5, color: GRAY}}>
+              Pidió: {d.date} · {nb(d.time)}
+            </div>
+            <div style={{position: 'absolute', top: 82, left: 16, display: 'flex', gap: 8}}>
+              {d.proposeDays.map((x, i) => (
+                <Chip key={x} w={82} h={44} on={f >= R.tapDay && i === d.pickProposeDay}>
+                  {x}
                 </Chip>
               ))}
             </div>
-            <div style={{position: 'absolute', top: 282, left: 20, right: 20, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, fontWeight: 600}}>
-              Proponer otro horario
-              <div style={{width: 50, height: 30, borderRadius: 15, background: f >= R.tapToggle ? '#22c55e' : '#e2e4e8', position: 'relative'}}>
-                <div style={{position: 'absolute', top: 2, left: 2 + 20 * prog(f, R.tapToggle, R.tapToggle + 6), width: 26, height: 26, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,.25)'}} />
-              </div>
+            <div style={{position: 'absolute', top: 148, left: 16, display: 'flex', gap: 8}}>
+              {d.proposeSlots.map((x, i) => (
+                <Chip key={x} w={SLOT_W} h={40} on={f >= R.tapSlot && i === d.pickProposeSlot}>
+                  {x}
+                </Chip>
+              ))}
             </div>
-            <div style={{opacity: prop, transform: `translateY(${(1 - prop) * 8}px)`}}>
-              <div style={{position: 'absolute', top: 328, left: 16, display: 'flex', gap: 8}}>
-                {d.proposeDays.map((x, i) => (
-                  <Chip key={x} w={82} h={44} on={f >= R.tapDay && i === d.pickProposeDay}>
-                    {x}
-                  </Chip>
-                ))}
-              </div>
-              <div style={{position: 'absolute', top: 382, left: 16, display: 'flex', gap: 8}}>
-                {d.proposeSlots.map((x, i) => (
-                  <Chip key={x} w={SLOT_W} h={40} on={f >= R.tapSlot && i === d.pickProposeSlot}>
-                    {x}
-                  </Chip>
-                ))}
-              </div>
-            </div>
-            <div style={{position: 'absolute', top: 436, left: 20, right: 20, fontSize: 13, color: GRAY}}>Aelika le avisa al cliente por WhatsApp para que acepte o elija otro horario.</div>
-            <div style={{position: 'absolute', top: 475, left: 16, right: 16, height: 50, borderRadius: 12, background: f >= R.tapSlot ? INK : '#b9bcc2', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 600, transform: press(R.tapSend) ? 'scale(.97)' : 'none'}}>Enviar al cliente</div>
+            <div style={{position: 'absolute', top: 204, left: 20, right: 20, fontSize: 13, color: GRAY}}>Aelika le manda al cliente un link para aceptar o rechazar. Si acepta, pasa directo al pago.</div>
+            <div style={{position: 'absolute', top: 245, left: 16, right: 16, height: 50, borderRadius: 12, background: f >= R.tapSlot ? INK : '#b9bcc2', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 600, transform: press(R.tapSend) ? 'scale(.97)' : 'none'}}>Enviar propuesta</div>
           </div>
         </>
       )}
       <div style={{position: 'absolute', inset: 0, transform: `translateY(${-TOP}px)`}}>
-        <Toast f={f} a={R.toast} text="Le enviamos tu propuesta al cliente por WhatsApp." />
+        <Toast f={f} a={R.toast} text="Le enviamos la propuesta al cliente por WhatsApp." />
       </div>
     </Browser>
   );
@@ -293,13 +262,10 @@ export const orderPanelReview = (d: ReviewData): PhoneScene => {
   const sub = d.subtitles ?? {};
   const zooms: Zoom[] = [
     {a: R.detailsZoom[0], b: R.detailsZoom[1], x: 195, y: 330, s: 1.22},
-    {a: R.tapToggle - 4, b: R.tapSend - 4, x: 195, y: 560, s: 1.25},
+    {a: R.sheet[1], b: R.tapSend - 4, x: 195, y: 490, s: 1.25},
   ];
   const taps: Tap[] = [
-    {f: R.tapReject, x: 102, y: TOP + 520 + 25},
-    {f: R.tapReason, x: 120, y: SY.reason(d.pickReason)},
-    {f: R.tapProduct, x: prodX(d.pickProduct), y: SY.product},
-    {f: R.tapToggle, x: 345, y: SY.toggle},
+    {f: R.tapPropose, x: 102, y: TOP + 520 + 25},
     {f: R.tapDay, x: dayX(d.pickProposeDay), y: SY.day},
     {f: R.tapSlot, x: slotX(d.pickProposeSlot), y: SY.slot},
     {f: R.tapSend, x: 195, y: SY.send},
@@ -312,12 +278,12 @@ export const orderPanelReview = (d: ReviewData): PhoneScene => {
     taps,
     zooms,
     perspective: d.perspective,
-    marks: {open: 0, reject: R.tapReject, reason: R.tapReason, propose: R.tapToggle, send: R.tapSend, sent: R.sheetOut[1]},
+    marks: {open: 0, kitchen: R.kitchen, propose: R.tapPropose, send: R.tapSend, sent: R.sheetOut[1]},
     subtitles: [
-      {at: 0, text: sub.open ?? 'En el panel de Aelika revisa el pedido completo.'},
-      {at: R.tapReject - 6, text: sub.reject ?? 'Si no puede tenerlo listo, lo rechaza e indica el motivo…'},
-      {at: R.tapToggle - 4, text: sub.propose ?? '…y propone otro horario.'},
-      {at: R.sheetOut[0], text: sub.sent ?? 'Aelika le avisa al cliente por WhatsApp.'},
+      {at: 0, text: sub.open ?? 'Ve la solicitud en el panel de Aelika: Por confirmar.'},
+      {at: R.kitchen, text: sub.kitchen ?? 'Consulta con cocina si alcanzan a esa hora…'},
+      {at: R.tapPropose - 4, text: sub.propose ?? '…y como no, propone otra hora.'},
+      {at: R.sheetOut[0], text: sub.sent ?? 'Aelika le manda la propuesta al cliente por WhatsApp.'},
     ],
   };
 };
