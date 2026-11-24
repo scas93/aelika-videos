@@ -2,8 +2,8 @@
 
 - **Tipo:** demos · **variante:** personalizada (repostería) · **Id:** `Make` · **fecha:** 2026-11-24
 - **Base:** `cafe-aurora-recoger` (+ `entryPoints`, `thermalPrinter` nueva)
-- **Estado:** en revisión con el usuario · **voz pendiente** (créditos de ElevenLabs agotados hasta el 20-dic; `CON_VOZ = false` en config)
-- **Duración:** ~76 s · voz Eric (1.1×, guion listo en `narracion.json`; solo existe `01.mp3`) · música *Sunset Groove*
+- **Estado:** en revisión con el usuario
+- **Duración:** ~80 s · voz Eric (1.1×) · música *Sunset Groove* · intro de 214 frames para que quepa la primera frase
 
 ## Mensaje
 
@@ -34,3 +34,4 @@ Usuario de Instagram `make.reposteria`, cliente Andrea L., pedido #1042, cola de
 
 - v1 (sesión aislada, sin la estructura nueva): storefront propio y escena de negocio con teléfono, tablet e impresora.
 - v2 (sobre `cafe-aurora-recoger`): voz Eric, sin texto en el intro, recoger otro día con horarios cada hora, add-ons nuevos, sin el lema de comisiones.
+- v3: voz de Eric generada (plan Starter de ElevenLabs); intro más largo, aviso al encargado más largo y frases 04 y 09 alargadas para quitar encimados y silencios.

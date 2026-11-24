@@ -30,13 +30,13 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'aelika-check-'));
 const entry = path.join(tmp, 'entry.ts');
 fs.writeFileSync(entry, `
 import {VIDEOS} from '${path.resolve('src/videos/index.ts')}';
-import {buildTimeline, narrationAnchorFrame} from '${path.resolve('src/core/Composer.tsx')}';
+import {buildTimeline, flowStart, narrationAnchorFrame} from '${path.resolve('src/core/Composer.tsx')}';
 export const data = VIDEOS.map((cfg) => {
   const tl = buildTimeline(cfg);
   return {
     id: cfg.id,
     total: tl.total,
-    lead: cfg.cover ? 18 : 0,
+    lead: (cfg.cover ? 18 : 0) + flowStart(cfg),
     scenes: tl.scenes.map((s) => ({id: s.id, start: s.start, duration: s.duration, marks: s.marks ?? {}})),
     subs: tl.subs.map((s) => s.text),
     narration: (cfg.narration?.clips ?? []).map((c) => {
@@ -62,7 +62,7 @@ const files = (obj, acc = new Set()) => {
 let errors = 0;
 for (const v of data.filter((d) => all || only.includes(d.id))) {
   const E = [], W = [];
-  console.log(`\n■ ${v.id} · ${(v.total / FPS).toFixed(1)} s · escenas: ${v.scenes.map((s) => `${s.id} @${((v.lead + 110 + s.start) / FPS).toFixed(1)}s`).join(', ')}`);
+  console.log(`\n■ ${v.id} · ${(v.total / FPS).toFixed(1)} s · escenas: ${v.scenes.map((s) => `${s.id} @${((v.lead + s.start) / FPS).toFixed(1)}s`).join(', ')}`);
 
   // archivos
   for (const f of files(v.cfg)) {
@@ -103,8 +103,8 @@ for (const v of data.filter((d) => all || only.includes(d.id))) {
   if (sheet) {
     const frames = new Set([v.lead + 60]);
     for (const s of v.scenes) {
-      frames.add(v.lead + 110 + s.start + 20);
-      for (const m of Object.values(s.marks)) frames.add(v.lead + 110 + s.start + m + 12);
+      frames.add(v.lead + s.start + 20);
+      for (const m of Object.values(s.marks)) frames.add(v.lead + s.start + m + 12);
     }
     frames.add(v.total - 40);
     const list = [...frames].filter((f) => f < v.total).sort((a, b) => a - b);

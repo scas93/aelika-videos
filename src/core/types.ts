@@ -42,6 +42,8 @@ export type VideoConfig = {
   /** Id de la composición (sin espacios): se usa para renderizar */
   id: string;
   brand: Brand;
+  /** duración del intro de Aelika en frames (por defecto 124); útil si la primera frase de voz es larga */
+  intro?: {len?: number};
   /** El flujo dentro del teléfono, en orden */
   scenes: PhoneScene[];
   addons?: {

@@ -164,3 +164,4 @@ Otros canales que todavía no existen: Facebook (página y Messenger) y post o r
 - `pickupStorefront({now: {custom: {direct: true, days, slots, pickDay, pickSlot}}})`: el cliente elige día y hora directo, sin opciones rápidas.
 - `thermalPrinter({...})`: la comanda sale impresa en una impresora térmica (escena de ~5.5 s, capa sobre el lienzo).
 - `entryPoints` acepta el canal `igpost` (post de Instagram con botón "Enviar mensaje de WhatsApp"; `postImage`, `postCaption`).
+- `intro: {len}` en la config: duración del intro de Aelika en frames (por defecto 124). Úsalo si la primera frase de la voz es más larga que el intro.

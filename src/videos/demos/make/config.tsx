@@ -24,7 +24,7 @@ const DIRECCION = 'Calle Euclides 3120, Vallarta San Jorge, Guadalajara';
 const PASA = 'miércoles 25 a las 10:00 a. m.';
 const AUTO = 'Mensaje automático de Aelika';
 /** La voz está pendiente: se acabaron los créditos de ElevenLabs (se reinician el 20 de dic). Al generarla, pon true. */
-const CON_VOZ = false;
+const CON_VOZ = true;
 const items = [
   {name: 'Crookie Nutella', price: 119, photo: A('crookie-nutella.jpg'), qty: 1},
   {name: 'Rebanada Cheesecake Lotus', price: 188, photo: A('rebanada-cheesecake-lotus.jpg'), qty: 1},
@@ -60,6 +60,9 @@ export const make: VideoConfig = {
     displayFont: 'Inter, sans-serif',
     canvas: 'light',
   },
+
+  // Intro más largo para que quepa la primera frase de la voz (sin texto en pantalla)
+  intro: {len: 214},
 
   scenes: [
     // ESCENA 0 — Llegan desde donde sea: post de Instagram, perfil, Facebook o QR → WhatsApp
@@ -146,7 +149,7 @@ export const make: VideoConfig = {
       time: '10:15',
       perspective: ENCARGADO,
       enter: 'left',
-      script: [{from: 'bot', text: avisoNuevo, footer: AUTO, cta: 'Ver pedido', cta2: 'Hablar con cliente', zoom: true, typing: 10, pause: 70, sub: 'Tu equipo recibe el pedido al instante…'}],
+      script: [{from: 'bot', text: avisoNuevo, footer: AUTO, cta: 'Ver pedido', cta2: 'Hablar con cliente', zoom: true, typing: 10, pause: 125, sub: 'Tu equipo recibe el pedido al instante…'}],
     }),
 
     // ESCENA 4 — Maké: el mismo pedido en la tablet con la app de Aelika
@@ -211,7 +214,7 @@ export const make: VideoConfig = {
       {src: 'narracion/make/09.mp3', anchor: {scene: 4, mark: 'open'}, offset: 0.3},
       {src: 'narracion/make/10.mp3', anchor: {scene: 5, mark: 'open'}, offset: 0.3},
       {src: 'narracion/make/11.mp3', anchor: 'addons', offset: 0.5},
-      {src: 'narracion/make/12.mp3', anchor: 'outro', offset: 0.4},
+      {src: 'narracion/make/12.mp3', anchor: 'outro', offset: 0.7},
     ],
   },
 

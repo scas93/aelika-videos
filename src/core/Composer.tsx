@@ -11,6 +11,9 @@ import {Enter, NarrationAnchor, Perspective, Tap, VideoConfig, Zoom} from './typ
 // Tiempos fijos de la plantilla (30 fps)
 export const INTRO_LEN = 124;
 export const FLOW_START = 110; // el flujo arranca mientras se desvanece el intro
+/** duración del intro (configurable con `intro.len`) y frame en que arranca el flujo */
+export const introLen = (cfg: VideoConfig) => cfg.intro?.len ?? INTRO_LEN;
+export const flowStart = (cfg: VideoConfig) => introLen(cfg) - (INTRO_LEN - FLOW_START);
 export const OUTRO_LEN = 190;
 const OVERLAP = 14;
 export const COVER_LEN = 18; // portada/miniatura al inicio // cada pantalla nueva entra encima de la anterior
@@ -38,7 +41,7 @@ export const buildTimeline = (cfg: VideoConfig) => {
     if (persp.length) persp[persp.length - 1].b = s.start;
     persp.push({a: s.start, b: phoneEnd, p: s.perspective});
   }
-  return {scenes, phoneEnd, addonsLen, outroStart, taps, zooms, subs, persp, total: (cfg.cover ? COVER_LEN : 0) + FLOW_START + outroStart + OUTRO_LEN};
+  return {scenes, phoneEnd, addonsLen, outroStart, taps, zooms, subs, persp, total: (cfg.cover ? COVER_LEN : 0) + flowStart(cfg) + outroStart + OUTRO_LEN};
 };
 
 export const videoDuration = (cfg: VideoConfig) => buildTimeline(cfg).total;
@@ -48,13 +51,13 @@ export const narrationAnchorFrame = (cfg: VideoConfig, a: NarrationAnchor) => {
   const tl = buildTimeline(cfg);
   const lead = cfg.cover ? COVER_LEN : 0;
   if (a === 'intro') return lead;
-  if (a === 'addons') return lead + FLOW_START + tl.phoneEnd;
-  if (a === 'outro') return lead + FLOW_START + tl.outroStart;
-  if (typeof a === 'number') return lead + FLOW_START + tl.scenes[a].start;
+  if (a === 'addons') return lead + flowStart(cfg) + tl.phoneEnd;
+  if (a === 'outro') return lead + flowStart(cfg) + tl.outroStart;
+  if (typeof a === 'number') return lead + flowStart(cfg) + tl.scenes[a].start;
   const sc = tl.scenes[a.scene];
   const m = sc.marks?.[a.mark];
   if (m === undefined) throw new Error(`La escena ${a.scene} (${sc.id}) no tiene la marca "${a.mark}". Marcas: ${Object.keys(sc.marks ?? {}).join(', ')}`);
-  return lead + FLOW_START + sc.start + m;
+  return lead + flowStart(cfg) + sc.start + m;
 };
 
 // ------------------------------------------------------------------ piezas
@@ -304,11 +307,11 @@ export const VideoTemplate: React.FC<{cfg: VideoConfig}> = ({cfg}) => {
       <Music cfg={cfg} />
       <Narration cfg={cfg} />
       <AbsoluteFill style={{width: W, height: H, fontFamily: FONT, overflow: 'hidden', background: '#f3efe9'}}>
-        <Sequence from={lead + FLOW_START} layout="none">
+        <Sequence from={lead + flowStart(cfg)} layout="none">
           <Flow cfg={cfg} />
         </Sequence>
-        <Sequence from={lead} durationInFrames={INTRO_LEN} layout="none">
-          <Intro len={INTRO_LEN} />
+        <Sequence from={lead} durationInFrames={introLen(cfg)} layout="none">
+          <Intro len={introLen(cfg)} />
         </Sequence>
         {cfg.cover && (
           <Sequence durationInFrames={COVER_LEN} layout="none">
