@@ -166,3 +166,4 @@ Otros canales que todavía no existen: Facebook (página y Messenger) y post o r
 - `entryPoints` acepta el canal `igpost` (post de Instagram con botón "Enviar mensaje de WhatsApp"; `postImage`, `postCaption`).
 - `intro: {len}` en la config: duración del intro de Aelika en frames (por defecto 124). Úsalo si la primera frase de la voz es más larga que el intro.
 - `pickupStorefront({now: {steps: {customer, month, days, pickDay, slots, pickSlot, pickupLabel}}})`: checkout formal en 4 pasos (Carrito › Tus datos › Recogida › Pago). Marcas: `data`, `pickup`, `pay`, `card`, `applePay`, `done`.
+- `classFullPanel({...})` (teléfono) y `weekClassesTablet({...})` (tablet): panel de Aelika para estudios y gimnasios: notificación de clase llena → detalle; calendario semanal con coach y asistencia. `classesStorefront` ahora usa `detail.duration` en las tarjetas y muestra "¡Último lugar!".

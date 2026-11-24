@@ -7,9 +7,10 @@ import {karmele} from './karmele/config';
 import {cafeAurora} from './cafe-aurora/config';
 import {cafeAuroraRecoger} from './cafe-aurora-recoger/config';
 import {make} from './make/config';
+import {fuerzaGym} from './fuerza-gym/config';
 
 /**
  * DEMOS COMERCIALES: simulan el flujo de un cliente con la marca de un prospecto para venderle Aelika.
  * Para agregar uno: `npm run new -- <base> <carpeta> <Id> "Nombre"` (lo registra aquí solo).
  */
-export const DEMOS: VideoConfig[] = [casaOccidente, detona, lacarniceriaLira, pulsoStudio, karmele, cafeAurora, cafeAuroraRecoger, make];
+export const DEMOS: VideoConfig[] = [casaOccidente, detona, lacarniceriaLira, pulsoStudio, karmele, cafeAurora, cafeAuroraRecoger, make, fuerzaGym];

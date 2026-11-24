@@ -90,15 +90,15 @@ const Pill: React.FC<{children: React.ReactNode; tone?: 'ok' | 'hot' | 'full'}> 
   return <div style={{padding: '5px 10px', borderRadius: 999, background: bg, color: fg, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap'}}>{children}</div>;
 };
 
-const spotsLabel = (n: number) => (n === 0 ? 'Lista de espera' : n <= 2 ? `¡Últimos ${n}!` : `${n} lugares`);
+const spotsLabel = (n: number) => (n === 0 ? 'Lista de espera' : n === 1 ? '¡Último lugar!' : n <= 2 ? `¡Últimos ${n}!` : `${n} lugares`);
 
-const ClassCard: React.FC<{c: ClassItem; top: number; opacity?: number; active?: boolean}> = ({c, top, opacity = 1, active}) => {
+const ClassCard: React.FC<{c: ClassItem; top: number; opacity?: number; active?: boolean; duration?: string}> = ({c, top, opacity = 1, active, duration = '50 min'}) => {
   const {colors} = useBrand();
   return (
     <div style={{position: 'absolute', left: 16, right: 16, top, height: 76, borderRadius: 16, background: active ? rgba(colors.accent, 0.12) : '#fff', border: `1px solid ${active ? colors.accent : colors.line}`, display: 'flex', alignItems: 'center', padding: '0 14px', gap: 14, opacity, boxSizing: 'border-box', transform: active ? 'scale(.98)' : 'none'}}>
       <div style={{width: 58}}>
         <div style={{fontSize: 21, ...fontThin}}>{c.time}</div>
-        <div style={{fontSize: 11, color: colors.muted}}>50 min</div>
+        <div style={{fontSize: 11, color: colors.muted}}>{duration}</div>
       </div>
       <div style={{width: 1, alignSelf: 'stretch', margin: '14px 0', background: colors.line}} />
       <div style={{flex: 1, minWidth: 0}}>
@@ -230,7 +230,7 @@ const Schedule: React.FC<{f: number; d: ClassesData}> = ({f, d}) => {
           else top = top + (CARD_TOP + finalIdx[i] * CARD_STEP - top) * filterP;
         }
         if (op <= 0.01) return null;
-        return <ClassCard key={c.time + c.name} c={c} top={top + (1 - appear) * 12} opacity={op} active={dayOn && c === chosen && f >= T.tapClass} />;
+        return <ClassCard key={c.time + c.name} c={c} top={top + (1 - appear) * 12} opacity={op} active={dayOn && c === chosen && f >= T.tapClass} duration={d.detail.duration} />;
       })}
     </>
   );
