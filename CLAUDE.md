@@ -16,8 +16,16 @@ Hoy el tipo en uso es **demos comerciales** (`src/videos/demos/`); `marketing` e
 - **Secretos:** nunca subas sesiones (`state.json`), teléfonos, códigos ni llaves. La llave de ElevenLabs la inyecta el entorno.
 - **Solo staging** para grabar la app real (`grabacion/`); nunca enviar pedidos ni pagos en producción.
 
+## Sesiones nuevas
+
+- Todo lo importante vive en este repo (configs, guiones, briefs, aprendizajes, skills): una sesión nueva sigue donde
+  quedó la anterior. Lo único que **no** está en el repo: `public/musica/` (licencia) y los MP4 de `out/` (se regeneran
+  con `npm run render -- <Id>`). Si falta `public/musica/sunset-groove.mp3`, pídeselo al usuario antes de renderizar.
+- Para pedir un video rápido, el usuario puede pegar la plantilla `PEDIR-VIDEO.md` llena.
+
 ## Mapa rápido
 
+- `PEDIR-VIDEO.md`: plantilla para pedir un video en un solo mensaje.
 - `README.md`: comandos (`new`, `check`, `render`, `render:all`, `review`), escenas y opciones.
 - `src/videos/<tipo>/TIPO.md` y `src/videos/<tipo>/<video>/brief.md`: conocimiento por tipo y por video.
 - `.claude/skills/`: `video-nuevo` (onboarding), `video-flujo` (demos con la plantilla), `video-grabacion` (demos grabando la app real).

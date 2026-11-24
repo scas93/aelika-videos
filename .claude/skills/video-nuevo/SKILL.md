@@ -19,6 +19,7 @@ Si no encaja en ninguno, propón crear un tipo nuevo: carpeta `src/videos/<tipo>
 
 ## 2. Brief
 
+0. Si el usuario pegó la plantilla de `PEDIR-VIDEO.md` (o un brief equivalente), **no hagas tanda de preguntas**: usa lo que dio, completa lo vacío con los defaults de la ficha y dile qué decidiste. Pregunta solo si algo contradice la ficha o es ambiguo de verdad.
 1. Lee completa la ficha del tipo, **incluida la sección Aprendizajes**.
 2. Revisa si ya existe un video parecido (`src/videos/<tipo>/*/brief.md`) que sirva de base.
 3. Pregunta **solo lo que falte** de la sección "Onboarding: qué preguntar" (agrupa en una sola tanda de
