@@ -1,0 +1,218 @@
+[
+ {
+  "cat": "BROWNIES",
+  "name": "Brownie Individual de Nutella",
+  "price": 88,
+  "image": "3ce6e7b2-c2e2-445a-b502-1c07133e0ec8.png",
+  "desc": "Brownie de nutella con nuez, inyectado con mas nutella.",
+  "file": "brownie-individual-de-nutella.jpg"
+ },
+ {
+  "cat": "BROWNIES",
+  "name": "Mini Brownie de Nutella",
+  "price": 375,
+  "image": "77e20260-8aa2-4f21-9e29-ac368033c911.png",
+  "desc": "Delicioso brownie de nutella con nuez, decorado con mas nutella y galleta lotus.",
+  "file": "mini-brownie-de-nutella.jpg"
+ },
+ {
+  "cat": "BROWNIES",
+  "name": "Mini Brownie Lotus / Nutella",
+  "price": 394,
+  "image": "a477089a-db38-4076-96bd-e2b0240fb568.png",
+  "desc": "Delicioso brownie de nutella con nuez, decorado con betun de lotus, galleta lotus y mas nutella",
+  "file": "mini-brownie-lotus-nutella.jpg"
+ },
+ {
+  "cat": "BROWNIES",
+  "name": "Brownie 20x20 Lotus / Nutella",
+  "price": 663,
+  "image": "77e20260-8aa2-4f21-9e29-ac368033c911.png",
+  "desc": "Delicioso Brownie 20 x 20 cm de nutella con nuez, decorado con betun de lotus, galleta lotus y mas nutella.",
+  "file": "brownie-20x20-lotus-nutella.jpg"
+ },
+ {
+  "cat": "CROOKIES",
+  "name": "Crookie Nutella",
+  "price": 119,
+  "image": "31250c93-1101-4e3c-ac4b-e5a9568e41db.png",
+  "desc": "Croissant relleno de galleta, chispas de chocolate blanco y nutella, coronado con galleta crujiente, nutella y nuez.",
+  "file": "crookie-nutella.jpg"
+ },
+ {
+  "cat": "CROOKIES",
+  "name": "Crookie Lotus",
+  "price": 119,
+  "image": "be056b13-ee77-48c3-99a7-dee0e8385492.png",
+  "desc": "Croissant relleno de galleta, chispas de chocolate y crema lotus, coronado con galleta crujiente, crema lotus y galleta lotus espolvoreada.",
+  "file": "crookie-lotus.jpg"
+ },
+ {
+  "cat": "GALLETAS",
+  "name": "Galleta Avellana Nutella",
+  "price": 88,
+  "image": "e298ef9a-4d50-4be9-8486-c1fdcd9376d3.png",
+  "desc": "Galleta crujiente rellena de nutella con trozos de avellanada por dentro y por fuera",
+  "file": "galleta-avellana-nutella.jpg"
+ },
+ {
+  "cat": "GALLETAS",
+  "name": "Galleta Macadamia Chocolate Blanco",
+  "price": 94,
+  "image": "440e348e-228b-49a7-9c75-2730f6304a97.png",
+  "desc": "Galleta rellena con ganache de macadamia, avellana y chocolate blanco.",
+  "file": "galleta-macadamia-chocolate-blanco.jpg"
+ },
+ {
+  "cat": "GALLETAS",
+  "name": "Galleta Chispas",
+  "price": 80,
+  "image": "30306337-524c-495d-8cfd-3b6202381c19.png",
+  "desc": "Galleta con chispas de chocolate de leche y chocolate blanco.",
+  "file": "galleta-chispas.jpg"
+ },
+ {
+  "cat": "PASTELES",
+  "name": "Pastel Aleman",
+  "price": 1100,
+  "image": "6207e0ea-0a1c-4e42-b7f4-ab1148363689.png",
+  "desc": "Pastel con tres capas de pan de chocolate, entre ellas relleno de topping de coco con nuez, coronado con el mismo",
+  "file": "pastel-aleman.jpg"
+ },
+ {
+  "cat": "PASTELES",
+  "name": "Pastel Mini Aleman",
+  "price": 438,
+  "image": "be962c0b-f9e9-4ace-a75e-0645d78c830e.png",
+  "desc": "Pastel con tres capas de pan de chocolate, entre ellas relleno de topping de coco con nuez, coronado con el mismo.",
+  "file": "pastel-mini-aleman.jpg"
+ },
+ {
+  "cat": "PASTELES",
+  "name": "Pastel Zanahoria",
+  "price": 725,
+  "image": "a11b7299-f610-43c6-9f07-c1934899494d.png",
+  "desc": "Pastel con pan de zanahoria y nuez, relleno de betun de philadelphia y cubierto con el mismo.",
+  "file": "pastel-zanahoria.jpg"
+ },
+ {
+  "cat": "PASTELES",
+  "name": "Pastel Mini Zanahoria",
+  "price": 375,
+  "image": "656527d5-be1b-49df-8da7-750f13f53fbb.png",
+  "desc": "Pastel con pan de zanahoria y nuez, relleno de betun de philadelphia y cubierto con el mismo.",
+  "file": "pastel-mini-zanahoria.jpg"
+ },
+ {
+  "cat": "REBANADAS",
+  "name": "Rebanada Cheesecake Lotus",
+  "price": 188,
+  "image": "298c610c-0159-46a9-b745-2ab71be79b95.png",
+  "desc": "Base de pan pumpkin spice, relleno de betun de lotus con mantequilla, cheesecake con galleta lotus, cubierto con betun de philadelphia con lotus, coronado con galleta lotus.",
+  "file": "rebanada-cheesecake-lotus.jpg"
+ },
+ {
+  "cat": "REBANADAS",
+  "name": "Rebanada cheesecake Oreo",
+  "price": 188,
+  "image": "b5a7307a-0419-4999-8981-2d5aba21b6cf.png",
+  "desc": "Base de pan de chocolate, relleno de ganache de chocolate semi amargo, cheesecake con galleta oreo, capa de betun de philadelphia con galleta oreo, cubierto con ganache de chocolate semi amargo.",
+  "file": "rebanada-cheesecake-oreo.jpg"
+ },
+ {
+  "cat": "REBANADAS",
+  "name": "Rebanada Zanahoria",
+  "price": 150,
+  "image": "aace8839-c5df-4e23-bd9a-cdd930b27586.png",
+  "desc": "Rebanada de pastel con pan de zanahoria y nuez, relleno de betun de philadelphia y cubierto con el mismo.",
+  "file": "rebanada-zanahoria.jpg"
+ },
+ {
+  "cat": "REBANADAS",
+  "name": "Rebanada Cheesecake Fresa",
+  "price": 188,
+  "image": "c3e549cc-c52f-43d5-a047-e0a7d328c89a.png",
+  "desc": "Rebanada de cheesecake con una base de galleta, bañada con una compota de fresa y trozos de fresa.",
+  "file": "rebanada-cheesecake-fresa.jpg"
+ },
+ {
+  "cat": "CHEESECAKE",
+  "name": "Cheesecake Oreo",
+  "price": 1100,
+  "image": "337b846a-00fd-42be-94b5-1b41fdee54f4.png",
+  "desc": "Base de pan de chocolate, relleno de ganache de chocolate semi amargo, cheesecake con galleta oreo, capa de betun de philadelphia con galleta oreo, cubierto con ganache de chocolate semi amargo.",
+  "file": "cheesecake-oreo.jpg"
+ },
+ {
+  "cat": "CHEESECAKE",
+  "name": "Cheesecake lotus",
+  "price": 1063,
+  "image": "23d8b5c4-8470-4993-badf-940e0b7653e7.png",
+  "desc": "Base de pan pumpkin spice, relleno de betun de lotus con mantequilla, cheesecake con galleta lotus, cubierto con betun de philadelphia con lotus, coronado con galleta lotus.",
+  "file": "cheesecake-lotus.jpg"
+ },
+ {
+  "cat": "ROSCAS",
+  "name": "Rosca makesita",
+  "price": 342,
+  "image": "de633373-bc66-4251-9044-e8aee26b2861.jpeg",
+  "desc": "Rosca de chocolate rellena y bañada de ganache de chocolate kinder",
+  "file": "rosca-makesita.jpg"
+ },
+ {
+  "cat": "CUPCAKES",
+  "name": "Cupcake Zanahoria",
+  "price": 63,
+  "image": "9764b270-1103-44b0-a4e3-8e4922006db3.png",
+  "desc": "Cupcake de pan de zanahoria con nuez, decorado con betun de philadelphia y nuez molida.",
+  "file": "cupcake-zanahoria.jpg"
+ },
+ {
+  "cat": "CUPCAKES",
+  "name": "Cupcake Red Velvet",
+  "price": 63,
+  "image": "3f1c4129-bed4-47ab-bcc4-36cd6be2e9db.png",
+  "desc": "Cupcake de pan red velvet decorado con betun de philadelphia y coronado con tropiezos del mismo pan.",
+  "file": "cupcake-red-velvet.jpg"
+ },
+ {
+  "cat": "CUPCAKES",
+  "name": "Cupcake Lotus",
+  "price": 63,
+  "image": "c4387bd8-f3fe-451d-9603-1fb70c6ae0df.png",
+  "desc": "Cupcake de pan pumpkin spice coronado con crujiente crumble de nuez, decorado con betun de lotus y galleta lotus.",
+  "file": "cupcake-lotus.jpg"
+ },
+ {
+  "cat": "CUPCAKES",
+  "name": "Cupcake de platano",
+  "price": 63,
+  "image": "cc200a25-a881-4a9e-80b5-e4aa58b6014d.png",
+  "desc": "Cupcake de platano coronado con crujiente crumble de nuez.",
+  "file": "cupcake-de-platano.jpg"
+ },
+ {
+  "cat": "CUPCAKES",
+  "name": "Cupcake Alemán",
+  "price": 63,
+  "image": "5ad7f77f-57ce-42c8-8e01-5dcb071843d9.png",
+  "desc": "Cupcake de pan de chocolate, relleno de ganache de chocolate semi amargo, coronado con topping de coco y nuez.",
+  "file": "cupcake-aleman.jpg"
+ },
+ {
+  "cat": "TRENZAS",
+  "name": "Trenza Mini Nutella",
+  "price": 438,
+  "image": "87327d48-430a-4151-960a-1e8c7e3d6e9b.png",
+  "desc": "Trenza de hojaldre rellena de nutella con nuez, bañada con miel de abeja y decorada con mas nutella y nuez.",
+  "file": "trenza-mini-nutella.jpg"
+ },
+ {
+  "cat": "TARTAS",
+  "name": "Tarta de queso",
+  "price": 375,
+  "image": "fc5e9d88-1b26-49f1-b18d-df8928aca42d.jpeg",
+  "desc": "Tarta cremosa de queso elaborada con vaina de vainilla",
+  "file": "tarta-de-queso.jpg"
+ }
+]

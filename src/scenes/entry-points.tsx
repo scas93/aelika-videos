@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, random, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Img, random, staticFile, useCurrentFrame} from 'remotion';
 import {useBrand} from '../core/brand';
 import {BrandAvatar, HomeIndicator, StatusBar} from '../core/Phone';
 import {FONT, SCREEN_Y, PS, lerp, prog, rgba} from '../core/theme';
@@ -10,7 +10,7 @@ import {PhoneScene} from '../core/types';
  * Instagram, sitio web y QR alrededor del teléfono; cada una toca su botón de
  * WhatsApp y converge en el teléfono. Después sigue la escena de WhatsApp.
  */
-export type Channel = 'maps' | 'instagram' | 'facebook' | 'web' | 'qr';
+export type Channel = 'maps' | 'instagram' | 'igpost' | 'facebook' | 'web' | 'qr';
 
 export type EntryPointsData = {
   channels?: Channel[];
@@ -27,6 +27,9 @@ export type EntryPointsData = {
   time?: string;
   dateLabel?: string;
   subtitles?: [string, string];
+  /** foto y texto del post de Instagram (canal `igpost`) */
+  postImage?: string;
+  postCaption?: string;
   /** textos de las tarjetas (por defecto, los de un estudio) */
   copy?: {
     /** título grande del sitio web (por defecto, la primera palabra del nombre) */
@@ -117,6 +120,28 @@ const InstagramCard: React.FC<{d: EntryPointsData; pressed: boolean}> = ({d, pre
   </div>
 );
 
+const IgPostCard: React.FC<{d: EntryPointsData; pressed: boolean}> = ({d, pressed}) => (
+  <div style={{background: '#fff', color: '#111'}}>
+    <div style={{display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px'}}>
+      <BrandAvatar size={30} />
+      <div style={{lineHeight: 1.1}}>
+        <div style={{fontSize: 15, fontWeight: 700}}>{d.handle}</div>
+        <div style={{fontSize: 12, color: '#777'}}>Publicidad</div>
+      </div>
+    </div>
+    <div style={{height: 178, overflow: 'hidden'}}>{d.postImage && <Img src={staticFile(d.postImage)} style={{width: '100%', height: '100%', objectFit: 'cover'}} />}</div>
+    <div style={{height: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 12px', background: pressed ? '#d9f7e5' : '#f2f2f2', fontSize: 15.5, fontWeight: 700, color: '#0c8a3e', transform: pressed ? 'scale(.97)' : 'none'}}>
+      <span style={{display: 'flex', alignItems: 'center', gap: 7}}>
+        <WaIcon size={18} color={WA} /> Enviar mensaje de WhatsApp
+      </span>
+      <span>›</span>
+    </div>
+    <div style={{padding: '8px 12px 10px', fontSize: 14.5, lineHeight: 1.3}}>
+      <b>{d.handle}</b> {d.postCaption ?? '¡Haz tu pedido y pasa por él!'}
+    </div>
+  </div>
+);
+
 const FacebookCard: React.FC<{d: EntryPointsData; pressed: boolean}> = ({d, pressed}) => (
   <div style={{background: '#fff', color: '#050505', padding: '16px 14px 16px'}}>
     <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
@@ -194,9 +219,9 @@ const QrCard: React.FC<{scan: number; d: EntryPointsData}> = ({scan, d}) => {
   );
 };
 
-const LABELS: Record<Channel, string> = {maps: 'GOOGLE MAPS', instagram: 'INSTAGRAM', facebook: 'FACEBOOK', web: 'TU SITIO WEB', qr: 'QR EN TU ESTUDIO'};
+const LABELS: Record<Channel, string> = {maps: 'GOOGLE MAPS', instagram: 'INSTAGRAM', igpost: 'POST DE INSTAGRAM', facebook: 'FACEBOOK', web: 'TU SITIO WEB', qr: 'QR EN TU ESTUDIO'};
 // posición aprox. del botón de WhatsApp dentro de cada tarjeta (relativa a la tarjeta)
-const BTN: Record<Channel, {x: number; y: number}> = {maps: {x: 205, y: 209}, instagram: {x: 180, y: 114}, facebook: {x: 180, y: 114}, web: {x: 135, y: 189}, qr: {x: 137, y: 116}};
+const BTN: Record<Channel, {x: number; y: number}> = {maps: {x: 205, y: 209}, instagram: {x: 180, y: 114}, igpost: {x: 136, y: 262}, facebook: {x: 180, y: 114}, web: {x: 135, y: 189}, qr: {x: 137, y: 116}};
 
 const Overlay: React.FC<{d: EntryPointsData}> = ({d}) => {
   const f = useCurrentFrame();
@@ -237,6 +262,7 @@ const Overlay: React.FC<{d: EntryPointsData}> = ({d}) => {
               <div style={{borderRadius: 22, overflow: 'hidden', boxShadow: '0 18px 40px rgba(0,0,0,.18)'}}>
                 {c === 'maps' && <MapsCard d={d} pressed={pressed} />}
                 {c === 'instagram' && <InstagramCard d={d} pressed={pressed} />}
+                {c === 'igpost' && <IgPostCard d={d} pressed={pressed} />}
                 {c === 'facebook' && <FacebookCard d={d} pressed={pressed} />}
                 {c === 'web' && <WebCard d={d} pressed={pressed} />}
                 {c === 'qr' && <QrCard d={d} scan={prog(f, tap - 10, tap + 10)} />}

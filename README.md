@@ -158,3 +158,9 @@ Por ahora existen los storefronts de **citas**, **clases** y **pedidos de comida
 - **Pedidos por encargo**: producto → personalización → fecha → anticipo.
 
 Otros canales que todavía no existen: Facebook (página y Messenger) y post o reel de TikTok.
+
+### Novedades (Maké, 2026-11-24)
+
+- `pickupStorefront({now: {custom: {direct: true, days, slots, pickDay, pickSlot}}})`: el cliente elige día y hora directo, sin opciones rápidas.
+- `thermalPrinter({...})`: la comanda sale impresa en una impresora térmica (escena de ~5.5 s, capa sobre el lienzo).
+- `entryPoints` acepta el canal `igpost` (post de Instagram con botón "Enviar mensaje de WhatsApp"; `postImage`, `postCaption`).

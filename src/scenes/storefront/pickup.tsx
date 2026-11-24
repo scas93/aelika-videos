@@ -67,7 +67,7 @@ export type PickupData = {
     /** hora a la que pasa, p. ej. "10:55 a. m." */
     readyAt?: string;
     /** al tocar "Otra hora" (debe ser la opción `pickTime`): elige día y hora */
-    custom?: {days: string[]; pickDay: number; slots: string[]; pickSlot: number};
+    custom?: {days: string[]; pickDay: number; slots: string[]; pickSlot: number; /** sin opciones rápidas: el cliente elige día y hora directo */ direct?: boolean};
   };
   subtitles?: Partial<Record<'menu' | 'cart' | 'data' | 'schedule' | 'summary' | 'sent' | 'checkout' | 'pay' | 'applePay' | 'done', string>>;
 };
@@ -477,7 +477,7 @@ const ApplePaySheet: React.FC<{f: number; d: PickupData; N: NowTimes}> = ({f, d,
 
 const Checkout: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
   const N = nowT(d);
-  if (d.now!.times) return <CheckoutTimes f={f} d={d} />;
+  if (d.now!.times || d.now!.custom?.direct) return <CheckoutTimes f={f} d={d} />;
   const {colors} = useBrand();
   const lines = d.items.filter((i) => i.qty);
   const card = f >= N.tapCard;
@@ -546,8 +546,10 @@ const CheckoutTimes: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
   const timeOn = f >= N.tapTime!;
   const apple = f >= N.tapCard;
   const cu = now.custom;
-  const pick = cu ? prog(f, N.tapTime! + 4, N.tapTime! + 16) : 0;
-  const DY = cu ? 112 * pick : 0; // lo que baja todo al abrir el selector
+  const direct = !!cu?.direct;
+  const pick = direct ? 1 : cu ? prog(f, N.tapTime! + 4, N.tapTime! + 16) : 0;
+  const DY = direct ? 56 : cu ? 112 * pick : 0; // lo que baja todo al abrir el selector
+  const UP = direct ? 56 : 0; // con `direct` no hay fila de opciones rápidas
   const chip = (on: boolean) => ({borderRadius: 12, border: `${on ? 2 : 1}px solid ${on ? colors.dark : colors.line}`, background: on ? colors.dark : '#fff', color: on ? '#fff' : colors.dark, boxSizing: 'border-box' as const});
   const pays: [string, string, string][] = [
     ['🏪', 'En tienda', 'Al recoger'],
@@ -557,9 +559,9 @@ const CheckoutTimes: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
   return (
     <>
       <Header title="Tu pedido" />
-      <div style={{position: 'absolute', top: 112, left: 18, fontSize: 15, fontWeight: 700}}>¿Cuándo pasas por él?</div>
-      <div style={{position: 'absolute', top: 140, left: 16, display: 'flex', gap: 6}}>
-        {now.times!.map((t, i) => (
+      <div style={{position: 'absolute', top: 112, left: 18, fontSize: 15, fontWeight: 700}}>{direct ? '¿Qué día y a qué hora pasas?' : '¿Cuándo pasas por él?'}</div>
+      <div style={{position: 'absolute', top: 140, left: 16, display: direct ? 'none' : 'flex', gap: 6}}>
+        {(now.times ?? []).map((t, i) => (
           <div key={t} style={{...chip(timeOn && i === now.pickTime), width: TIME_W, height: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600}}>
             {t}
           </div>
@@ -567,14 +569,14 @@ const CheckoutTimes: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
       </div>
       {cu && pick > 0 && (
         <div style={{opacity: pick}}>
-          <div style={{position: 'absolute', top: 196, left: 16, display: 'flex', gap: 6}}>
+          <div style={{position: 'absolute', top: 196 - UP, left: 16, display: 'flex', gap: 6}}>
             {cu.days.map((x, i) => (
               <div key={x} style={{...chip(f >= N.tapDay! && i === cu.pickDay), width: TIME_W, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13.5, fontWeight: 600}}>
                 {x}
               </div>
             ))}
           </div>
-          <div style={{position: 'absolute', top: 250, left: 16, display: 'flex', gap: 6}}>
+          <div style={{position: 'absolute', top: 250 - UP, left: 16, display: 'flex', gap: 6}}>
             {cu.slots.map((x, i) => (
               <div key={x} style={{...chip(f >= N.tapSlot! && i === cu.pickSlot), width: TIME_W, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13.5, fontWeight: 600}}>
                 {x}
@@ -731,7 +733,7 @@ export const pickupStorefront = (d: PickupData): PhoneScene => {
   ];
   if (d.now) {
     const N = nowT(d);
-    const withTimes = !!d.now.times;
+    const withTimes = !!d.now.times || !!d.now.custom?.direct;
     const timeX = (i: number) => 16 + i * (TIME_W + 6) + TIME_W / 2;
     const common = [
       ...visibleTaps.filter((_, k) => !adds[addTapsList.indexOf(visibleTaps[k])].scrolled),
@@ -748,9 +750,9 @@ export const pickupStorefront = (d: PickupData): PhoneScene => {
       taps: (withTimes
         ? [
             ...common,
-            {f: N.tapTime!, x: timeX(d.now.pickTime ?? 0), y: 163},
-            ...(d.now.custom ? [{f: N.tapDay!, x: timeX(d.now.custom.pickDay), y: 218}, {f: N.tapSlot!, x: timeX(d.now.custom.pickSlot), y: 270}] : []),
-            {f: N.tapCard, x: 16 + 2 * (PAY_W + 8) + PAY_W / 2, y: 497 + (d.now.custom ? 112 - 26 : 0)},
+            ...(d.now.custom?.direct ? [] : [{f: N.tapTime!, x: timeX(d.now.pickTime ?? 0), y: 163}]),
+            ...(d.now.custom ? [{f: N.tapDay!, x: timeX(d.now.custom.pickDay), y: 218 - (d.now.custom.direct ? 56 : 0)}, {f: N.tapSlot!, x: timeX(d.now.custom.pickSlot), y: 270 - (d.now.custom.direct ? 56 : 0)}] : []),
+            {f: N.tapCard, x: 16 + 2 * (PAY_W + 8) + PAY_W / 2, y: 497 + (d.now.custom ? (d.now.custom.direct ? 56 : 112) - 26 : 0)},
             {f: N.tapApplePay, x: 195, y: 744},
           ]
         : [...common, {f: N.tapCard, x: 288, y: 508}, {f: N.tapApplePay, x: 195, y: 744}]
