@@ -68,8 +68,25 @@ export type PickupData = {
     readyAt?: string;
     /** al tocar "Otra hora" (debe ser la opción `pickTime`): elige día y hora */
     custom?: {days: string[]; pickDay: number; slots: string[]; pickSlot: number; /** sin opciones rápidas: el cliente elige día y hora directo */ direct?: boolean};
+    /**
+     * CHECKOUT FORMAL en pasos (Carrito › Tus datos › Recogida › Pago): una pantalla por decisión.
+     * Tiene prioridad sobre `times` y `custom`.
+     */
+    steps?: {
+      customer: {name: string; phone: string};
+      /** [día corto, número, cerrado?], p. ej. ['MIÉ', '25'] */
+      days: [string, string, boolean?][];
+      pickDay: number;
+      /** p. ej. "NOVIEMBRE" */
+      month: string;
+      /** horarios (3 columnas), p. ej. '9:00 a. m.' */
+      slots: string[];
+      pickSlot: number;
+      /** texto corto de la recogida, p. ej. "Mié 25 de nov · 10:00 a. m." */
+      pickupLabel: string;
+    };
   };
-  subtitles?: Partial<Record<'menu' | 'cart' | 'data' | 'schedule' | 'summary' | 'sent' | 'checkout' | 'pay' | 'applePay' | 'done', string>>;
+  subtitles?: Partial<Record<'menu' | 'cart' | 'data' | 'schedule' | 'pickup' | 'summary' | 'sent' | 'checkout' | 'pay' | 'applePay' | 'done', string>>;
 };
 
 // ------------------------------------------------------------------ tiempos (frames locales)
@@ -124,8 +141,26 @@ export const PICKUP_NOW_CUSTOM_T = {
   payOk: 574,
   done: [640, 760],
 } as const;
+/** tiempos del checkout formal en pasos */
+export const PICKUP_STEPS_T = {
+  data: [300, 420],
+  typeName: [318, 340],
+  typePhone: [350, 374],
+  tapData: 396,
+  pickup: [420, 570],
+  tapDay: 454,
+  tapSlot: 494,
+  tapPickup: 544,
+  pay: [570, 760],
+  checkout: [300, 760],
+  tapCard: 622,
+  tapApplePay: 664,
+  paySheet: 672,
+  payOk: 726,
+  done: [760, 880],
+} as const;
 type NowTimes = {checkout: readonly number[]; tapCard: number; tapApplePay: number; paySheet: number; payOk: number; done: readonly number[]; tapTime?: number; tapDay?: number; tapSlot?: number};
-const nowT = (d: PickupData): NowTimes => (d.now?.custom ? PICKUP_NOW_CUSTOM_T : d.now?.times ? PICKUP_NOW_TIMES_T : PICKUP_NOW_T);
+const nowT = (d: PickupData): NowTimes => (d.now?.steps ? PICKUP_STEPS_T : d.now?.custom ? PICKUP_NOW_CUSTOM_T : d.now?.times ? PICKUP_NOW_TIMES_T : PICKUP_NOW_T);
 
 const GRID_TOP = 268;
 const CARD_W = 171;
@@ -630,6 +665,173 @@ const CheckoutTimes: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
   );
 };
 
+// ------------------------------------------------------------------ checkout formal en pasos
+const ST = PICKUP_STEPS_T;
+const STEP_NAMES = ['Carrito', 'Tus datos', 'Recogida', 'Pago'];
+const Stepper: React.FC<{step: number}> = ({step}) => {
+  const {colors} = useBrand();
+  return (
+    <div style={{position: 'absolute', top: 108, left: 16, right: 16, display: 'flex', gap: 6}}>
+      {STEP_NAMES.map((n, i) => (
+        <div key={n} style={{flex: 1}}>
+          <div style={{height: 4, borderRadius: 2, background: i <= step ? colors.dark : '#dcdce0'}} />
+          <div style={{marginTop: 6, fontSize: 11.5, fontWeight: i === step ? 700 : 500, color: i <= step ? colors.dark : '#9a9aa0'}}>
+            {i < step ? '✓ ' : ''}
+            {n}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const StepData: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
+  const c = d.now!.steps!.customer;
+  const name = typed(c.name, f, ST.typeName[0], ST.typeName[1]);
+  const phone = typed(c.phone, f, ST.typePhone[0], ST.typePhone[1]);
+  return (
+    <>
+      <Header title="Tus datos" />
+      <Stepper step={1} />
+      <Input label="Nombre" top={160} value={name} placeholder="Tu nombre" focus={f >= ST.typeName[0] - 6 && f < ST.typePhone[0] - 4} f={f} />
+      <Input label="WhatsApp" top={246} value={phone} placeholder="10 dígitos" focus={f >= ST.typePhone[0] - 4 && f < ST.tapData} f={f} />
+      <div style={{position: 'absolute', top: 334, left: 18, right: 18, fontSize: 13, color: '#8a8a8a'}}>Te mandaremos la confirmación y los avisos de tu pedido por WhatsApp.</div>
+      <BlackBtn label="Continuar" disabled={phone.length < c.phone.length} pressed={f >= ST.tapData && f < ST.tapData + 8} />
+    </>
+  );
+};
+
+const SLOT_W = (SW - 32 - 16) / 3;
+const stepSlotXY = (i: number) => ({x: 16 + (i % 3) * (SLOT_W + 8) + SLOT_W / 2, y: 330 + Math.floor(i / 3) * 54 + 23});
+const stepDayXY = (i: number) => ({x: 16 + i * 70 + 31, y: 204 + 37});
+
+const StepPickup: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
+  const {colors} = useBrand();
+  const st = d.now!.steps!;
+  const dayOn = f >= ST.tapDay;
+  const slotOn = f >= ST.tapSlot;
+  const slotsIn = prog(f, ST.tapDay + 2, ST.tapDay + 14);
+  return (
+    <>
+      <Header title="Recogida" />
+      <Stepper step={2} />
+      <div style={{position: 'absolute', top: 160, left: 18, fontSize: 17, fontWeight: 700}}>¿Cuándo pasas por tu pedido?</div>
+      <div style={{position: 'absolute', top: 186, left: 18, fontSize: 11.5, fontWeight: 700, letterSpacing: 1.2, color: colors.muted}}>{st.month}</div>
+      {st.days.map(([w, n, closed], i) => {
+        const on = dayOn && i === st.pickDay;
+        return (
+          <div key={w + n} style={{position: 'absolute', top: 204, left: 16 + i * 70, width: 62, height: 74, borderRadius: 16, background: on ? colors.dark : closed ? 'transparent' : '#fff', color: on ? '#fff' : closed ? '#b9b9be' : colors.dark, border: `1px solid ${on ? colors.dark : closed ? '#e2e2e6' : colors.line}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box'}}>
+            <div style={{fontSize: 11, fontWeight: 600, opacity: 0.75}}>{i === 0 ? 'MAÑANA' : w}</div>
+            <div style={{fontSize: 22, fontWeight: 700, marginTop: 1, textDecoration: closed ? 'line-through' : 'none'}}>{n}</div>
+            {closed && <div style={{fontSize: 9.5, fontWeight: 600}}>Cerrado</div>}
+          </div>
+        );
+      })}
+      <div style={{position: 'absolute', top: 298, left: 18, fontSize: 14, fontWeight: 700, opacity: dayOn ? 1 : 0.4}}>Horarios disponibles</div>
+      {st.slots.map((t, i) => {
+        const on = slotOn && i === st.pickSlot;
+        const xy = stepSlotXY(i);
+        return (
+          <div key={t} style={{position: 'absolute', top: xy.y - 23, left: xy.x - SLOT_W / 2, width: SLOT_W, height: 46, borderRadius: 12, background: on ? colors.dark : '#fff', color: on ? '#fff' : colors.dark, border: `1px solid ${on ? colors.dark : colors.line}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14.5, fontWeight: 600, boxSizing: 'border-box', opacity: dayOn ? 0.25 + 0.75 * slotsIn : 0.25}}>
+            {t}
+          </div>
+        );
+      })}
+      <div style={{position: 'absolute', top: 504, left: 16, right: 16, borderRadius: 14, background: '#fff', border: `1px solid ${colors.line}`, padding: 10, display: 'flex', gap: 12, alignItems: 'center'}}>
+        <svg width="60" height="60" viewBox="0 0 60 60" style={{borderRadius: 10, flexShrink: 0}}>
+          <rect width="60" height="60" fill="#eef0e9" />
+          <path d="M0 38 L60 22 M18 0 L30 60 M44 0 L38 60" stroke="#fff" strokeWidth="6" />
+          <path d="M0 38 L60 22" stroke="#fbd96a" strokeWidth="3" />
+          <path d="M30 14c-6 0-10 4.5-10 10 0 7.5 10 18 10 18s10-10.5 10-18c0-5.5-4-10-10-10z" fill="#ea4335" />
+          <circle cx="30" cy="24" r="3.5" fill="#fff" />
+        </svg>
+        <div style={{fontSize: 13.5, lineHeight: 1.35}}>
+          <div style={{fontWeight: 700}}>Recoges en {d.title}</div>
+          <div style={{color: '#6b6b70'}}>{d.now!.address}</div>
+        </div>
+      </div>
+      <div style={{position: 'absolute', top: 664, left: 0, right: 0, textAlign: 'center', fontSize: 14, fontWeight: 700, color: slotOn ? '#1f8a4c' : '#9a9aa0'}}>{slotOn ? `📅 ${st.pickupLabel}` : 'Elige día y horario'}</div>
+      <BlackBtn label="Continuar al pago" disabled={!slotOn} pressed={f >= ST.tapPickup && f < ST.tapPickup + 8} />
+    </>
+  );
+};
+
+const PAY_ROW_TOP = 446;
+const StepPay: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
+  const {colors} = useBrand();
+  const st = d.now!.steps!;
+  const lines = d.items.filter((i) => i.qty);
+  const apple = f >= ST.tapCard;
+  const row = (label: string, value: React.ReactNode, link?: string) => (
+    <div style={{display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, padding: '3px 0'}}>
+      <span style={{color: '#6b6b70', width: 84, flexShrink: 0}}>{label}</span>
+      <span style={{flex: 1, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: 13}}>{value}</span>
+      {link && <span style={{color: '#0a84ff', fontWeight: 600, fontSize: 13}}>{link}</span>}
+    </div>
+  );
+  const methods: [string, string][] = [
+    ['🏪', 'Pagar en tienda'],
+    ['💳', 'Tarjeta'],
+    ['', 'Apple Pay'],
+  ];
+  return (
+    <>
+      <Header title="Pago" />
+      <Stepper step={3} />
+      <div style={{position: 'absolute', top: 156, left: 16, right: 16, borderRadius: 16, background: '#fff', border: `1px solid ${colors.line}`, padding: '12px 14px'}}>
+        <div style={{fontSize: 12, fontWeight: 700, letterSpacing: 0.8, color: colors.muted, marginBottom: 6}}>RESUMEN DEL PEDIDO</div>
+        {lines.map((it) => (
+          <div key={it.name} style={{display: 'flex', justifyContent: 'space-between', fontSize: 14, padding: '2px 0'}}>
+            <span>
+              {it.qty}× {it.name}
+            </span>
+            <span>{money(it.qty! * it.price)}</span>
+          </div>
+        ))}
+        <div style={{height: 1, background: colors.line, margin: '8px 0'}} />
+        <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 16.5, fontWeight: 700}}>
+          <span>Total</span>
+          <span>{money(total(d))}</span>
+        </div>
+        <div style={{height: 1, background: colors.line, margin: '8px 0'}} />
+        {row('Recoger', st.pickupLabel, 'Cambiar')}
+        {row('A nombre de', `${st.customer.name} · ${st.customer.phone}`)}
+      </div>
+      <div style={{position: 'absolute', top: PAY_ROW_TOP - 28, left: 18, fontSize: 15, fontWeight: 700}}>Método de pago</div>
+      {methods.map(([icon, t], i) => {
+        const on = i === 2 ? apple : i === 0 && !apple;
+        return (
+          <div key={t} style={{position: 'absolute', top: PAY_ROW_TOP + i * 58, left: 16, right: 16, height: 50, borderRadius: 12, background: '#fff', border: `${on ? 2 : 1}px solid ${on ? colors.dark : colors.line}`, display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px', boxSizing: 'border-box', fontSize: 15, fontWeight: on ? 700 : 500, transform: i === 2 && f >= ST.tapCard && f < ST.tapCard + 6 ? 'scale(.97)' : 'none'}}>
+            <div style={{width: 18, height: 18, borderRadius: '50%', border: `1.5px solid ${on ? colors.dark : '#a0a0a6'}`, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{on && <div style={{width: 9, height: 9, borderRadius: '50%', background: colors.dark}} />}</div>
+            <span style={{fontSize: 17, width: 22}}>{icon}</span>
+            <span style={{flex: 1}}>{t}</span>
+            {i === 1 && (
+              <span style={{display: 'flex', gap: 4}}>
+                {['VISA', 'MC', 'AMEX'].map((b) => (
+                  <span key={b} style={{fontSize: 9.5, fontWeight: 800, padding: '3px 5px', borderRadius: 3, border: '1px solid #d9d9de', color: b === 'AMEX' ? '#fff' : '#1a1f71', background: b === 'AMEX' ? '#2e77bb' : '#fff'}}>
+                    {b}
+                  </span>
+                ))}
+              </span>
+            )}
+            {i === 2 && <span style={{fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 5, background: '#000', color: '#fff'}}>Apple Pay</span>}
+          </div>
+        );
+      })}
+      <div style={{position: 'absolute', left: 16, right: 16, top: 718, height: 52, borderRadius: 14, background: apple ? '#000' : colors.dark, color: '#fff', fontSize: 16.5, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transform: f >= ST.tapApplePay && f < ST.tapApplePay + 8 ? 'scale(.97)' : 'none'}}>
+        {apple ? (
+          <>
+            Pagar con <b style={{fontWeight: 700}}>Apple Pay</b> · {money(total(d))}
+          </>
+        ) : (
+          `Pagar ${money(total(d))}`
+        )}
+      </div>
+      <ApplePaySheet f={f} d={d} N={PICKUP_STEPS_T} />
+    </>
+  );
+};
+
 const NowDone: React.FC<{f: number; d: PickupData}> = ({f, d}) => {
   const {colors} = useBrand();
   const N = nowT(d);
@@ -679,7 +881,14 @@ const PickupScreen: React.FC<{d: PickupData}> = ({d}) => {
         </>
       ),
     },
-    ...(d.now
+    ...(d.now?.steps
+      ? [
+          {a: ST.data[0], b: ST.data[1], render: () => <StepData f={f} d={d} />},
+          {a: ST.pickup[0], b: ST.pickup[1], render: () => <StepPickup f={f} d={d} />},
+          {a: ST.pay[0], b: ST.pay[1], render: () => <StepPay f={f} d={d} />},
+          {a: ST.done[0], b: ST.done[1] + 20, render: () => <NowDone f={f} d={d} />},
+        ]
+      : d.now
       ? [
           {a: N.checkout[0], b: N.checkout[1], render: () => <Checkout f={f} d={d} />},
           {a: N.done[0], b: N.done[1] + 20, render: () => <NowDone f={f} d={d} />},
@@ -731,6 +940,41 @@ export const pickupStorefront = (d: PickupData): PhoneScene => {
     {a: T.tapDay - 10, b: T.tapContinue3 - 6, x: 195, y: 360, s: 1.3},
     {a: T.summary[0] + 20, b: T.tapSend - 4, x: 195, y: 380, s: 1.25},
   ];
+  if (d.now?.steps) {
+    const st = d.now.steps;
+    return {
+      id: 'storefront-recoger-pasos',
+      duration: ST.done[1],
+      enter: 'up',
+      Component: () => <PickupScreen d={d} />,
+      taps: [
+        ...visibleTaps.filter((_, k) => !adds[addTapsList.indexOf(visibleTaps[k])].scrolled),
+        {f: T.scrollAt, x: 200, y: 640, to: {x: 200, y: 640 - SCROLL, d: 18}},
+        ...visibleTaps.filter((_, k) => adds[addTapsList.indexOf(visibleTaps[k])].scrolled),
+        {f: T.tapCart, x: 195, y: BAR_Y + 25},
+        {f: T.tapContinue1, x: 195, y: 844 - 72 - 18 - 26},
+        {f: ST.typeName[0] - 6, x: 195, y: 160 + 24 + 25},
+        {f: ST.typePhone[0] - 4, x: 195, y: 246 + 24 + 25},
+        {f: ST.tapData, x: 195, y: 744},
+        {f: ST.tapDay, ...stepDayXY(st.pickDay)},
+        {f: ST.tapSlot, ...stepSlotXY(st.pickSlot)},
+        {f: ST.tapPickup, x: 195, y: 744},
+        {f: ST.tapCard, x: 195, y: PAY_ROW_TOP + 2 * 58 + 25},
+        {f: ST.tapApplePay, x: 195, y: 744},
+      ].sort((a, b) => a.f - b.f),
+      zooms: [zooms[0], {a: ST.tapDay - 12, b: ST.tapSlot + 34, x: 195, y: 300, s: 1.25}, {a: ST.pay[0] + 16, b: ST.tapCard - 4, x: 195, y: 260, s: 1.22}],
+      marks: {menu: T.menu[0], add: adds[0].f, cart: T.cart[0], data: ST.data[0], pickup: ST.pickup[0], checkout: ST.pickup[0], day: ST.tapDay, slot: ST.tapSlot, pay: ST.pay[0], card: ST.tapCard, applePay: ST.tapApplePay, paid: ST.payOk, done: ST.done[0]},
+      subtitles: [
+        {at: T.menu[0], text: sub.menu ?? 'Tu menú en línea, con tus productos y precios.'},
+        {at: T.cart[0], text: sub.cart ?? 'Revisan su pedido.'},
+        {at: ST.data[0], text: sub.data ?? 'Dejan su nombre y su WhatsApp.'},
+        {at: ST.pickup[0], text: sub.pickup ?? 'Eligen qué día y a qué hora pasan.'},
+        {at: ST.pay[0], text: sub.pay ?? 'Pagan en tienda, con tarjeta o con Apple Pay.'},
+        {at: ST.tapApplePay - 4, text: sub.applePay ?? 'Con Apple Pay, en un toque.'},
+        {at: ST.done[0], text: sub.done ?? 'Pedido confirmado y pagado.'},
+      ],
+    };
+  }
   if (d.now) {
     const N = nowT(d);
     const withTimes = !!d.now.times || !!d.now.custom?.direct;

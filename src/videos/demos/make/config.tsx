@@ -37,7 +37,7 @@ const items = [
 ];
 const pedidas = items.filter((i) => i.qty).map((i) => ({qty: i.qty!, name: i.name, price: i.price, photo: i.photo}));
 const total = pedidas.reduce((a, i) => a + i.qty * i.price, 0); // $433
-const avisoNuevo = `🔔 *Nuevo pedido #1042* de Andrea L.\nPasa a recogerlo el *${PASA}*\n💳 Pagado con Apple Pay: $${total}.00`;
+const avisoNuevo = `🔔 *Nuevo pedido #1042* de Santiago C.\nPasa a recogerlo el *${PASA}*\n💳 Pagado con Apple Pay: $${total}.00`;
 
 export const make: VideoConfig = {
   id: 'Make',
@@ -128,14 +128,24 @@ export const make: VideoConfig = {
       now: {
         ready: '',
         address: DIRECCION,
-        custom: {direct: true, days: ['Mañana', 'Jue 26', 'Vie 27', 'Sáb 28', 'Lun 30'], pickDay: 0, slots: ['9 am', '10 am', '11 am', '12 pm', '1 pm'], pickSlot: 1},
+        // Checkout formal: Carrito › Tus datos › Recogida › Pago (datos de Santiago, a petición del usuario)
+        steps: {
+          customer: {name: 'Santiago Castro', phone: '33 3100 6915'},
+          month: 'NOVIEMBRE',
+          days: [['MIÉ', '25'], ['JUE', '26'], ['VIE', '27'], ['SÁB', '28'], ['DOM', '29', true]],
+          pickDay: 0,
+          slots: ['9:00 a. m.', '10:00 a. m.', '11:00 a. m.', '12:00 p. m.', '1:00 p. m.', '2:00 p. m.', '3:00 p. m.', '4:00 p. m.', '5:00 p. m.'],
+          pickSlot: 1,
+          pickupLabel: 'Mié 25 de nov · 10:00 a. m.',
+        },
         readyAt: PASA,
         banner: `Pedido #1042 confirmado ✅ Pasa por él el ${PASA}. ¡Te esperamos! 🍰`,
       },
       subtitles: {
         menu: 'Arman su pedido en tu menú en línea.',
         cart: 'Revisan lo que van a llevar.',
-        checkout: 'Eligen qué día y a qué hora pasan.',
+        data: 'Dejan su nombre y su WhatsApp.',
+        pickup: 'Eligen qué día y a qué hora pasan.',
         pay: 'Pagan en tienda, con tarjeta o con Apple Pay.',
         applePay: 'Con Apple Pay, en un toque.',
         done: 'Y les llega la confirmación por WhatsApp.',
@@ -162,7 +172,7 @@ export const make: VideoConfig = {
         {number: '#1040', customer: 'Luis R.', items: 2, time: '9:48', status: 'prep'},
         {number: '#1039', customer: 'Paola G.', items: 1, time: '9:30', status: 'ready'},
       ],
-      order: {number: '#1042', customer: 'Andrea L.', time: '10:15', delivery: 'Para recoger · mañana', readyLabel: 'Pasa', ready: 'Mié 25 · 10:00', lines: pedidas, payment: 'Apple Pay'},
+      order: {number: '#1042', customer: 'Santiago C.', time: '10:15', delivery: 'Para recoger · mañana', readyLabel: 'Pasa', ready: 'Mié 25 · 10:00', lines: pedidas, payment: 'Apple Pay'},
       subtitles: {open: '…en una tablet con la app de Aelika…', arrive: '…cada pedido llega con aviso…', detail: '…ya pagado y con su hora.'},
     }),
 
@@ -170,7 +180,7 @@ export const make: VideoConfig = {
     thermalPrinter({
       store: 'Maké Repostería',
       orderNumber: '#1042',
-      customer: 'Andrea L.',
+      customer: 'Santiago C.',
       pickupAt: 'Mié 25 · 10:00 a. m.',
       items: [
         {qty: 1, name: 'Crookie Nutella'},
@@ -207,8 +217,8 @@ export const make: VideoConfig = {
       {src: 'narracion/make/02.mp3', anchor: {scene: 0, mark: 'cards'}, offset: 0.4},
       {src: 'narracion/make/03.mp3', anchor: {scene: 1, mark: 'turn1'}, offset: 0},
       {src: 'narracion/make/04.mp3', anchor: {scene: 2, mark: 'menu'}, offset: 0.8},
-      {src: 'narracion/make/05.mp3', anchor: {scene: 2, mark: 'checkout'}, offset: 0},
-      {src: 'narracion/make/06.mp3', anchor: {scene: 2, mark: 'card'}, offset: -0.3},
+      {src: 'narracion/make/05.mp3', anchor: {scene: 2, mark: 'data'}, offset: 0.3},
+      {src: 'narracion/make/06.mp3', anchor: {scene: 2, mark: 'pay'}, offset: 0.3},
       {src: 'narracion/make/07.mp3', anchor: {scene: 2, mark: 'done'}, offset: 0.3},
       {src: 'narracion/make/08.mp3', anchor: {scene: 3, mark: 'turn0'}, offset: 0.3},
       {src: 'narracion/make/09.mp3', anchor: {scene: 4, mark: 'open'}, offset: 0.3},
