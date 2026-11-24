@@ -2,7 +2,7 @@
 
 - **Tipo:** demos · **variante:** personalizada (repostería) · **Id:** `Make` · **fecha:** 2026-11-24
 - **Base:** `cafe-aurora-recoger` (+ `entryPoints`, `thermalPrinter` nueva)
-- **Estado:** en revisión con el usuario
+- **Estado:** ✅ Terminado (2026-11-24). Final: `npm run render -- Make` → `out/Make.mp4`.
 - **Duración:** ~80 s · voz Eric (1.1×) · música *Sunset Groove* · intro de 214 frames para que quepa la primera frase
 
 ## Mensaje
